@@ -1,0 +1,25 @@
+﻿@model ActivateUserViewModel
+@{
+    ViewData["Title"] = "Activar usuario";
+}
+
+<div class="col-12 col-md-6 offset-md-3 ">
+    <div class="card">
+        <div class="card-header bg-success text-light">
+            <h4 class="text-center">
+                estas seguro que quieres desactivar el usuario -
+                @Model.UserName?
+            </h4>
+        </div>
+        <div class="card-body">
+            <form asp-controller="MaintenanceUser" asp-action="Activate" method="POST">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success me-2"><i class="bi bi-trash"></i>Activar</button>
+                    <a asp-controller="MaintenanceUser" asp-action="Index" class="btn btn-outline-warning float-end me-2"><i class="bi bi-arrow-left-short"></i>Volver atrás</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

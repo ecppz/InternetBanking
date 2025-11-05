@@ -1,0 +1,84 @@
+﻿@model List<UserViewModel>
+
+@{
+    ViewData["Title"] = "Usuarios";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="text-center">
+        <h1 class="display-4">Ciudadanos</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 col-md-3">
+        <a class="btn btn-outline-success" asp-controller="MaintenanceUser" asp-action="Create">
+            <i class="bi bi-person-plus"></i> Nuevo usuario
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center">
+            <h5 class="display-5">No hay usuarios registrados</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Cédula</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th style="width: 220px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.LastName</td>
+                            <td>@item.DocumentNumber</td>
+                            <td>@item.Email</td>
+                            <td class="text-center">
+                                @* @if (item.State)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactivo</span>
+                                } *@
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-outline-warning btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Edit" asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                @* @if (item.State)
+                                {
+                                    <a class="btn btn-outline-secondary btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Deactivate" asp-route-id="@item.Id">
+                                        <i class="bi bi-x-circle"></i> Desactivar
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-outline-success btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Activate" asp-route-id="@item.Id">
+                                        <i class="bi bi-check-circle"></i> Activar
+                                    </a>
+                                } *@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

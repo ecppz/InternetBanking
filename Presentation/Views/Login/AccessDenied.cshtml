@@ -1,0 +1,37 @@
+﻿@using Domain.Common.Enums
+
+@{
+    ViewData["Title"] = "Access denied";
+    Layout = "_LayoutAnonymous";
+
+    string Role = "Home";
+
+    if (!string.IsNullOrWhiteSpace(ViewBag.CurrentRol))
+    {
+        if (ViewBag.CurrentRol == Roles.Customer.ToString())
+        {
+            Layout = "_LayoutCustomer";
+            Role = "CustomerHome";
+        }
+        else if (ViewBag.CurrentRol == Roles.Cashier.ToString())
+        {
+            Layout = "_LayoutCashier";
+            Role = "CashierHome";
+        }
+        else if (ViewBag.CurrentRol == Roles.Admin.ToString())
+        {
+            Layout = "_LayoutAdmin";
+            Role = "Home";
+        }
+    }
+}
+
+<div class="text-center">
+    <h1 class="display-4">Access denied</h1>
+    <p>
+        No tienes permisos para acceder a esta sección —
+        <a asp-controller="@Role" asp-action="Index">
+            <i class="bi bi-house-door"></i> Home
+        </a>
+    </p>
+</div>
