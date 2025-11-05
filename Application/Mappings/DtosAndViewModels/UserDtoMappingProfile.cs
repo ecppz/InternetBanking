@@ -10,28 +10,20 @@ namespace Application.Mappings.DtosAndViewModels
            
             CreateMap<UserDto, UserViewModel>()             
                 .ReverseMap();
-        
-            CreateMap<UserDto, UpdateUserViewModel>()          
+
+            CreateMap<UserDto, UpdateUserViewModel>()
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
                 .ForMember(dest => dest.ConfirmPassword, opt => opt.Ignore())
-                .ForMember(dest => dest.ProfileImageFile, opt => opt.Ignore())
-                .ReverseMap()             
-                .ForMember(dest => dest.ProfileImage, opt => opt.Ignore());
+                .ReverseMap();
 
             CreateMap<SaveUserDto, UpdateUserViewModel>()
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
                 .ForMember(dest => dest.ConfirmPassword, opt => opt.Ignore())
-                .ForMember(dest => dest.ProfileImageFile, opt => opt.Ignore())
-                .ReverseMap()      
-                .ForMember(dest => dest.ProfileImage, opt => opt.Ignore());
-
-            CreateMap<SaveUserDto, RegisterUserViewModel>()                
-                .ForMember(dest => dest.ProfileImageFile, opt => opt.Ignore())
-                .ReverseMap()                               
-                .ForMember(dest => dest.ProfileImage, opt => opt.Ignore());
-
-            CreateMap<LoginDto, LoginViewModel>()
                 .ReverseMap();
+
+            CreateMap<SaveUserDto, SaveUserViewModel>().ReverseMap();                         
+
+            CreateMap<LoginDto, LoginViewModel>().ReverseMap();
         }
     }
 }

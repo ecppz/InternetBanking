@@ -26,11 +26,12 @@ namespace Infrastructure.Identity.Services
         {
             LoginResponseDto response = new()
             {
-                Email = "",
                 Id = "",
                 LastName = "",
                 Name = "",
                 UserName = "",
+                Email = "",
+                DocumentNumber = "",
                 HasError = false,
                 Errors = []
             };
@@ -74,10 +75,11 @@ namespace Infrastructure.Identity.Services
             var rolesList = await userManager.GetRolesAsync(user);
 
             response.Id = user.Id;
-            response.Email = user.Email ?? "";
-            response.UserName = user.UserName ?? "";
             response.Name = user.Name;
             response.LastName = user.LastName;
+            response.UserName = user.UserName ?? "";
+            response.Email = user.Email ?? "";
+            response.DocumentNumber = user.DocumentNumber;
             response.IsVerified = user.EmailConfirmed;
             response.Roles = rolesList.ToList();
 
@@ -87,15 +89,16 @@ namespace Infrastructure.Identity.Services
         {
             await signInManager.SignOutAsync();
         }
-        public async Task<RegisterResponseDto> RegisterUser(SaveUserDto saveDto, string origin)
+        public async Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin)
         {
-            RegisterResponseDto response = new()
+            SaveUserResponseDto response = new()
             {
-                Email = "",
                 Id = "",
-                LastName = "",
                 Name = "",
+                LastName = "",
                 UserName = "",
+                Email = "",
+                DocumentNumber = "",
                 HasError = false,
                 Errors = []
             };
@@ -120,17 +123,16 @@ namespace Infrastructure.Identity.Services
             {
                 Name = saveDto.Name,
                 LastName = saveDto.LastName,
-                Email = saveDto.Email,
                 UserName = saveDto.UserName,
-                ProfileImage = saveDto.ProfileImage,
+                Email = saveDto.Email,
+                DocumentNumber = saveDto.DocumentNumber,
                 EmailConfirmed = false,
-                PhoneNumber = saveDto.Phone
             };
 
             var result = await userManager.CreateAsync(user, saveDto.Password);
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, Roles.User.ToString());
+                await userManager.AddToRoleAsync(user, Roles.Customer.ToString());
                 string verificationUri = await GetVerificationEmailUri(user, origin);
                 await emailService.SendAsync(new EmailRequestDto()
                 {
@@ -142,10 +144,11 @@ namespace Infrastructure.Identity.Services
                 var rolesList = await userManager.GetRolesAsync(user);
 
                 response.Id = user.Id;
-                response.Email = user.Email ?? "";
-                response.UserName = user.UserName ?? "";
                 response.Name = user.Name;
                 response.LastName = user.LastName;
+                response.UserName = user.UserName ?? "";
+                response.Email = user.Email ?? "";
+                response.DocumentNumber = user.DocumentNumber;
                 response.IsVerified = user.EmailConfirmed;
                 response.Roles = rolesList.ToList();
 
@@ -163,11 +166,12 @@ namespace Infrastructure.Identity.Services
             bool isNotcreated = !isCreated ?? false;
             EditResponseDto response = new()
             {
-                Email = "",
                 Id = "",
-                LastName = "",
                 Name = "",
+                LastName = "",
                 UserName = "",
+                Email = "",
+                DocumentNumber = "",
                 HasError = false,
                 Errors = []
             };
@@ -200,10 +204,9 @@ namespace Infrastructure.Identity.Services
             user.Name = saveDto.Name;
             user.LastName = saveDto.LastName;
             user.UserName = saveDto.UserName;
-            user.ProfileImage = string.IsNullOrWhiteSpace(saveDto.ProfileImage) ? user.ProfileImage : saveDto.ProfileImage;
             user.EmailConfirmed = user.EmailConfirmed && user.Email == saveDto.Email;
             user.Email = saveDto.Email;
-            user.PhoneNumber = saveDto.Phone;
+            user.DocumentNumber = saveDto.DocumentNumber;
 
             if (!string.IsNullOrWhiteSpace(saveDto.Password) && isNotcreated)
             {
@@ -223,7 +226,7 @@ namespace Infrastructure.Identity.Services
             {
                 var rolesList = await userManager.GetRolesAsync(user);
                 await userManager.RemoveFromRolesAsync(user, rolesList.ToList());
-                await userManager.AddToRoleAsync(user, Roles.User.ToString());
+                await userManager.AddToRoleAsync(user, Roles.Customer.ToString());
 
                 if (!user.EmailConfirmed && isNotcreated)
                 {
@@ -231,7 +234,7 @@ namespace Infrastructure.Identity.Services
                     await emailService.SendAsync(new EmailRequestDto()
                     {
                         To = saveDto.Email,
-                        HtmlBody = $"Porfavor confirma tu cuenta visitando esta URL <a href='{verificationUri}'> Clic aqui </a>",
+                        HtmlBody = $"Por favor confirma tu cuenta visitando esta URL <a href='{verificationUri}'> Clic aqui </a>",
                         Subject = "Confirmar registro"
                     });
                 }
@@ -239,10 +242,11 @@ namespace Infrastructure.Identity.Services
                 var updatedRolesList = await userManager.GetRolesAsync(user);
 
                 response.Id = user.Id;
-                response.Email = user.Email ?? "";
-                response.UserName = user.UserName ?? "";
                 response.Name = user.Name;
                 response.LastName = user.LastName;
+                response.UserName = user.UserName ?? "";
+                response.Email = user.Email ?? "";
+                response.DocumentNumber = user.DocumentNumber;
                 response.IsVerified = user.EmailConfirmed;
                 response.Roles = updatedRolesList.ToList();
 
@@ -325,12 +329,11 @@ namespace Infrastructure.Identity.Services
             var userDto = new UserDto()
             {
                 Id = user.Id,
-                Email = user.Email ?? "",
-                LastName = user.LastName,
                 Name = user.Name,
+                LastName = user.LastName,
                 UserName = user.UserName ?? "",
-                ProfileImage = user.ProfileImage,
-                Phone = user.PhoneNumber,
+                Email = user.Email ?? "",
+                DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
@@ -351,12 +354,11 @@ namespace Infrastructure.Identity.Services
             var userDto = new UserDto()
             {
                 Id = user.Id,
-                Email = user.Email ?? "",
-                LastName = user.LastName,
                 Name = user.Name,
+                LastName = user.LastName,
                 UserName = user.UserName ?? "",
-                ProfileImage = user.ProfileImage,
-                Phone = user.PhoneNumber,
+                Email = user.Email ?? "",
+                DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
@@ -379,12 +381,11 @@ namespace Infrastructure.Identity.Services
                 result.Add(new UserDto
                 {
                     Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    UserName = user.UserName ?? string.Empty,
                     Name = user.Name ?? string.Empty,
                     LastName = user.LastName,
-                    Phone = user.PhoneNumber,
-                    ProfileImage = user.ProfileImage,
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    DocumentNumber = user.DocumentNumber,
                     isVerified = user.EmailConfirmed,
                     Role = role
                 });
@@ -408,12 +409,11 @@ namespace Infrastructure.Identity.Services
             var userDto = new UserDto()
             {
                 Id = user.Id,
-                Email = user.Email ?? "",
-                LastName = user.LastName,
                 Name = user.Name,
+                LastName = user.LastName,
                 UserName = user.UserName ?? "",
-                ProfileImage = user.ProfileImage,
-                Phone = user.PhoneNumber,
+                Email = user.Email ?? "",
+                DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
@@ -422,11 +422,10 @@ namespace Infrastructure.Identity.Services
         }
         public async Task<List<UserDto>> GetAllUser(bool? isActive = true)
         {
-            List<UserDto> listUsersDtos = [];
-
+            var listUsersDtos = new List<UserDto>();
             var users = userManager.Users;
 
-            if (isActive != null && isActive == true)
+            if (isActive == true)
             {
                 users = users.Where(w => w.EmailConfirmed);
             }
@@ -436,18 +435,23 @@ namespace Infrastructure.Identity.Services
             foreach (var item in listUser)
             {
                 var roleList = await userManager.GetRolesAsync(item);
+                var role = roleList.FirstOrDefault() ?? "";
 
-                listUsersDtos.Add(new UserDto()
+                if (role == Roles.Commerce.ToString())
+                {
+                    continue; 
+                }
+
+                listUsersDtos.Add(new UserDto
                 {
                     Id = item.Id,
-                    Email = item.Email ?? "",
-                    LastName = item.LastName,
                     Name = item.Name,
+                    LastName = item.LastName,
                     UserName = item.UserName ?? "",
-                    ProfileImage = item.ProfileImage,
-                    Phone = item.PhoneNumber,
+                    Email = item.Email ?? "",
+                    DocumentNumber = item.DocumentNumber,
                     isVerified = item.EmailConfirmed,
-                    Role = roleList.FirstOrDefault() ?? ""
+                    Role = role
                 });
             }
 
@@ -456,9 +460,23 @@ namespace Infrastructure.Identity.Services
 
         public async Task<List<Guid>> GetAllUserIdsAsync()
         {
-            return await userManager.Users
-                   .Select(u => Guid.Parse(u.Id))
-                   .ToListAsync();
+            var users = await userManager.Users.ToListAsync();   // compa dara error aki pq no hemos hecho migracion! dont do a migration yet
+            var filteredIds = new List<Guid>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                var role = roles.FirstOrDefault();
+
+                if (role == Roles.Commerce.ToString())
+                {
+                    continue;
+                }
+
+                filteredIds.Add(Guid.Parse(user.Id));
+            }
+
+            return filteredIds;
         }
 
 
@@ -508,5 +526,16 @@ namespace Infrastructure.Identity.Services
             return resetUri;
         }
 
+        // cuando me levante le meto mano ------------------->
+
+        public Task<bool> ActivateUser(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> DeactivateUser(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

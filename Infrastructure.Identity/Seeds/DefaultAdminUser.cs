@@ -14,9 +14,8 @@ namespace Infrastructure.Identity.Seeds
                 Name = "Kabra",
                 LastName = "Kabra",
                 Email = "admin@email.com",
-                ProfileImage = "",
                 EmailConfirmed = true,
-                PhoneNumberConfirmed = true,
+                DocumentNumber = "123456789",
                 UserName = "admin"
             };
 

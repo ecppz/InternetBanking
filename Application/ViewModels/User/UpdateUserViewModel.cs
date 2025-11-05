@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.ViewModels.User
 {
@@ -14,17 +13,16 @@ namespace Application.ViewModels.User
         [Required(ErrorMessage = "Debes ingresar el apellido del usuario")]
         [DataType(DataType.Text)]
         public required string LastName { get; set; }
+
+        [Required(ErrorMessage = "Debes ingresar la cedula del usuario")]
+        [DataType(DataType.Text)]
+        public required string DocumentNumber { get; set; }
+
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
         [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]       
         [DataType(DataType.Password)]
         public string? ConfirmPassword { get; set; }
-
-        [DataType(DataType.Text)]
-        public string? Phone { get; set; }
-
-        [DataType(DataType.Upload)]
-        public IFormFile? ProfileImageFile { get; set; }
     }
 }

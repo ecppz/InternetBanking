@@ -480,7 +480,6 @@ C:\Users\admin\Desktop\InternetBanking\Presentation\bin\Debug\net9.0\Infrastruct
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\rjimswa.dswa.cache.json
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
-C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\bundle\Presentation.styles.css
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\projectbundle\Presentation.bundle.scp.css
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\8y2rqx5iwd-b9sayid5wm.gz
@@ -545,8 +544,6 @@ C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\bblh02ighy-muycvpuwrr.gz
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\azkafw2jv5-87fc7y1x7t.gz
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\ua03wutksk-mlv21k5csn.gz
-C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\4ve4swcchu-ewjtt9c9qa.gz
-C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\0xoxsodri7-ewjtt9c9qa.gz
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\staticwebassets.development.json
@@ -558,3 +555,9 @@ C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\refint\Pres
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\Presentation.pdb
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\Presentation.genruntimeconfig.cache
 C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\ref\Presentation.dll
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\Presentation.sourcelink.json
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\Views\Shared\_LayoutAdmin.cshtml.rz.scp.css
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\Views\Shared\_LayoutCashier.cshtml.rz.scp.css
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\scopedcss\Views\Shared\_LayoutCustomer.cshtml.rz.scp.css
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\4ve4swcchu-ext5y96s1x.gz
+C:\Users\admin\Desktop\InternetBanking\Presentation\obj\Debug\net9.0\compressed\0xoxsodri7-ext5y96s1x.gz

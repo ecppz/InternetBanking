@@ -13,9 +13,12 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserByUserName(string userName);
         Task<UserDto?> GetUserById(string Id);
         Task<List<UserDto>> GetUsersByIds(List<Guid> ids); 
-        Task<RegisterResponseDto> RegisterUser(SaveUserDto saveDto, string origin);
+        Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin);
         Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request);
         Task SignOutAsync();
         Task<List<Guid>> GetAllUserIdsAsync();
+        Task<bool> ActivateUser(int id);
+        Task<bool> DeactivateUser(int id);
+
     }
 }

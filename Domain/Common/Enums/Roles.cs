@@ -2,8 +2,10 @@
 {
     public enum Roles
     {
-        Admin = 1,
-        User,
-        Cashier
+        None = 0,
+        Admin,
+        Customer,
+        Cashier,
+        Commerce
     }
 }

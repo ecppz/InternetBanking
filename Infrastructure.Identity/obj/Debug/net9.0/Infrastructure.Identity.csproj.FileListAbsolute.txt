@@ -15,3 +15,4 @@ C:\Users\admin\Desktop\InternetBanking\Infrastructure.Identity\obj\Debug\net9.0\
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Identity\obj\Debug\net9.0\refint\Infrastructure.Identity.dll
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Identity\obj\Debug\net9.0\Infrastructure.Identity.pdb
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Identity\obj\Debug\net9.0\ref\Infrastructure.Identity.dll
+C:\Users\admin\Desktop\InternetBanking\Infrastructure.Identity\obj\Debug\net9.0\Infrastructure.Identity.sourcelink.json

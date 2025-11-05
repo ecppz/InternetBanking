@@ -15,3 +15,4 @@ C:\Users\admin\Desktop\InternetBanking\Infrastructure.Persistence\obj\Debug\net9
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Persistence\obj\Debug\net9.0\refint\Infrastructure.Persistence.dll
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Persistence\obj\Debug\net9.0\Infrastructure.Persistence.pdb
 C:\Users\admin\Desktop\InternetBanking\Infrastructure.Persistence\obj\Debug\net9.0\ref\Infrastructure.Persistence.dll
+C:\Users\admin\Desktop\InternetBanking\Infrastructure.Persistence\obj\Debug\net9.0\Infrastructure.Persistence.sourcelink.json
