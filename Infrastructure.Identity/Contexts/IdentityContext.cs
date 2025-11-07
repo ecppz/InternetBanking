@@ -19,6 +19,12 @@ namespace Infrastructure.Identity.Contexts
             builder.Entity<IdentityRole>().ToTable("Roles");
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
             builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+
+            builder.Entity<UserAccount>(entity =>
+            {
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.DocumentNumber).IsUnique();
+            });
         }
     }
 }

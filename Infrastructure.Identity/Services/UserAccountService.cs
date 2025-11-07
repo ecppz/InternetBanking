@@ -4,6 +4,7 @@ using Application.Interfaces;
 using Domain.Common.Enums;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
@@ -21,10 +22,9 @@ namespace Infrastructure.Identity.Services
             this.signInManager = signInManager;
             this.emailService = emailService;
         }
-
         public async Task<LoginResponseDto> AuthenticateAsync(LoginDto loginDto)
         {
-            LoginResponseDto response = new()
+            var response = new LoginResponseDto
             {
                 Id = "",
                 LastName = "",
@@ -33,7 +33,9 @@ namespace Infrastructure.Identity.Services
                 Email = "",
                 DocumentNumber = "",
                 HasError = false,
-                Errors = []
+                Errors = [],
+                Roles = [],
+                IsVerified = false
             };
 
             var user = await userManager.FindByNameAsync(loginDto.UserName);
@@ -41,14 +43,21 @@ namespace Infrastructure.Identity.Services
             if (user == null)
             {
                 response.HasError = true;
-                response.Errors.Add($"no hay cuenta registradas con este username: {loginDto.UserName}");
+                response.Errors.Add($"No hay cuenta registrada con el usuario: {loginDto.UserName}");
                 return response;
             }
 
             if (!user.EmailConfirmed)
             {
                 response.HasError = true;
-                response.Errors.Add($"esta cuenta {loginDto.UserName} no esta activa deberias chequear tu email");
+                response.Errors.Add($"La cuenta {loginDto.UserName} no está confirmada. Revisa tu correo para activarla.");
+                return response;
+            }
+
+            if (!user.IsActive)
+            {
+                response.HasError = true;
+                response.Errors.Add($"La cuenta {loginDto.UserName} está inactiva. Actívala desde el enlace enviado a tu correo.");
                 return response;
             }
 
@@ -60,17 +69,15 @@ namespace Infrastructure.Identity.Services
 
                 if (result.IsLockedOut)
                 {
-                    response.Errors.Add($"tu cuenta {loginDto.UserName} ha sido bloqueada debido a múltiples intentos fallidos." +
-                        $"inténtalo de nuevo en 10 minutos. Si no recuerdas tu contraseña, puedes darle a 'olvidé mi contraseña'");
+                    response.Errors.Add($"La cuenta {loginDto.UserName} ha sido bloqueada por múltiples intentos fallidos. Intenta de nuevo en 10 minutos o usa 'Olvidé mi contraseña'.");
                 }
                 else
                 {
-                    response.Errors.Add($"Estas credenciales no son válidas para el usuario {user.UserName}.");
+                    response.Errors.Add($"Credenciales inválidas para el usuario {user.UserName}.");
                 }
 
                 return response;
             }
-
 
             var rolesList = await userManager.GetRolesAsync(user);
 
@@ -224,9 +231,12 @@ namespace Infrastructure.Identity.Services
             var result = await userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                var rolesList = await userManager.GetRolesAsync(user);
-                await userManager.RemoveFromRolesAsync(user, rolesList.ToList());
-                await userManager.AddToRoleAsync(user, Roles.Customer.ToString());
+                var currentRoles = await userManager.GetRolesAsync(user);
+                if (!string.IsNullOrWhiteSpace(saveDto.Role) && !currentRoles.Contains(saveDto.Role))
+                {
+                    await userManager.RemoveFromRolesAsync(user, currentRoles);
+                    await userManager.AddToRoleAsync(user, saveDto.Role);
+                }
 
                 if (!user.EmailConfirmed && isNotcreated)
                 {
@@ -376,7 +386,7 @@ namespace Infrastructure.Identity.Services
             foreach (var user in users)
             {
                 var roles = await userManager.GetRolesAsync(user);
-                var role = roles.FirstOrDefault() ?? "User"; 
+                var role = roles.FirstOrDefault() ?? "User";
 
                 result.Add(new UserDto
                 {
@@ -387,7 +397,8 @@ namespace Infrastructure.Identity.Services
                     Email = user.Email ?? string.Empty,
                     DocumentNumber = user.DocumentNumber,
                     isVerified = user.EmailConfirmed,
-                    Role = role
+                    Role = role,
+                    IsActive = user.IsActive //  esta línea es la clave
                 });
             }
 
@@ -439,7 +450,7 @@ namespace Infrastructure.Identity.Services
 
                 if (role == Roles.Commerce.ToString())
                 {
-                    continue; 
+                    continue;
                 }
 
                 listUsersDtos.Add(new UserDto
@@ -451,7 +462,8 @@ namespace Infrastructure.Identity.Services
                     Email = item.Email ?? "",
                     DocumentNumber = item.DocumentNumber,
                     isVerified = item.EmailConfirmed,
-                    Role = role
+                    Role = role,
+                    IsActive = item.IsActive
                 });
             }
 
@@ -482,22 +494,39 @@ namespace Infrastructure.Identity.Services
 
         public async Task<string> ConfirmAccountAsync(string userId, string token)
         {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+            {
+                return "Solicitud inválida: faltan datos para confirmar la cuenta.";
+            }
+
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return "no existe una cuenta registrada con este usuario.";
+                return "No existe una cuenta registrada con este usuario.";
             }
 
-            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
-            var result = await userManager.ConfirmEmailAsync(user, token);
+            try
+            {
+                // Decodificar token
+                var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
 
-            if (result.Succeeded)
-            {
-                return $"cuenta confirmada para {user.Email}. ya puedes usar la app";
+                var result = await userManager.ConfirmEmailAsync(user, decodedToken);
+
+                if (result.Succeeded)
+                {
+                    return $"Cuenta confirmada para {user.Email}. Ya puedes iniciar sesión.";
+                }
+
+                var errores = string.Join("; ", result.Errors.Select(e => e.Description));
+                return $"Ocurrió un error al confirmar el correo electrónico: {errores}";
             }
-            else
+            catch (FormatException)
             {
-                return $"ocurrió un error al confirmar el correo electrónico {user.Email}.";
+                return "El token de confirmación es inválido o está corrupto.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error interno al confirmar la cuenta: {ex.Message}";
             }
         }
 
@@ -505,12 +534,19 @@ namespace Infrastructure.Identity.Services
 
         private async Task<string> GetVerificationEmailUri(UserAccount user, string origin)
         {
+            if (string.IsNullOrWhiteSpace(origin) || !Uri.IsWellFormedUriString(origin, UriKind.Absolute))
+            {
+                throw new InvalidOperationException("El parámetro 'origin' no es una URI válida.");
+            }
+
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var route = "Login/ConfirmEmail";
-            var completeUrl = new Uri(string.Concat(origin, "/", route));// origin = https://localhost:58296 route=Login/ConfirmEmail
+
+            var baseUri = new Uri(origin.TrimEnd('/'));
+            var completeUrl = new Uri(baseUri, "Login/ConfirmEmail");
+
             var verificationUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
-            verificationUri = QueryHelpers.AddQueryString(verificationUri.ToString(), "token", token);
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
 
             return verificationUri;
         }
@@ -526,16 +562,127 @@ namespace Infrastructure.Identity.Services
             return resetUri;
         }
 
-        // cuando me levante le meto mano ------------------->
-
-        public Task<bool> ActivateUser(int id)
+        public async Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin)
         {
-            throw new NotImplementedException();
+            var response = new UserResponseDto
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                var user = new UserAccount
+                {
+                    Name = dto.Name,
+                    LastName = dto.LastName,
+                    DocumentNumber = dto.DocumentNumber,
+                    UserName = dto.UserName,
+                    Email = dto.Email,
+                    EmailConfirmed = false,
+                    PhoneNumberConfirmed = false,
+                    TwoFactorEnabled = false,
+                    LockoutEnabled = true
+                };
+
+                var result = await userManager.CreateAsync(user, dto.Password);
+
+                if (!result.Succeeded)
+                {
+                    response.HasError = true;
+                    response.Errors.AddRange(result.Errors.Select(e => e.Description));
+                    return response;
+                }
+
+                //  Asignar rol usando Identity
+                var roleResult = await userManager.AddToRoleAsync(user, dto.Role);
+                if (!roleResult.Succeeded)
+                {
+                    response.HasError = true;
+                    response.Errors.AddRange(roleResult.Errors.Select(e => e.Description));
+                    return response;
+                }
+
+                //  Validar y construir origin
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
+                {
+                    response.HasError = true;
+                    response.Errors.Add("El parámetro 'origin' no es una URI válida.");
+                    return response;
+                }
+
+                //  Generar token y enlace de confirmación
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+                var confirmUrl = new Uri(baseUri, "MaintenanceUser/ConfirmEmail"); // 
+                var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
+                verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
+
+                //  Enviar correo
+                var subject = "Confirma tu cuenta";
+                var body = $"""
+                Hola {user.Name},<br><br>
+                Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
+                <a href='{verificationUri}'>Confirmar cuenta</a>
+               """;
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = subject,
+                    HtmlBody = body
+                });
+
+                //  Preparar respuesta
+                response.HasError = false;
+                response.Id = user.Id;
+                response.Email = user.Email;
+                response.UserName = user.UserName;
+                response.Name = user.Name;
+                response.LastName = user.LastName;
+                response.Roles.Add(dto.Role);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.HasError = true;
+                response.Errors.Add("Error interno: " + ex.Message);
+                return response;
+            }
         }
 
-        public Task<bool> DeactivateUser(int id)
+        // cuando me levante le meto mano ------------------->
+
+        public async Task<bool> ActivateUser(string id)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null) return false;
+
+            user.IsActive = true;
+            var result = await userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> DeactivateUser(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null) return false;
+
+            user.IsActive = false;
+            var result = await userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+
+        public async Task<bool> SetUserActiveStatus(string id, bool isActive)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null) return false;
+
+            user.IsActive = isActive;
+            var result = await userManager.UpdateAsync(user);
+            return result.Succeeded;
         }
     }
 }

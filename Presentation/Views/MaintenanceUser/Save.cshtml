@@ -1,0 +1,117 @@
+﻿@using Domain.Common.Enums
+@model SaveUserViewModel
+@{
+    ViewData["Title"] = "Crear usuario";
+    Layout = "_LayoutAdmin";
+    bool editMode = ViewBag.EditMode ?? false;
+}
+
+<div class="col-12 col-md-8 offset-md-2">
+    <div class="card">
+        <div class="card-header bg-success text-light">
+            <h5 class="text-center">@(editMode ? "Editando usuario - " + Model.Name : "Creando nuevo usuario")</h5>
+        </div>
+        <div class="card-body">
+            @{
+                var errors = ViewBag.Errors as List<string>;
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var entry in ViewData.ModelState)
+                        {
+                            foreach (var error in entry.Value.Errors)
+                            {
+                                <li><strong>@entry.Key:</strong> @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+            <form asp-controller="MaintenanceUser" asp-action="@(editMode ? "Edit" : "Create")" method="POST">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Nombre:</label>
+                    <input class="form-control" asp-for="Name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="LastName" class="form-label">Apellido:</label>
+                    <input class="form-control" asp-for="LastName" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DocumentNumber" class="form-label">Cédula:</label>
+                    <input class="form-control" asp-for="DocumentNumber" />
+                    <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Correo electrónico:</label>
+                    <input class="form-control" asp-for="Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UserName" class="form-label">Usuario:</label>
+                    <input class="form-control" asp-for="UserName" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Contraseña:</label>
+                    <input class="form-control" asp-for="Password" value="@Model.Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirmar contraseña:</label>
+                    <input class="form-control" asp-for="ConfirmPassword" value="@Model.ConfirmPassword" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label">Seleccione el tipo de usuario</label>
+                    <select asp-for="Role" class="form-select" onchange="toggleBalanceInput()" id="roleSelector">
+                        <option value="">Selecciona un tipo de usuario</option>
+                        <option value="Admin">Administrador</option>
+                        <option value="Cashier">Cajero</option>
+                        <option value="Customer">Cliente</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3" id="balanceInput" style="display:@(Model.Role == Roles.Customer.ToString() ? "block" : "none")">
+                    <label asp-for="CurrentBalance" class="form-label">Monto inicial:</label>
+                    <input class="form-control" asp-for="CurrentBalance" />
+                    <span asp-validation-for="CurrentBalance" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-outline-success float-end">
+                        <i class="bi bi-floppy2"></i> Guardar
+                    </button>
+                    <a asp-controller="MaintenanceUser" asp-action="Index" class="btn btn-outline-secondary float-end me-2">
+                        <i class="bi bi-arrow-left-short"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleBalanceInput() {
+            const role = document.getElementById("roleSelector").value;
+            document.getElementById("balanceInput").style.display = role === "Customer" ? "block" : "none";
+        }
+
+        window.onload = toggleBalanceInput;
+    </script>
+}

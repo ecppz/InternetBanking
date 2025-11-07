@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.User;
+using static Application.Dtos.User.UserResponseDto;
 
 namespace Application.Interfaces
 {
@@ -12,13 +13,21 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserByEmail(string email);
         Task<UserDto?> GetUserByUserName(string userName);
         Task<UserDto?> GetUserById(string Id);
-        Task<List<UserDto>> GetUsersByIds(List<Guid> ids); 
+        Task<List<UserDto>> GetUsersByIds(List<Guid> ids);
         Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin);
         Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request);
         Task SignOutAsync();
         Task<List<Guid>> GetAllUserIdsAsync();
-        Task<bool> ActivateUser(int id);
-        Task<bool> DeactivateUser(int id);
+        Task<bool> ActivateUser(string id);
+        Task<bool> DeactivateUser(string id);
+
+        //Nueva firma broki
+
+        Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin);
+
+        //unico metodo para activar y desactivar:
+
+        Task<bool> SetUserActiveStatus(string id, bool isActive);
 
     }
 }

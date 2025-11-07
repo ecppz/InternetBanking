@@ -11,5 +11,7 @@
         public bool? isVerified { get; set; }
         public required string Role { get; set; }
         public decimal? CurrentBalancce { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

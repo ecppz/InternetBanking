@@ -14,6 +14,12 @@ namespace ItlaSocialMedia
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Login/Index";
+                options.AccessDeniedPath = "/Login/AccessDenied";
+            });
+
 
             builder.Services.AddSession(opt =>
             {
@@ -43,12 +49,13 @@ namespace ItlaSocialMedia
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=AdminHome}/{action=Index}/{id?}")
+                pattern: "{controller=Login}/{action=Index}/{id?}")
                 .WithStaticAssets();
 
             app.Run();

@@ -7,9 +7,13 @@ namespace Infrastructure.Identity.Seeds
     {
         public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
         {
-            await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(Roles.Customer.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(Roles.Cashier.ToString()));
+            foreach (var role in Enum.GetNames(typeof(Roles)))
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
         }
     }
 }

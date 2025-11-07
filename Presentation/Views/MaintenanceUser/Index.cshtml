@@ -7,7 +7,7 @@
 
 <div class="row">
     <div class="text-center">
-        <h1 class="display-4">Ciudadanos</h1>
+        <h1 class="display-4">Crear Usuarios</h1>
     </div>
 </div>
 
@@ -36,6 +36,7 @@
                         <th>Apellido</th>
                         <th>Cédula</th>
                         <th>Email</th>
+                        <th>Rol</th>
                         <th>Estado</th>
                         <th style="width: 220px;">Acciones</th>
                     </tr>
@@ -48,32 +49,43 @@
                             <td>@item.LastName</td>
                             <td>@item.DocumentNumber</td>
                             <td>@item.Email</td>
+                            <td>@item.Role</td>
                             <td class="text-center">
-                                @* @if (item.State)
+                                @if (item.IsActive)
                                 {
                                     <span class="badge bg-success">Activo</span>
                                 }
                                 else
                                 {
                                     <span class="badge bg-secondary">Inactivo</span>
-                                } *@
+                                }
                             </td>
                             <td class="text-center">
-                                <a class="btn btn-outline-warning btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Edit" asp-route-id="@item.Id">
+                                <a class="btn btn-outline-warning btn-sm me-1"
+                                   asp-controller="MaintenanceUser"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
-                                @* @if (item.State)
+
+                                @if (item.IsActive)
                                 {
-                                    <a class="btn btn-outline-secondary btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Deactivate" asp-route-id="@item.Id">
-                                        <i class="bi bi-x-circle"></i> Desactivar
-                                    </a>
+                                    <form asp-controller="MaintenanceUser" asp-action="Deactivate" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm me-1">
+                                            <i class="bi bi-x-circle"></i> Desactivar
+                                        </button>
+                                    </form>
                                 }
                                 else
                                 {
-                                    <a class="btn btn-outline-success btn-sm me-1" asp-controller="MaintenanceUser" asp-action="Activate" asp-route-id="@item.Id">
-                                        <i class="bi bi-check-circle"></i> Activar
-                                    </a>
-                                } *@
+                                    <form asp-controller="MaintenanceUser" asp-action="Activate" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-outline-success btn-sm me-1">
+                                            <i class="bi bi-check-circle"></i> Activar
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }
