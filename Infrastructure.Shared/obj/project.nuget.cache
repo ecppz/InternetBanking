@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/BKvlsn2/Bo=",
+  "dgSpecHash": "VpyYLR937ng=",
   "success": true,
-  "projectFilePath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
+  "projectFilePath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\miese\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\miese\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",

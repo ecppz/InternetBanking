@@ -8,6 +8,10 @@ namespace Application.Mappings.DtosAndViewModels
     {
         public UserDtoMappingProfile() {
 
+
+
+
+
             CreateMap<UserDto, UserViewModel>()
      .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()))
      .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
@@ -30,6 +34,22 @@ namespace Application.Mappings.DtosAndViewModels
 
             CreateMap<SaveUserViewModel, SaveUserDto>()
           .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.ToString()));
+
+           
+            CreateMap<UserDto, UserViewModel>()             
+                .ReverseMap();
+
+            CreateMap<UserDto, UpdateUserViewModel>()
+                .ForMember(dest => dest.Password, opt => opt.Ignore())
+                .ForMember(dest => dest.ConfirmPassword, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<SaveUserDto, UpdateUserViewModel>()
+                .ForMember(dest => dest.Password, opt => opt.Ignore())
+                .ForMember(dest => dest.ConfirmPassword, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<SaveUserDto, SaveUserViewModel>().ReverseMap();                         
 
             CreateMap<LoginDto, LoginViewModel>().ReverseMap();
         }

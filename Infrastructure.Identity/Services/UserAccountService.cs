@@ -654,26 +654,6 @@ namespace Infrastructure.Identity.Services
 
         // cuando me levante le meto mano ------------------->
 
-        public async Task<bool> ActivateUser(string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
-            if (user == null) return false;
-
-            user.IsActive = true;
-            var result = await userManager.UpdateAsync(user);
-            return result.Succeeded;
-        }
-
-        public async Task<bool> DeactivateUser(string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
-            if (user == null) return false;
-
-            user.IsActive = false;
-            var result = await userManager.UpdateAsync(user);
-            return result.Succeeded;
-        }
-
 
         public async Task<bool> SetUserActiveStatus(string id, bool isActive)
         {

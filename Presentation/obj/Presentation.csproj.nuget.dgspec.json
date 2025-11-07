@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj": {}
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Presentation\\Presentation.csproj": {}
   },
   "projects": {
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,8 +32,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj"
               }
             }
           }
@@ -103,14 +103,14 @@
         }
       }
     },
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -168,14 +168,14 @@
         }
       }
     },
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
         "projectName": "Infrastructure.Identity",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -196,11 +196,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj"
               }
             }
           }
@@ -262,14 +262,14 @@
         }
       }
     },
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
         "projectName": "Infrastructure.Persistence",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -290,11 +290,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj"
               }
             }
           }
@@ -348,14 +348,14 @@
         }
       }
     },
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
         "projectName": "Infrastructure.Shared",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -376,11 +376,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj"
               }
             }
           }
@@ -434,14 +434,14 @@
         }
       }
     },
-    "C:\\Users\\miese\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Presentation\\Presentation.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj",
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Presentation\\Presentation.csproj",
         "projectName": "Presentation",
-        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Presentation\\Presentation.csproj",
         "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Presentation\\obj\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Presentation\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -462,20 +462,20 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Application\\Application.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Domain\\Domain.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj"
               },
-              "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
-                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj"
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Shared\\Infrastructure.Shared.csproj"
               }
             }
           }

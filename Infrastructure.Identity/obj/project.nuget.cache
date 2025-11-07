@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "HZY97m3BC0Q=",
+  "dgSpecHash": "+wwVPB1Mjgw=",
   "success": true,
-  "projectFilePath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+  "projectFilePath": "C:\\Users\\miese\\Desktop\\InternetBanking\\InternetBanking-Limpio\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\miese\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\miese\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",

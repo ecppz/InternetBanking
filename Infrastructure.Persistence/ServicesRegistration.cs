@@ -32,6 +32,13 @@ namespace Infrastructure.Persistence
 
                 //Repositories IOC
                 services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+                services.AddScoped<IBeneficiaryRepository, BeneficiaryRepository>();
+                services.AddScoped<ICreditCardRepository, CreditCardRepository>();
+                services.AddScoped<ICreditCardTransactionRepository, CreditCardTransactionRepository>();
+                services.AddScoped<ILoanRepository, LoanRepository>();
+                services.AddScoped<ILoanInstallmentRepository, LoanInstallmentRepository>();
+                services.AddScoped<ISavingsAccountRepository, SavingsAccountRepository>();
+                services.AddScoped<ITransactionRepository, TransactionRepository>();
             }
         }
     }
