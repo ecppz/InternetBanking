@@ -1,0 +1,28 @@
+﻿
+using Application.Interfaces;
+using Application.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+
+namespace Application
+{
+    public static class ServicesRegistration
+    {
+        //Extension method - Decorator pattern
+        public static void ApplicationLayerIoc(this IServiceCollection services)
+        {
+            //configurations
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+            //services IOC
+            services.AddScoped<IBeneficiaryService, BeneficiaryService>();
+            services.AddScoped<ICreditCardService, CreditCardService>();
+            services.AddScoped<ICreditCardTransactionService, CreditCardTransactionService>();
+            services.AddScoped<ILoanService, LoanService>();
+            services.AddScoped<ILoanInstallmentService, LoanInstallmentService>();
+            services.AddScoped<ISavingsAccountService, SavingsAccountService>();
+            services.AddScoped<ITransactionService, TransactionService>();
+        }
+
+    }
+}
