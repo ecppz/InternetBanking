@@ -4,11 +4,9 @@ using Application.ViewModels.User;
 using AutoMapper;
 using Domain.Common.Enums;
 using Infrastructure.Identity.Entities;
-using Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static Application.Dtos.User.UserResponseDto;
 
 namespace Presentation.Controllers
 {
