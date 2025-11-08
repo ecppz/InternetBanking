@@ -3,7 +3,7 @@ using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Infrastructure.Shared;
 
-namespace ItlaSocialMedia
+namespace InternetBanking
 {
     public class Program
     {
