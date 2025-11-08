@@ -1,8 +1,11 @@
-﻿using Application.Dtos.User;
+﻿using Application.Dtos.SavingsAccount;
+using Application.Dtos.User;
 using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.User;
 using AutoMapper;
 using Domain.Common.Enums;
+using Domain.Entities;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,20 +13,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
-
-    // le toy METIENDO MANO A ESTO!! 
-
-
      [Authorize(Roles = "Admin")] 
     public class MaintenanceUserController : Controller
     {
         private readonly IUserAccountService userAccountService;
+        private readonly ISavingsAccountService savingsAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public MaintenanceUserController(IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+        public MaintenanceUserController(IUserAccountService userAccountService, ISavingsAccountService savingsAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.userAccountService = userAccountService;
+            this.savingsAccountService = savingsAccountService;
             this.userManager = userManager;
             this.mapper = mapper;
         }
@@ -32,7 +33,7 @@ namespace Presentation.Controllers
         {
             var ids = await userAccountService.GetAllUserIdsAsync();
 
-            var dtos = await userAccountService.GetUsersByIds(ids); // ✅ carga todos los usuarios en una sola llamada
+            var dtos = await userAccountService.GetUsersByIds(ids); 
 
             var vms = mapper.Map<List<UserViewModel>>(dtos);
 
@@ -40,16 +41,20 @@ namespace Presentation.Controllers
         }
         public async Task<IActionResult> Create()
         {
-            // Validación de sesión y rol (puedes activarla luego)
-            // UserAccount? userSession = await userManager.GetUserAsync(User);
-            // if (userSession != null)
-            //     return RedirectToRoute(new { controller = "Home", action = "Index" });
+            UserAccount? userSession = await userManager.GetUserAsync(User);
 
-            // var roles = await userManager.GetRolesAsync(userSession);
-            // if (!roles.Contains("Admin"))
-            //     return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
 
-            // Inicialización segura del ViewModel
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Admin.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
             var vm = new SaveUserViewModel
             {
                 Id = "",
@@ -60,7 +65,7 @@ namespace Presentation.Controllers
                 DocumentNumber = "",
                 Password = "",
                 ConfirmPassword = "",
-                Role = Roles.None.ToString(),
+                Role = Roles.None,
                 CurrentBalance = 0
             };
 
@@ -76,7 +81,8 @@ namespace Presentation.Controllers
                 return View("Save", vm);
             }
 
-            if (!Enum.TryParse<Roles>(vm.Role, out var parsedRole) || !Enum.IsDefined(typeof(Roles), parsedRole) || parsedRole == Roles.None)
+            var parsedRole = vm.Role;
+            if (!Enum.IsDefined(typeof(Roles), parsedRole) || parsedRole == Roles.None)
             {
                 ModelState.AddModelError("Role", "Debes seleccionar un tipo de usuario válido.");
                 return View("Save", vm);
@@ -103,8 +109,21 @@ namespace Presentation.Controllers
                 return View("Save", vm);
             }
 
-            // Si el rol es cliente y quieres guardar el monto inicial, puedes hacerlo aquí
-            // Ejemplo: await userAccountService.EditUserAsync(dto, origin, true);
+            if (parsedRole == Roles.Customer)
+            {
+                var savingsAccount = new SavingsAccount
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = Guid.Parse(result.Id), // Asegúrate que `result.UserId` esté disponible
+                    AccountNumber = await savingsAccountService.GenerateUniqueAccountNumberAsync(),
+                    Balance = vm.CurrentBalance.Value,
+                    IsPrimary = true
+                };
+
+                var savingsAccountDto = mapper.Map<SavingsAccountDto>(savingsAccount);
+                await savingsAccountService.AddAsync(savingsAccountDto);
+
+            }
 
             TempData["Success"] = $"Usuario creado correctamente. Se ha enviado un correo de confirmación a {result.Email}.";
             return RedirectToAction("Index");

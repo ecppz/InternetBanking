@@ -68,6 +68,7 @@ namespace Infrastructure.Identity
             var roleManager = servicesProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             await DefaultRoles.SeedAsync(roleManager);
+            await DefaultAdminUser.SeedAsync(userManager);
         }
 
         //private methods

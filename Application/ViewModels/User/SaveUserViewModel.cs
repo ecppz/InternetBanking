@@ -3,9 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class SaveUserViewModel
 {
-
-    public string? Id { get; set; } // permite nulo
-
+    public string? Id { get; set; }
 
     [Required(ErrorMessage = "Debes ingresar el nombre del usuario")]
     public required string Name { get; set; }
@@ -23,8 +21,6 @@ public class SaveUserViewModel
     [Required(ErrorMessage = "Debes ingresar la cédula del usuario")]
 
     [RegularExpression(@"^\d{3}-\d{7}-\d{1}$|^\d{11}$", ErrorMessage = "Formato de cédula inválido")]
-
-
     public required string DocumentNumber { get; set; }
 
     [Required(ErrorMessage = "Debes ingresar la contraseña")]
@@ -38,7 +34,7 @@ public class SaveUserViewModel
 
     [Required(ErrorMessage = "Debes seleccionar el tipo de usuario")]
 
-    public required string Role { get; set; }
+    public required Roles Role { get; set; }
 
     [DataType(DataType.Currency)]
     public decimal? CurrentBalance { get; set; }

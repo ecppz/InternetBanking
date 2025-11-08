@@ -4,8 +4,6 @@
     {
         public bool HasError { get; set; }
         public required List<string> Errors { get; set; }
-
-        // Propiedades adicionales para respuesta de registro
         public string? Id { get; set; }
         public string? Email { get; set; }
         public string? UserName { get; set; }

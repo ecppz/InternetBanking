@@ -15,8 +15,9 @@ namespace Infrastructure.Identity.Seeds
                 LastName = "Kabra",
                 Email = "admin@email.com",
                 EmailConfirmed = true,
+                IsActive = true,
                 DocumentNumber = "123456789",
-                UserName = "admin"
+                UserName = "admin",
             };
 
             if (await userManager.Users.AllAsync(u => u.Id != user.Id))
