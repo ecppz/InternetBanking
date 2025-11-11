@@ -209,6 +209,9 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -229,14 +232,26 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Beneficiary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("DestinationAccountId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("OriginAccountId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .IsRequired()

@@ -1,0 +1,71 @@
+﻿@using Domain.Common.Enums
+@model SavingsAccountListViewModel
+
+@{
+    Layout = "_LayoutAdmin";
+}
+
+<h2>Listado de Cuentas de Ahorro</h2>
+
+<form method="get">
+    <input type="text" name="DocumentNumber" placeholder="Documento" value="@Model.DocumentNumber" />
+    <select name="IsActive">
+        <option value="">Estado</option>
+        <option value="true">Activa</option>
+        <option value="false">Inactiva</option>
+    </select>
+    <select name="IsPrimary">
+        <option value="">Tipo</option>
+        <option value="true">Principal</option>
+        <option value="false">Secundaria</option>
+    </select>
+    <button type="submit">Filtrar</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número</th>
+            <th>Balance</th>
+            <th>Tipo</th>
+            <th>Cliente</th>
+            <th>Documento</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var acc in Model.Accounts)
+        {
+            <tr>
+                <td>@acc.AccountNumber</td>
+                <td>@acc.Balance.ToString("C")</td>
+                <td>@(acc.IsPrimary ? "Principal" : "Secundaria")</td>
+                <td>@acc.OwnerFullName</td>
+                <td>@acc.DocumentNumber</td>
+                <td class="@(acc.Estado == SavingsAccountStatus.Activa ? "text-success" : acc.Estado == SavingsAccountStatus.Bloqueada ? "text-warning" : "text-danger")">
+                    @acc.Estado.ToString()
+                </td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@acc.Id" class="btn btn-info btn-sm">Detalle</a>
+
+                    @if (!acc.IsPrimary && acc.IsActive)
+                    {
+                        <form asp-action="Cancel" asp-route-id="@acc.Id" method="get" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-ban"></i> Cancelar
+                            </button>
+                        </form>
+                    }
+
+                    @if (acc.IsPrimary)
+                    {
+                        <a asp-action="CreateSecondary" asp-route-userId="@acc.UserId" class="btn btn-success btn-sm">
+                            Asignar Secundaria
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

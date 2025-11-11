@@ -17,81 +17,125 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Presentation
 build_property.RootNamespace = Presentation
-build_property.ProjectDir = C:\Users\admin\Desktop\InternetBanking\Presentation\
+build_property.ProjectDir = C:\Users\miese\Desktop\InternetBanking\InternetBanking-Limpio\Presentation\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = true
-build_property.MSBuildProjectDirectory = C:\Users\admin\Desktop\InternetBanking\Presentation
+build_property.MSBuildProjectDirectory = C:\Users\miese\Desktop\InternetBanking\InternetBanking-Limpio\Presentation
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/AdminHome/Index.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/AdminHome/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5Ib21lXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Login/AccessDenied.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cQWNjZXNzRGVuaWVkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Login/AcessDenied.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/AcessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cQWNlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Login/ForgotPassword.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/ForgotPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cRm9yZ290UGFzc3dvcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Login/Index.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Login/ResetPassword.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/ResetPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cUmVzZXRQYXNzd29yZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/MaintenanceUser/ConfirmEmail.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/MaintenanceUser/ConfirmEmail.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFpbnRlbmFuY2VVc2VyXENvbmZpcm1FbWFpbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/MaintenanceUser/Edit.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/MaintenanceUser/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFpbnRlbmFuY2VVc2VyXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/MaintenanceUser/Index.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/MaintenanceUser/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFpbnRlbmFuY2VVc2VyXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/MaintenanceUser/Save.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/MaintenanceUser/Save.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFpbnRlbmFuY2VVc2VyXFNhdmUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_LayoutAnonymous.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/SavingsAccount/Cancel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcQ2FuY2VsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/SavingsAccount/CreateSecondary.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcQ3JlYXRlU2Vjb25kYXJ5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/SavingsAccount/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/SavingsAccount/List.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_Alerts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BbGVydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_LayoutAnonymous.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRBbm9ueW1vdXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/_ViewImports.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/ConfirmDeposit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybURlcG9zaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/ConfirmTransfer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybVRyYW5zZmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/ConfirmWithdrawal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybVdpdGhkcmF3YWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/Deposit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cRGVwb3NpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/TransferToThirdParty.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cVHJhbnNmZXJUb1RoaXJkUGFydHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Transaction/Withdrawal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cV2l0aGRyYXdhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/_ViewStart.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_LayoutAdmin.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_LayoutAdmin.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRBZG1pbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = b-ocdgwcfsho
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_LayoutCashier.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_LayoutCashier.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRDYXNoaWVyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = b-zllg5n0nh8
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_LayoutCustomer.cshtml]
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Shared/_LayoutCustomer.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRDdXN0b21lci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = b-oxavqedly5

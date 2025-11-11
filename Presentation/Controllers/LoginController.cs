@@ -34,7 +34,7 @@ namespace Presentation.Controllers
                 return role switch
                 {
                     "Admin" => RedirectToAction("Index", "Home"),
-                    "Cashier" => RedirectToAction("Index", "CashierHome"),
+                    "Cashier" => RedirectToAction("TransferToThirdParty", "CashierHome"),
                     "Client" => RedirectToAction("Index", "ClientHome"),
                     _ => RedirectToAction("AccessDenied", "Login")
                 };
@@ -59,7 +59,7 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "MaintenanceUser", action = "Index" });
 
                 if (userSession.Role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "Home", action = "Index" });
+                    return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
 
                 if (userSession.Role == Roles.Customer.ToString())
                     return RedirectToRoute(new { controller = "Home", action = "Index" });
@@ -89,7 +89,7 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "MaintenanceUser", action = "Index" });
 
                 if (role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
+                    return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
 
                 if (role == Roles.Customer.ToString())
                     return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
