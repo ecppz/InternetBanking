@@ -1,9 +1,9 @@
 ﻿using Domain.Interfaces;
 using Infrastructure.Persistence.Contexts;
+using Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Persistence.Repositories;
 
 namespace Infrastructure.Persistence
 {
@@ -39,6 +39,9 @@ namespace Infrastructure.Persistence
                 services.AddScoped<ILoanInstallmentRepository, LoanInstallmentRepository>();
                 services.AddScoped<ISavingsAccountRepository, SavingsAccountRepository>();
                 services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+                // unit of work
+                services.AddScoped<IUnitOfWork, UnitOfWork>();
             }
         }
     }

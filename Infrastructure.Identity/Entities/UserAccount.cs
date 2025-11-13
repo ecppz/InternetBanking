@@ -7,7 +7,7 @@ namespace Infrastructure.Identity.Entities
         public required string Name { get; set; }
         public required string LastName { get; set; }
         public required string DocumentNumber { get; set; }
-        public bool IsActive { get; set; } 
+        public required bool IsActive { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 

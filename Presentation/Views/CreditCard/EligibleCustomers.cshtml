@@ -1,0 +1,75 @@
+﻿@model List<EligibleCustomerForCreditCardViewModel>
+@{
+    ViewData["Title"] = "Seleccionar cliente";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="text-center">
+        <h1 class="display-4">Asignar tarjeta de crédito</h1>
+        <p class="lead">Selecciona un cliente activo sin tarjeta</p>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        <form asp-controller="CreditCard" asp-action="EligibleCustomers" method="get">
+            <div class="input-group">
+                <input type="text" name="documentNumber" class="form-control" placeholder="Buscar por cédula..." value="@ViewData["CurrentFilter"]" />
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6 text-end">
+        <h5>Deuda promedio: <strong>@((ViewData["AverageDebt"] as decimal?)?.ToString("C"))</strong></h5>
+    </div>
+</div>
+
+<form asp-controller="CreditCard" asp-action="AssignCreditCard" method="get">
+    <div class="table-responsive mt-4">
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th></th>
+                        <th>Cédula</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Deuda actual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <input type="radio" name="userId" value="@item.UserId" required />
+                            </td>
+                            <td>@item.DocumentNumber</td>
+                            <td>@item.Name</td>
+                            <td>@item.LastName</td>
+                            <td>@item.Email</td>
+                            <td>@item.CurrentDebt.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-arrow-right-circle"></i> Siguiente paso
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-4 text-center">
+                No hay clientes activos disponibles
+            </div>
+        }
+    </div>
+</form>

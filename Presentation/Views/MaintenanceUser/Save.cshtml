@@ -3,13 +3,12 @@
 @{
     ViewData["Title"] = "Mantenimiento de usuarios";
     Layout = "_LayoutAdmin";
-    bool editMode = ViewBag.EditMode ?? false;
 }
 
 <div class="col-12 col-md-8 offset-md-2">
     <div class="card">
         <div class="card-header bg-success text-light">
-            <h5 class="text-center">@(editMode ? "Editando usuario - " + Model.Name : "Creando nuevo usuario")</h5>
+            <h5 class="text-center">Creando nuevo usuario</h5>
         </div>
         <div class="card-body">
             @{
@@ -41,7 +40,7 @@
                     </ul>
                 </div>
             }
-            <form asp-controller="MaintenanceUser" asp-action="@(editMode ? "Edit" : "Create")" method="POST">
+            <form asp-controller="MaintenanceUser" asp-action="Create" method="POST">
                 <input type="hidden" asp-for="Id" />
 
                 <div class="mb-3">

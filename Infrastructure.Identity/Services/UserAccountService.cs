@@ -134,6 +134,7 @@ namespace Infrastructure.Identity.Services
                 Email = saveDto.Email,
                 DocumentNumber = saveDto.DocumentNumber,
                 EmailConfirmed = false,
+                IsActive = false
             };
 
             var result = await userManager.CreateAsync(user, saveDto.Password);
@@ -345,6 +346,7 @@ namespace Infrastructure.Identity.Services
                 Email = user.Email ?? "",
                 DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
 
@@ -370,6 +372,7 @@ namespace Infrastructure.Identity.Services
                 Email = user.Email ?? "",
                 DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
 
@@ -397,8 +400,8 @@ namespace Infrastructure.Identity.Services
                     Email = user.Email ?? string.Empty,
                     DocumentNumber = user.DocumentNumber,
                     isVerified = user.EmailConfirmed,
+                    IsActive = user.IsActive,
                     Role = role,
-                    IsActive = user.IsActive //  esta línea es la clave
                 });
             }
 
@@ -426,20 +429,16 @@ namespace Infrastructure.Identity.Services
                 Email = user.Email ?? "",
                 DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
+                IsActive = user.IsActive,
                 Role = rolesList.FirstOrDefault() ?? ""
             };
 
             return userDto;
         }
-        public async Task<List<UserDto>> GetAllUser(bool? isActive = true)
+        public async Task<List<UserDto>> GetAllActiveUsers()
         {
             var listUsersDtos = new List<UserDto>();
-            var users = userManager.Users;
-
-            if (isActive == true)
-            {
-                users = users.Where(w => w.EmailConfirmed);
-            }
+            var users = userManager.Users.Where(u => u.IsActive); // ✅ filtra por estado
 
             var listUser = await users.ToListAsync();
 
@@ -469,6 +468,16 @@ namespace Infrastructure.Identity.Services
 
             return listUsersDtos;
         }
+
+
+
+        public async Task<IList<string>> GetUserRolesAsync(Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            return user == null ? new List<string>() : await userManager.GetRolesAsync(user);
+        }
+
+
 
         public async Task<List<Guid>> GetAllUserIdsAsync()
         {
@@ -579,6 +588,7 @@ namespace Infrastructure.Identity.Services
                     UserName = dto.UserName,
                     Email = dto.Email,
                     EmailConfirmed = false,
+                    IsActive = false,
                     PhoneNumberConfirmed = false,
                     TwoFactorEnabled = false,
                     LockoutEnabled = true

@@ -1,0 +1,57 @@
+﻿@model AssignLoanViewModel
+@{
+    ViewData["Title"] = "Asignar préstamo";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="text-center">Asignar préstamo a @Model.FullName</h2>
+        <p class="text-center">
+            <strong>Cédula:</strong> @Model.DocumentNumber |
+            <strong>Correo:</strong> @Model.Email
+        </p>
+        <p class="text-center">
+            <strong>Deuda promedio del sistema:</strong> @((ViewData["AverageDebt"] as decimal?)?.ToString("C"))
+        </p>
+
+        <form asp-action="ConfirmLoanAssignment" method="post">
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="DocumentNumber" />
+            <input type="hidden" asp-for="FullName" />
+            <input type="hidden" asp-for="Email" />
+
+            <div class="mb-3">
+                <label asp-for="Months" class="form-label">Plazo del préstamo</label>
+                <select asp-for="Months" class="form-select">
+                    @foreach (var m in new[] { 6, 12, 18, 24, 30, 36, 42, 48, 54, 60 })
+                    {
+                        <option value="@m">@m meses</option>
+                    }
+                </select>
+                <span asp-validation-for="Months" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Amount" class="form-label">Monto a prestar</label>
+                <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AnnualRate" class="form-label">Tasa de interés anual (%)</label>
+                <input asp-for="AnnualRate" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="AnnualRate" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="EligibleCustomers" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Volver atrás
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Confirmar asignación
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

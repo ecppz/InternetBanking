@@ -59,17 +59,6 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Role" class="form-label">Tipo de usuario:</label>
-                    <select asp-for="Role" class="form-select">
-                        <option value="">Selecciona un tipo de usuario</option>
-                        <option value="Admin">Administrador</option>
-                        <option value="Cashier">Cajero</option>
-                        <option value="Customer">Cliente</option>
-                    </select>
-                    <span asp-validation-for="Role" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
                     <label asp-for="Password" class="form-label">Nueva contraseña (opcional):</label>
                     <input class="form-control" asp-for="Password" />
                     <span asp-validation-for="Password" class="text-danger"></span>

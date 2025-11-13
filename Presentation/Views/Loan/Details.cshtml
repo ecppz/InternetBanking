@@ -1,0 +1,30 @@
+﻿@model LoanDetailsViewModel
+@{
+    ViewData["Title"] = "Petalles";
+    Layout = "_LayoutAdmin";
+}
+<h3>Detalles del préstamo @Model.LoanNumber - @Model.CustomerFullName</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha de pago</th>
+            <th>Valor de la cuota</th>
+            <th>Estado</th>
+            <th>Atraso</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inst in Model.InstallmentsDetails)
+        {
+            <tr>
+                <td>@inst.DueDate.ToString("dd/MM/yyyy")</td>
+                <td>@inst.Amount.ToString("C")</td>
+                <td>@(inst.IsPaid ? "Pagada" : "Pendiente")</td>
+                <td>@(inst.IsLate ? "En mora" : "Al día")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Volver al listado</a>

@@ -1,0 +1,41 @@
+﻿@model AssignCreditCardViewModel
+@{
+    ViewData["Title"] = "Asignar tarjeta de crédito";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="text-center">Asignar tarjeta de crédito a @Model.FullName</h2>
+        <p class="text-center">
+            <strong>Cédula:</strong> @Model.DocumentNumber |
+            <strong>Correo:</strong> @Model.Email
+        </p>
+        <p class="text-center">
+            <strong>Deuda promedio del sistema:</strong> @((ViewData["AverageDebt"] as decimal?)?.ToString("C"))
+        </p>
+
+        <form asp-action="AssignCreditCard" method="post">
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="AdminUserId" />
+            <input type="hidden" asp-for="DocumentNumber" />
+            <input type="hidden" asp-for="FullName" />
+            <input type="hidden" asp-for="Email" />
+
+            <div class="mb-3">
+                <label asp-for="CreditLimit" class="form-label">Límite de crédito</label>
+                <input asp-for="CreditLimit" class="form-control" type="number" step="0.01" min="1" />
+                <span asp-validation-for="CreditLimit" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="EligibleCustomers" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Volver atrás
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Confirmar asignación
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

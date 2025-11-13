@@ -1,9 +1,11 @@
 using Application;
+using Application.Services;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Infrastructure.Shared;
+using Hangfire;
 
-namespace InternetBanking
+namespace Presentation
 {
     public class Program
     {
@@ -20,7 +22,6 @@ namespace InternetBanking
                 options.AccessDeniedPath = "/Login/AccessDenied";
             });
 
-
             builder.Services.AddSession(opt =>
             {
                 opt.IdleTimeout = TimeSpan.FromMinutes(60);
@@ -33,16 +34,29 @@ namespace InternetBanking
             builder.Services.SharedLayerIoc(builder.Configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+
+            //hangfire
+            builder.Services.AddHangfire(config =>
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddHangfireServer();
+
+
+            builder.Services.AddScoped<LoanInstallmentStatusUpdater>();
+
             var app = builder.Build();
 
             await app.Services.RunIdentitySeedAsync();
 
+            app.UseHangfireDashboard("/hangfire");
+
+            RecurringJob.AddOrUpdate<LoanInstallmentStatusUpdater>("update-late-installments", updater => updater
+                        .UpdateLateInstallmentsAsync(),Cron.Daily
+            );
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

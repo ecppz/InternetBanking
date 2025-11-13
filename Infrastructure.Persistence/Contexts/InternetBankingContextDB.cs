@@ -1,9 +1,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
-
 using System.Reflection;
-
 
 namespace Infrastructure.Persistence.Contexts
 {

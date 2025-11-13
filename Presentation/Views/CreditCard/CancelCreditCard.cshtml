@@ -1,0 +1,21 @@
+﻿@model CancelCreditCardViewModel
+@{
+    ViewData["Title"] = "Cancelar tarjeta";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="col-12 col-md-6 offset-md-3">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="text-center">Confirmar cancelación</h5>
+        </div>
+        <div class="card-body text-center">
+            <p>¿Está seguro que desea cancelar la tarjeta terminando en <b>@Model.CardLastDigits</b>?</p>
+            <form asp-action="CancelCreditCard" method="post">
+                <input type="hidden" asp-for="CardId" />
+                <button type="submit" class="btn btn-outline-danger me-2">Aceptar</button>
+                <a asp-controller="CreditCard" asp-action="Index" class="btn btn-outline-secondary">Volver atrás</a>
+            </form>
+        </div>
+    </div>
+</div>

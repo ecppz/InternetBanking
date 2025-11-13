@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Persistence.Repositories
+namespace Infrastructure.Persistence.EntityConfigurations
 {
     public class TransactionEntityConfiguration : IEntityTypeConfiguration<Transaction>
     {

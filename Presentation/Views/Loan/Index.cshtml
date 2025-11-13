@@ -1,0 +1,121 @@
+﻿@using Domain.Common.Enums
+@model List<LoanDisplayViewModel>
+@{
+    ViewData["Title"] = "Préstamos";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="text-center">
+        <h1 class="display-4">Gestión de Préstamos</h1>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12 col-md-3">
+        <a class="btn btn-outline-primary" asp-controller="Loan" asp-action="EligibleCustomers">
+            <i class="bi bi-plus-circle"></i> Asignar préstamo
+        </a>
+    </div>
+</div>
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-warning">@ViewBag.ErrorMessage</div>
+}
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <form asp-controller="Loan" asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" name="documentNumber" class="form-control"
+                       placeholder="Buscar por cédula..." value="@ViewBag.CurrentFilter" />
+                <select name="statusFilter" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Activos</option>
+                    <option value="Completed" selected="@(ViewBag.StatusFilter == "Completed")">Completados</option>
+                    <option value="Overdue" selected="@(ViewBag.StatusFilter == "Overdue")">En Mora</option>
+                </select>
+
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="row mt-4">
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center">
+            <h5 class="display-5">No hay préstamos registrados</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Número del prestamo</th>
+                        <th>Cliente</th>
+                        <th>Cédula</th>
+                        <th>Monto</th>
+                        <th>Plazo</th>
+                        <th>Tasa (%)</th>
+                        <th>Cuotas</th>
+                        <th>Pagadas</th>
+                        <th>Pendiente</th>
+                        <th>Estado</th>
+                        <th style="width: 180px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.LoanNumber</td>
+                            <td>@item.CustomerFullName</td>
+                            <td>@item.DocumentNumber</td>
+                            <td>@item.Amount.ToString("C")</td>
+                            <td>@item.TermMonths meses</td>
+                            <td>@item.AnnualInterestRate %</td>
+                            <td>@item.TotalInstallments</td>
+                            <td>@item.PaidInstallments</td>
+                            <td>@item.PendingAmount.ToString("C")</td>
+                            <td class="text-center">
+                                @{
+                                    var statusText = item.Status switch
+                                    {
+                                        LoanStatus.Active => "Activo",
+                                        LoanStatus.Completed => "Completado",
+                                        LoanStatus.Overdue => "Mora",
+                                        _ => item.Status.ToString()
+                                    };
+                                }
+                                <span class="badge @(item.Status == LoanStatus.Overdue ? "bg-danger" : "bg-success")">
+                                    @item.Status
+                                </span>
+
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-outline-warning btn-sm me-1"
+                                   asp-controller="Loan"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <a class="btn btn-outline-info btn-sm"
+                                   asp-controller="Loan"
+                                   asp-action="Details"
+                                   asp-route-id="@item.Id">
+                                    <i class="bi bi-eye"></i> Detalles
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

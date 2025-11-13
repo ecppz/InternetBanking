@@ -139,6 +139,20 @@ namespace Presentation.Controllers
         // GET: Editar usuario
         public async Task<IActionResult> Edit(string id)
         {
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Admin.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
             ViewBag.EditMode = true;
 
             var dto = await userAccountService.GetUserById(id);
@@ -152,7 +166,6 @@ namespace Presentation.Controllers
             return View("Edit", vm);
         }
 
-        // POST: Guardar cambios del usuario
         [HttpPost]
         public async Task<IActionResult> Edit(UpdateUserViewModel vm)
         {

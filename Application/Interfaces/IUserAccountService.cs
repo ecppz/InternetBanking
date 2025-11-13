@@ -1,8 +1,4 @@
 ﻿using Application.Dtos.User;
-
-using static Application.Dtos.User.UserResponseDto;
-
-
 namespace Application.Interfaces
 {
     public interface IUserAccountService
@@ -11,29 +7,18 @@ namespace Application.Interfaces
         Task<string> ConfirmAccountAsync(string userId, string token);
         Task<EditResponseDto> EditUser(SaveUserDto saveDto, string origin, bool? isCreated = false);
         Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request);
-        Task<List<UserDto>> GetAllUser(bool? isActive = true);
+        Task<List<UserDto>> GetAllActiveUsers();
         Task<UserDto?> GetUserByEmail(string email);
         Task<UserDto?> GetUserByUserName(string userName);
         Task<UserDto?> GetUserById(string Id);
-
         Task<List<UserDto>> GetUsersByIds(List<Guid> ids);
-
-
+        Task<IList<string>> GetUserRolesAsync(Guid userId);
         Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin);
         Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request);
         Task SignOutAsync();
         Task<List<Guid>> GetAllUserIdsAsync();
-
-
-
-        //Nueva firma broki
-
         Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin);
-
-        //unico metodo para activar y desactivar:
-
         Task<bool> SetUserActiveStatus(string id, bool isActive);
-
 
     }
 }
