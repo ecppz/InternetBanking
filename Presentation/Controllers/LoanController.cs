@@ -73,49 +73,6 @@ namespace Presentation.Controllers
             return View(vms);
         }
 
-        public async Task<IActionResult> Create()
-        {
-            UserAccount? userSession = await userManager.GetUserAsync(User);
-
-            if (userSession == null)
-            {
-                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
-
-            var roles = await userManager.GetRolesAsync(userSession);
-
-            if (!roles.Contains(Roles.Admin.ToString()))
-            {
-                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
-
-            return View("Save");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateLoanViewModel vm)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("Save", vm);
-            }
-
-            try
-            {
-                var dto = mapper.Map<CreateLoanDto>(vm);
-                var loan = await loanService.CreateLoanAsync(dto);
-                //    TempData["Success"] = $"Usuario creado correctamente. Se ha enviado un correo de confirmación a {result.Email}.";
-                TempData["Success"] = "Préstamo creado correctamente";
-                return RedirectToAction("Create");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(vm);
-            }
-        }
-
         public async Task<IActionResult> Edit(Guid id)
         {
             var dto = await loanService.GetById(id);

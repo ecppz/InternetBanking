@@ -32,6 +32,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5Ib21lXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Beneficiary/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZWZpY2lhcnlcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CreditCard/AssignCreditCard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlZGl0Q2FyZFxBc3NpZ25DcmVkaXRDYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -124,12 +128,56 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFpbnRlbmFuY2VVc2VyXFNhdmUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/SavingsAccount/Cancel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcQ2FuY2VsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/SavingsAccount/CreateSecondary.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcQ3JlYXRlU2Vjb25kYXJ5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/SavingsAccount/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/SavingsAccount/List.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2F2aW5nc0FjY291bnRcTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_Alerts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BbGVydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_LayoutAnonymous.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRBbm9ueW1vdXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/ConfirmDeposit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybURlcG9zaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/ConfirmTransfer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybVRyYW5zZmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/ConfirmWithdrawal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cQ29uZmlybVdpdGhkcmF3YWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/Deposit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cRGVwb3NpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/TransferToThirdParty.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cVHJhbnNmZXJUb1RoaXJkUGFydHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Transaction/Withdrawal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhbnNhY3Rpb25cV2l0aGRyYXdhbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/_ViewImports.cshtml]

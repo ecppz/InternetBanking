@@ -1,0 +1,50 @@
+﻿@model SavingsAccountDetailViewModel
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Detalle de Cuenta";
+}
+
+<h2 class="mb-4"><i class="fas fa-wallet"></i> Detalle de Cuenta</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <p><strong><i class="fas fa-hashtag"></i> Número:</strong> @Model.Account.AccountNumber</p>
+        <p><strong><i class="fas fa-dollar-sign"></i> Balance:</strong> @Model.Account.Balance.ToString("C")</p>
+        <p><strong><i class="fas fa-layer-group"></i> Tipo:</strong> @(Model.Account.IsPrimary ? "Principal" : "Secundaria")</p>
+        <p><strong><i class="fas fa-user"></i> Cliente:</strong> @Model.Account.OwnerFullName</p>
+        <p><strong><i class="fas fa-id-card"></i> Documento:</strong> @Model.Account.DocumentNumber</p>
+    </div>
+</div>
+
+<h3 class="mb-3"><i class="fas fa-list-alt"></i> Transacciones</h3>
+
+<table class="table table-bordered table-hover shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th><i class="fas fa-calendar-alt"></i> Fecha</th>
+            <th><i class="fas fa-money-bill-wave"></i> Monto</th>
+            <th><i class="fas fa-random"></i> Tipo</th>
+            <th><i class="fas fa-arrow-up"></i> Origen</th>
+            <th><i class="fas fa-arrow-down"></i> Beneficiario</th>
+            <th><i class="fas fa-check-circle"></i> Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tx in Model.Account.Transactions)
+        {
+            var estadoColor = tx.Status == "APROBADA" ? "text-success" : "text-danger";
+            var estadoIcono = tx.Status == "APROBADA" ? "fas fa-check-circle" : "fas fa-times-circle";
+            var tipoIcono = tx.VisualType == "CRÉDITO" ? "fas fa-arrow-down text-success" : "fas fa-arrow-up text-danger";
+
+            <tr>
+                <td>@tx.Date.ToString("dd/MM/yyyy h:mm tt")</td>
+                <td>@tx.Amount.ToString("C")</td>
+                <td><i class="@tipoIcono"></i> @tx.VisualType</td>
+                <td>@tx.Origin</td>
+                <td>@tx.Beneficiary</td>
+                <td class="@estadoColor"><i class="@estadoIcono"></i> @tx.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

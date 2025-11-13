@@ -14,6 +14,7 @@ namespace Application.Services
     {
         private readonly ILoanRepository loanRepository;
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
+        private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountService userAccountService;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
@@ -74,6 +75,41 @@ namespace Application.Services
 
             await loanInstallmentRepository.AddRangeAsync(installments);
 
+
+            //================================================================================================
+
+            // combinar savings account con el loan service!!!!!!!!!
+            // hacer q el prestamo se sume al balance de la cuenta principal (ahorro)
+
+            //================================================================================================
+
+
+            //var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(dto.UserId);
+
+            //if (accounts == null || !accounts.Any())
+            //{
+            //    return new LoanResponseDto
+            //    {
+            //        Success = false,
+            //        Message = "El cliente no tiene cuenta de ahorro principal registrada."
+            //    };
+            //}
+
+            //var primaryAccount = accounts.FirstOrDefault(a => a.IsPrimary);
+            //if (primaryAccount == null)
+            //{
+            //    return new LoanResponseDto
+            //    {
+            //        Success = false,
+            //        Message = "El cliente no tiene cuenta de ahorro principal."
+            //    };
+            //}
+
+            //await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
+
+            //================================================================================================
+
+
             var user = await userAccountService.GetUserById(dto.UserId.ToString());
             await emailService.SendAsync(new EmailRequestDto
             {
@@ -100,7 +136,6 @@ namespace Application.Services
         }
 
         public async Task<string> UpdateInterestRateAsync(EditLoanDto dto)
-
         {
             var loan = await loanRepository.GetById(dto.Id);
             if (loan == null)
@@ -109,37 +144,45 @@ namespace Application.Services
             }
 
             loan.AnnualInterestRate = dto.AnnualInterestRate;
-
             await loanRepository.UpdateAsync(loan.Id, loan);
 
             var installments = await loanInstallmentRepository.GetByLoanIdAsync(loan.Id);
+            var now = DateTime.UtcNow;
 
-            var now = DateTime.Now;
+            double r = (double)(loan.AnnualInterestRate / 12 / 100);
+            double n = loan.TermMonths;
+            double P = (double)loan.Amount;
+            double cuotaRaw = P * (r * Math.Pow(1 + r, n)) / (Math.Pow(1 + r, n) - 1);
+            decimal nuevaCuota = Math.Round((decimal)cuotaRaw, 2);
 
             foreach (var installment in installments)
             {
                 if (installment.DueDate > now && !installment.IsPaid)
                 {
-                    double r = (double)(loan.AnnualInterestRate / 12 / 100);
-                    double n = loan.TermMonths;
-                    double P = (double)loan.Amount;
-
-                    double cuotaRaw = P * (r * Math.Pow(1 + r, n)) / (Math.Pow(1 + r, n) - 1);
-                    decimal cuota = Math.Round((decimal)cuotaRaw, 2);
-
+                    installment.Amount = nuevaCuota; 
                 }
             }
 
             await loanInstallmentRepository.UpdateRangeAsync(installments);
 
             var user = await userAccountService.GetUserById(loan.UserId.ToString());
-            //if (user != null)
-            //{
-            //      await emailService.SendLoanRateUpdateEmail(user.Email, newRate: dto.AnnualInterestRate);
-            //}
-
-            //aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
+            if (user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Tasa de interés actualizada",
+                    HtmlBody = $@"
+                    <p>Estimado {user.Name},</p>
+                    <p>La tasa de interés de su préstamo ha sido actualizada.</p>
+                    <ul>
+                        <li><b>Número de préstamo:</b> {loan.LoanNumber}</li>
+                        <li><b>Nueva tasa anual:</b> {loan.AnnualInterestRate}%</li>
+                        <li><b>Nueva cuota mensual:</b> {nuevaCuota:C}</li>
+                    </ul>
+                    <p>Este cambio aplica a las cuotas futuras no vencidas.</p>"
+                });
+            }
 
             return "Tasa de interés actualizada y cuotas recalculadas correctamente";
         }

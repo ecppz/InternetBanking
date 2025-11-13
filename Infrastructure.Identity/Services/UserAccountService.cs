@@ -438,7 +438,7 @@ namespace Infrastructure.Identity.Services
         public async Task<List<UserDto>> GetAllActiveUsers()
         {
             var listUsersDtos = new List<UserDto>();
-            var users = userManager.Users.Where(u => u.IsActive); // ✅ filtra por estado
+            var users = userManager.Users.Where(u => u.IsActive);
 
             var listUser = await users.ToListAsync();
 

@@ -9,5 +9,7 @@ namespace Application.Dtos.SavingsAccount
         public decimal Balance { get; set; }
         public bool IsPrimary { get; set; }
 
+        public bool IsActive { get; set; }
+
     }
 }
