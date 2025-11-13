@@ -32,6 +32,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5Ib21lXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Beneficiary/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZWZpY2lhcnlcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/miese/Desktop/InternetBanking/InternetBanking-Limpio/Presentation/Views/Login/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cQWNjZXNzRGVuaWVkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

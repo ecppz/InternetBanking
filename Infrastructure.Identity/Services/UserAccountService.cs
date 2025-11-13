@@ -426,7 +426,8 @@ namespace Infrastructure.Identity.Services
                 Email = user.Email ?? "",
                 DocumentNumber = user.DocumentNumber,
                 isVerified = user.EmailConfirmed,
-                Role = rolesList.FirstOrDefault() ?? ""
+                Role = rolesList.FirstOrDefault() ?? "",
+                 IsActive = user.IsActive
             };
 
             return userDto;

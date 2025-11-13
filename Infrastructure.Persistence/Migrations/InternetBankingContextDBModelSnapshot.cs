@@ -28,12 +28,15 @@ namespace Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DocumentNumber")
+                    b.Property<string>("BeneficiaryAccountNumber")
                         .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("Email")
+                    b.Property<Guid>("BeneficiaryUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -48,7 +51,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerUserId", "DocumentNumber")
+                    b.HasIndex("OwnerUserId", "BeneficiaryAccountNumber")
                         .IsUnique();
 
                     b.ToTable("Beneficiaries", (string)null);

@@ -33,9 +33,9 @@ namespace Presentation.Controllers
 
                 return role switch
                 {
-                    "Admin" => RedirectToAction("Index", "Home"),
+                    "Admin" => RedirectToAction("Index", "MaintenanceUser"),
                     "Cashier" => RedirectToAction("TransferToThirdParty", "CashierHome"),
-                    "Client" => RedirectToAction("Index", "ClientHome"),
+                    "Customer" => RedirectToAction("Index", "Beneficiary"),
                     _ => RedirectToAction("AccessDenied", "Login")
                 };
             }
@@ -62,7 +62,7 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
 
                 if (userSession.Role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "Home", action = "Index" });
+                    return RedirectToRoute(new { controller = "Beneficiary", action = "Index" });
             }
 
             // Validación de modelo
@@ -92,7 +92,7 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
 
                 if (role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
+                    return RedirectToRoute(new { controller = "Beneficiary", action = "Index" });
 
                 ModelState.AddModelError("userValidation", "Rol no reconocido.");
             }
