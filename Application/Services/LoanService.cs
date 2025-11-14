@@ -19,11 +19,12 @@ namespace Application.Services
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, IUserAccountService userAccountService, IEmailService emailService, IMapper mapper)
+        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService, IEmailService emailService, IMapper mapper)
             : base(loanRepository, mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
+            this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
             this.emailService = emailService;
             this.mapper = mapper;
@@ -74,41 +75,29 @@ namespace Application.Services
             }
 
             await loanInstallmentRepository.AddRangeAsync(installments);
+           
+            var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(dto.UserId);
 
+            if (accounts == null || !accounts.Any())
+            {
+                return new LoanResponseDto
+                {
+                    Success = false,
+                    Message = "El cliente no tiene cuenta de ahorro principal registrada."
+                };
+            }
 
-            //================================================================================================
+            var primaryAccount = accounts.FirstOrDefault(a => a.IsPrimary);
+            if (primaryAccount == null)
+            {
+                return new LoanResponseDto
+                {
+                    Success = false,
+                    Message = "El cliente no tiene cuenta de ahorro principal."
+                };
+            }
 
-            // combinar savings account con el loan service!!!!!!!!!
-            // hacer q el prestamo se sume al balance de la cuenta principal (ahorro)
-
-            //================================================================================================
-
-
-            //var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(dto.UserId);
-
-            //if (accounts == null || !accounts.Any())
-            //{
-            //    return new LoanResponseDto
-            //    {
-            //        Success = false,
-            //        Message = "El cliente no tiene cuenta de ahorro principal registrada."
-            //    };
-            //}
-
-            //var primaryAccount = accounts.FirstOrDefault(a => a.IsPrimary);
-            //if (primaryAccount == null)
-            //{
-            //    return new LoanResponseDto
-            //    {
-            //        Success = false,
-            //        Message = "El cliente no tiene cuenta de ahorro principal."
-            //    };
-            //}
-
-            //await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
-
-            //================================================================================================
-
+            await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
 
             var user = await userAccountService.GetUserById(dto.UserId.ToString());
             await emailService.SendAsync(new EmailRequestDto
