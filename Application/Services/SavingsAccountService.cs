@@ -148,7 +148,8 @@ namespace Application.Services
                 UserId = dto.UserId,
                 AccountNumber = await GenerateUniqueAccountNumberAsync(),
                 Balance = dto.InitialBalance,
-                IsPrimary = false
+                IsPrimary = false,
+                Status = SavingsAccountStatus.Activa
             };
 
             var accountDto = mapper.Map<SavingsAccountDto>(account);

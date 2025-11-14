@@ -34,7 +34,7 @@ namespace Presentation.Controllers
                 return role switch
                 {
                     "Admin" => RedirectToAction("Index", "MaintenanceUser"),
-                    "Cashier" => RedirectToAction("TransferToThirdParty", "CashierHome"),
+                    "Cashier" => RedirectToAction("TransferToThirdParty", "Transaction"),
                     "Customer" => RedirectToAction("Index", "Beneficiary"),
                     _ => RedirectToAction("AccessDenied", "Login")
                 };

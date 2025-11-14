@@ -4,6 +4,31 @@
     ViewData["Title"] = "Retiro";
 }
 
+@using System.Text.Json
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Retiro  realizado',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+            confirmButtonColor: '#198754'
+        });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en retiro',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+            confirmButtonColor: '#d33'
+        });
+    </script>
+}
+
 <div class="container mt-5">
     <h2 class="text-danger mb-4"><i class="bi bi-cash-coin"></i> Realizar Retiro</h2>
 
@@ -37,3 +62,4 @@
         </button>
     </form>
 </div>
+

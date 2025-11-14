@@ -65,4 +65,30 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    @using System.Text.Json
+
+@if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Transferencia exitosa',
+                text: @Html.Raw(JsonSerializer.Serialize(TempData["SuccessMessage"])),
+                confirmButtonColor: '#198754'
+            });
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error en transferencia',
+                text: @Html.Raw(JsonSerializer.Serialize(TempData["ErrorMessage"])),
+                confirmButtonColor: '#d33'
+            });
+        </script>
+    }
 }
