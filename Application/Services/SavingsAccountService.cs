@@ -24,11 +24,6 @@ namespace Application.Services
 
         public async Task<bool> AddBalanceAsync(Guid accountId, decimal amount)
         {
-            if (amount <= 0)
-            {
-                return false;
-            }
-
             var account = await savingsAccountRepository.GetById(accountId);
             if (account == null)
             {
