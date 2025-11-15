@@ -1,2 +1,16 @@
+# Ignorar bin y obj
 .vs/
+bin/
+obj/
+
+# Ignorar archivos de compilación
+*.dll
+*.exe
+*.pdb
 *.cache
+*.json
+
+# Ignorar VS/IDE temporales
+.vscode/
+*.user
+*.suo
