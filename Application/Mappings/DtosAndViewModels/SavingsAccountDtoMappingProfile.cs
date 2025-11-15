@@ -9,8 +9,10 @@ namespace Application.Mappings.DtosAndViewModels
     {
         public SavingsAccountDtoMappingProfile()
         {
-            // SavingsAccount <-> SavingsAccountDto
-            CreateMap<SavingsAccountDto, SavingsAccount>().ReverseMap();
+            CreateMap<SavingsAccount, SavingsAccountDto>()
+        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+        .ReverseMap()
+        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             // CreateSavingsAccountDto -> SavingsAccount
             CreateMap<CreateSavingsAccountDto, SavingsAccount>();

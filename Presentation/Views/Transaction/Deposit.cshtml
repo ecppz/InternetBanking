@@ -1,9 +1,34 @@
-﻿@model DepositFormViewModel
+﻿@using System.Text.Json
+@model DepositFormViewModel
 @{
     Layout = "_LayoutCashier";
     ViewData["Title"] = "Depósito";
 }
 
+
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Depósito realizado',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+            confirmButtonColor: '#198754'
+        });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en depósito',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+            confirmButtonColor: '#d33'
+        });
+    </script>
+}
 <div class="container mt-5">
     <h2 class="text-primary mb-4"><i class="bi bi-wallet2"></i> Realizar Depósito</h2>
 
@@ -37,3 +62,4 @@
         </button>
     </form>
 </div>
+

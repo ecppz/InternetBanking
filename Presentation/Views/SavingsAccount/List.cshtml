@@ -5,33 +5,43 @@
     Layout = "_LayoutAdmin";
 }
 
-<h2>Listado de Cuentas de Ahorro</h2>
+<h2 class="mb-4">Listado de Cuentas de Ahorro</h2>
 
-<form method="get">
-    <input type="text" name="DocumentNumber" placeholder="Documento" value="@Model.DocumentNumber" />
-    <select name="IsActive">
-        <option value="">Estado</option>
-        <option value="true">Activa</option>
-        <option value="false">Inactiva</option>
-    </select>
-    <select name="IsPrimary">
-        <option value="">Tipo</option>
-        <option value="true">Principal</option>
-        <option value="false">Secundaria</option>
-    </select>
-    <button type="submit">Filtrar</button>
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <input type="text" name="DocumentNumber" class="form-control" placeholder="Documento" value="@Model.DocumentNumber" />
+    </div>
+    <div class="col-md-2">
+        <select name="IsActive" class="form-select">
+            <option value="">Estado</option>
+            <option value="true">Activa</option>
+            <option value="false">Inactiva</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="IsPrimary" class="form-select">
+            <option value="">Tipo</option>
+            <option value="true">Principal</option>
+            <option value="false">Secundaria</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-funnel-fill"></i> Filtrar
+        </button>
+    </div>
 </form>
 
-<table class="table">
-    <thead>
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th>Número</th>
-            <th>Balance</th>
-            <th>Tipo</th>
-            <th>Cliente</th>
-            <th>Documento</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th><i class="bi bi-hash"></i> Cuenta</th>
+            <th><i class="bi bi-cash-coin"></i> Balance</th>
+            <th><i class="bi bi-person-badge"></i> Tipo</th>
+            <th><i class="bi bi-person-fill"></i> Cliente</th>
+            <th><i class="bi bi-card-text"></i> Documento</th>
+            <th><i class="bi bi-shield-check"></i> Estado</th>
+            <th class="text-center"><i class="bi bi-tools"></i> Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -43,29 +53,77 @@
                 <td>@(acc.IsPrimary ? "Principal" : "Secundaria")</td>
                 <td>@acc.OwnerFullName</td>
                 <td>@acc.DocumentNumber</td>
-                <td class="@(acc.Estado == SavingsAccountStatus.Activa ? "text-success" : acc.Estado == SavingsAccountStatus.Bloqueada ? "text-warning" : "text-danger")">
-                    @acc.Estado.ToString()
-                </td>
                 <td>
-                    <a asp-action="Detail" asp-route-id="@acc.Id" class="btn btn-info btn-sm">Detalle</a>
+                    <span class="badge bg-@(
+                          acc.Estado == SavingsAccountStatus.Activa ? "success" :
+                          acc.Estado == SavingsAccountStatus.Bloqueada ? "warning text-dark" :
+                          acc.Estado == SavingsAccountStatus.Cancelada ? "danger" :
+                          acc.Estado == SavingsAccountStatus.Suspendida ? "secondary" :
+                          acc.Estado == SavingsAccountStatus.Pendiente ? "info" :
+                          "dark")">
+                    @acc.Estado
+                </span>
+            </td>
+            <td class="text-center">
+                <a asp-action="Detail" asp-route-id="@acc.Id" class="btn btn-outline-info btn-sm me-1" title="Ver detalle">
+                    <i class="bi bi-eye-fill"></i> Detalle
+                </a>
 
-                    @if (!acc.IsPrimary && acc.IsActive)
+                @if (!acc.IsPrimary && acc.IsActive)
                     {
-                        <form asp-action="Cancel" asp-route-id="@acc.Id" method="get" style="display:inline">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-ban"></i> Cancelar
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger btn-sm me-1"
+                                onclick="confirmCancel('@Url.Action("Cancel", new { id = acc.Id })')"
+                                title="Cancelar cuenta">
+                            <i class="bi bi-x-octagon-fill"></i> Cancelar
+                        </button>
                     }
 
                     @if (acc.IsPrimary)
                     {
-                        <a asp-action="CreateSecondary" asp-route-userId="@acc.UserId" class="btn btn-success btn-sm">
-                            Asignar Secundaria
-                        </a>
+                        <button type="button" class="btn btn-outline-success btn-sm"
+                                onclick="confirmAssign('@Url.Action("CreateSecondary", new { userId = acc.UserId })')"
+                                title="Asignar cuenta secundaria">
+                            <i class="bi bi-person-plus-fill"></i> Asignar secundaria
+                        </button>
                     }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<script>
+    function confirmCancel(url) {
+        Swal.fire({
+            title: '¿Cancelar cuenta?',
+            text: 'Esta acción desactivará la cuenta secundaria.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+
+    function confirmAssign(url) {
+        Swal.fire({
+            title: '¿Asignar cuenta secundaria?',
+            text: 'Se creará una cuenta secundaria para este cliente.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, asignar',
+            cancelButtonText: 'No',
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+</script>
