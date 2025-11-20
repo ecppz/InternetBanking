@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common.Enums;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistence.Contexts;
 using Infrastructure.Persistence.Repositories;
@@ -126,6 +127,40 @@ public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavi
 
     //Para cuenta de ahorro aqui finalizan sus metodos
 
+
+    //Metod de la funcionalidad de cliente de tranferencia entre cuentas propias
+
+
+    public async Task<SavingsAccount?> GetActiveByIdAndUserAsync(Guid accountId, Guid userId)
+    {
+        return await context.SavingsAccounts
+            .FirstOrDefaultAsync(sa =>
+                sa.Id == accountId &&
+                sa.UserId == userId &&
+                sa.Status == SavingsAccountStatus.Activa);
+    }
+
+    public async Task<List<SavingsAccount>> GetActiveByUserIdAsync(Guid userId)
+    {
+        return await context.SavingsAccounts
+            .Where(a => a.UserId == userId && a.Status == SavingsAccountStatus.Activa)
+            .OrderByDescending(a => a.AccountNumber)
+            .ToListAsync();
+    }
+
+    public async Task<bool> UpdateBalanceAsync(Guid accountId, decimal newBalance)
+    {
+        var account = await context.SavingsAccounts.FindAsync(accountId);
+        if (account == null)
+            return false;
+
+        account.Balance = newBalance;
+
+        context.SavingsAccounts.Update(account);
+        var changes = await context.SaveChangesAsync();
+
+        return changes > 0;
+    }
 
 
 }

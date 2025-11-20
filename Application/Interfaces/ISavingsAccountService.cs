@@ -31,5 +31,11 @@ namespace Application.Interfaces
 
         //Gestion de cuneta de ahorro termina aqui
 
+        //metodo para obtener las cuentas activas del cliente:
+
+        Task<List<SavingsAccountDto>> GetActiveByUserIdAsync(Guid userId);
+
+        Task<SavingsAccountDto?> GetByAccountNumberAsync(string accountNumber);
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.Transaction;
 using Application.ViewModels.Transaction;
+using Application.ViewModels.TransactionBeneficiaryTransfer;
 
 namespace Application.Interfaces
 {
@@ -61,6 +62,17 @@ namespace Application.Interfaces
         Task<WithdrawalConfirmationDto?> ValidateWithdrawalAsync(WithdrawalRequestDto request);
         Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request);
 
+        //Trasaccion para beneficiarios
+
+
+        Task<ConfirmBeneficiaryTransferViewModel> PrepareBeneficiaryTransferConfirmationAsync(
+            string originAccountNumber,
+            string beneficiaryAccountNumber,
+            decimal amount,
+            Guid ownerUserId
+        );
+
+        Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
 
     }
 }

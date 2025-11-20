@@ -15,12 +15,14 @@ namespace Presentation.Controllers
         private readonly IMapper mapper;
         private readonly ITransactionService transactionService;
         private readonly ISavingsAccountService savingsAccountService;
+        private readonly IUserAccountService userAccountService;
 
-        public TransactionController(IMapper mapper, ITransactionService transactionService, ISavingsAccountService savingsAccountService)
+        public TransactionController(IMapper mapper, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService)
         {
             this.mapper = mapper;
             this.transactionService = transactionService;
             this.savingsAccountService = savingsAccountService;
+            this.userAccountService = userAccountService;
         }
 
 
@@ -291,6 +293,47 @@ namespace Presentation.Controllers
             TempData["Success"] = "Retiro realizado exitosamente.";
             return RedirectToAction("Withdrawal");
         }
+
+        //Metodo para historial de transacciones exclusivo del cliente:
+        [HttpGet]
+        public async Task<IActionResult> CustomerTransactionHistory(Guid? accountId)
+        {
+            var user = await userAccountService.GetUserByUserName(User.Identity!.Name!);
+            if (user == null)
+                return Unauthorized();
+
+            if (!Guid.TryParse(user.Id, out var userGuid))
+                return BadRequest("ID de usuario inválido.");
+
+            var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(userGuid);
+
+            var model = new CustomerTransactionHistoryViewModel
+            {
+                UserAccounts = accounts,
+                SelectedAccountId = accountId
+            };
+
+            if (accountId.HasValue)
+            {
+                var selectedAccount = accounts.FirstOrDefault(a => a.Id == accountId.Value);
+                if (selectedAccount == null)
+                {
+                    model.Message = "La cuenta seleccionada no pertenece al usuario.";
+                    return View(model);
+                }
+
+                model.SelectedAccountNumber = selectedAccount.AccountNumber;
+                model.Transactions = await transactionService.GetAllByAccountIdOrderedAsync(accountId.Value);
+
+                if (!model.Transactions.Any())
+                {
+                    model.Message = "No hay transacciones registradas para esta cuenta.";
+                }
+            }
+
+            return View(model);
+        }
+
 
     }
 }

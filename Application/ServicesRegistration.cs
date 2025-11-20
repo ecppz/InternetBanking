@@ -21,6 +21,7 @@ namespace Application
             services.AddScoped<ILoanInstallmentService, LoanInstallmentService>();
             services.AddScoped<ISavingsAccountService, SavingsAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<IInternalTransferService, InternalTransferService>();
 
         }
 

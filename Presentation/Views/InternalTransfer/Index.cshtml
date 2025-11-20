@@ -1,0 +1,97 @@
+﻿@model InternalTransferViewModel
+@{
+    ViewData["Title"] = "Transferencia entre cuentas propias";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-arrow-left-right"></i> Transferencia entre cuentas propias</h2>
+
+    @if (Model.TransferResult != null)
+    {
+        <div class="alert @(Model.TransferResult.Success ? "alert-success" : "alert-danger")" role="alert">
+            <i class="bi @(Model.TransferResult.Success ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill")"></i>
+            @Model.TransferResult.Message
+        </div>
+    }
+
+    <form asp-action="Index" method="post">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="TransferRequest.OriginAccountId" class="form-label">
+                    <i class="bi bi-wallet2"></i> Cuenta de origen
+                </label>
+                <select asp-for="TransferRequest.OriginAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts, "Id", "AccountNumber"))">
+                    <option value="">-- Selecciona una cuenta --</option>
+                </select>
+                <span asp-validation-for="TransferRequest.OriginAccountId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="TransferRequest.DestinationAccountId" class="form-label">
+                    <i class="bi bi-wallet-fill"></i> Cuenta de destino
+                </label>
+                <select asp-for="TransferRequest.DestinationAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts, "Id", "AccountNumber"))">
+                    <option value="">-- Selecciona una cuenta --</option>
+                </select>
+                <span asp-validation-for="TransferRequest.DestinationAccountId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="TransferRequest.Amount" class="form-label">
+                <i class="bi bi-currency-dollar"></i> Monto a transferir
+            </label>
+            <input asp-for="TransferRequest.Amount" class="form-control" placeholder="Ej: 1000.00" />
+            <span asp-validation-for="TransferRequest.Amount" class="text-danger"></span>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="button" id="btnConfirmTransfer" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i> Realizar transferencia
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById("btnConfirmTransfer").addEventListener("click", function () {
+            Swal.fire({
+                title: "¿Deseas confirmar la transferencia?",
+                text: "Verifica que los datos sean correctos antes de continuar.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#198754",
+                cancelButtonColor: "#dc3545",
+                confirmButtonText: "Sí, confirmar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.forms[0].submit();
+                }
+            });
+        });
+
+        @if (Model.TransferResult != null)
+        {
+                var success = Model.TransferResult.Success.ToString().ToLower();
+                var message = Model.TransferResult.Message;
+                var title = Model.TransferResult.Success ? "¡Transferencia exitosa!" : "Error en la transferencia";
+                var icon = Model.TransferResult.Success ? "success" : "error";
+                var buttonColor = Model.TransferResult.Success ? "#198754" : "#dc3545";
+
+                <text>
+                Swal.fire({
+                    icon: '@icon',
+                    title: '@title',
+                    text: '@message',
+                    confirmButtonColor: '@buttonColor',
+                    confirmButtonText: 'Aceptar'
+                });
+                </text>
+        }
+    </script>
+}

@@ -192,6 +192,19 @@ namespace Application.Services
         }
 
 
+        public async Task<List<SavingsAccountDto>> GetActiveByUserIdAsync(Guid userId)
+        {
+            var all = await GetAllByUserIdOrderedAsync(userId);
+            return all
+                .Where(a => a.Status == SavingsAccountStatus.Activa)
+                .ToList();
+        }
+
+        public async Task<SavingsAccountDto?> GetByAccountNumberAsync(string accountNumber)
+        {
+            var entity = await savingsAccountRepository.GetByAccountNumberAsync(accountNumber);
+            return entity == null ? null : mapper.Map<SavingsAccountDto>(entity);
+        }
 
     }
 }

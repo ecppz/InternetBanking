@@ -71,5 +71,43 @@ namespace Infrastructure.Persistence.Repositories
 
         //Aqui finaliza los metodos de cuenta de ahoo   
 
+        public async Task<bool> ExecuteInternalTransferAsync(
+            SavingsAccount originAccount,
+            SavingsAccount destinationAccount,
+            decimal amount,
+            Transaction debitTransaction,
+            Transaction creditTransaction
+        )
+        {
+            using var transaction = await context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Actualizar balances
+                originAccount.Balance -= amount;
+                destinationAccount.Balance += amount;
+
+                context.SavingsAccounts.Update(originAccount);
+                context.SavingsAccounts.Update(destinationAccount);
+
+                // Registrar transacciones
+                await context.Transactions.AddAsync(debitTransaction);
+                await context.Transactions.AddAsync(creditTransaction);
+
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
+
+       
+
     }
 }

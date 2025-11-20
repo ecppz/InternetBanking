@@ -2,12 +2,13 @@
 using Application.Dtos.Transaction;
 using Application.Interfaces;
 using Application.ViewModels.Transaction;
+using Application.ViewModels.TransactionBeneficiaryTransfer;
 using AutoMapper;
 using Domain.Common.Enums;
+using Domain.Common.Enums.Extensions;
 using Domain.Entities;
 using Domain.Interfaces;
 using System.Globalization;
-using Domain.Common.Enums.Extensions;
 
 
 namespace Application.Services
@@ -17,16 +18,18 @@ namespace Application.Services
         private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly IUserAccountService userAccountService;
+        private readonly IBeneficiaryRepository beneficiaryRepository;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IEmailService email, IUserAccountService userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
+        public TransactionService(ITransactionRepository transactionRepository,IBeneficiaryRepository beneficiaryRepository ,IEmailService email, IUserAccountService userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
         {
             this.transactionRepository = transactionRepository;
             this.mapper = mapper;
             this.savingsAccountRepository = savingsAccountRepository;
             this.userAccountService = userAccountService;
             emailService = email;
+            this.beneficiaryRepository = beneficiaryRepository;
         }
 
         public async Task<List<TransactionDto>> GetByOriginAccountIdAsync(Guid accountId)
@@ -50,7 +53,23 @@ namespace Application.Services
         public async Task<List<TransactionDto>> GetAllByAccountIdOrderedAsync(Guid accountId)
         {
             var transactions = await transactionRepository.GetAllByAccountIdOrderedAsync(accountId);
-            return mapper.Map<List<TransactionDto>>(transactions);
+
+            // Eliminar duplicados donde la cuenta es origen y destino
+            var filtered = transactions
+                .Where(t => !(t.OriginAccountId == accountId && t.DestinationAccountId == accountId))
+                .ToList();
+
+            var dtos = mapper.Map<List<TransactionDto>>(filtered);
+
+            foreach (var dto in dtos)
+            {
+                dto.VisualType = dto.OriginAccountId == accountId ? "DÉBITO" : "CRÉDITO";
+
+                var original = filtered.First(t => t.Id == dto.Id);
+                dto.Description = GetFriendlyDescription(original, dto.VisualType, accountId);
+            }
+
+            return dtos;
         }
 
         public async Task<List<TransactionDto>> GetAllByUserIdAsync(Guid userId)
@@ -75,11 +94,26 @@ namespace Application.Services
             foreach (var account in accounts)
             {
                 var tx = await transactionRepository.GetAllByAccountIdOrderedAsync(account.Id);
-                allTransactions.AddRange(tx);
+                var filtered = tx
+                    .Where(t => !(t.OriginAccountId == account.Id && t.DestinationAccountId == account.Id))
+                    .ToList();
+
+                allTransactions.AddRange(filtered);
             }
 
             var ordered = allTransactions.OrderByDescending(t => t.Date).ToList();
-            return mapper.Map<List<TransactionDto>>(ordered);
+            var dtos = mapper.Map<List<TransactionDto>>(ordered);
+
+            foreach (var dto in dtos)
+            {
+                var accountId = accounts.FirstOrDefault(a => a.Id == dto.OriginAccountId || a.Id == dto.DestinationAccountId)?.Id;
+                dto.VisualType = dto.OriginAccountId == accountId ? "DÉBITO" : "CRÉDITO";
+
+                var original = ordered.First(t => t.Id == dto.Id);
+                dto.Description = GetFriendlyDescription(original, dto.VisualType, accountId ?? Guid.Empty);
+            }
+
+            return dtos;
         }
 
         //Para cajero:
@@ -401,6 +435,133 @@ namespace Application.Services
 
             return true;
         }
+
+        private string GetFriendlyDescription(Transaction transaction, string visualType, Guid currentAccountId)
+        {
+            if (transaction.Type == TransactionType.Deposit && transaction.Origin == "DEPÓSITO")
+                return "Depósito por Cajero Automático";
+
+            if (transaction.Type == TransactionType.CashWithdrawal && transaction.Beneficiary == "RETIRO")
+                return "Retiro por Cajero Automático";
+
+            if (transaction.Type == TransactionType.Transfer)
+            {
+                bool isOwnTransfer = transaction.OriginAccountId != Guid.Empty
+                                     && transaction.DestinationAccountId != Guid.Empty
+                                     && transaction.OriginAccountId != transaction.DestinationAccountId
+                                     && transaction.OriginAccountId != Guid.Empty
+                                     && transaction.DestinationAccountId != Guid.Empty;
+
+                if (visualType == "DÉBITO")
+                    return $"Transferencia a {transaction.Beneficiary}";
+
+                if (isOwnTransfer)
+                    return $"Transferencia de cuenta propia ({transaction.Origin})";
+
+                return $"Transferencia recibida de {transaction.Origin}";
+            }
+
+            return "Transacción";
+        }
+
+        //
+
+        public async Task<ConfirmBeneficiaryTransferViewModel> PrepareBeneficiaryTransferConfirmationAsync(
+            string originAccountNumber,
+            string beneficiaryAccountNumber,
+            decimal amount,
+            Guid ownerUserId)
+        {
+            var originAccount = await savingsAccountRepository.GetByAccountNumberAsync(originAccountNumber);
+            var beneficiary = await beneficiaryRepository.GetByAccountNumberAndOwnerAsync(ownerUserId, beneficiaryAccountNumber);
+
+            if (originAccount == null || beneficiary == null)
+                throw new InvalidOperationException("No se pudo preparar la confirmación. Datos inválidos.");
+
+            return new ConfirmBeneficiaryTransferViewModel
+            {
+                OriginAccountId = originAccount.Id,
+                OriginAccountNumber = originAccount.AccountNumber,
+                BeneficiaryAccountNumber = beneficiary.BeneficiaryAccountNumber,
+                BeneficiaryFullName = $"{beneficiary.Name} {beneficiary.LastName}",
+                Amount = amount,
+                Timestamp = DateTime.Now
+            };
+        }
+
+        public async Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model)
+        {
+            var originAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.OriginAccountNumber);
+            var destinationAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.BeneficiaryAccountNumber);
+
+            if (originAccount == null || destinationAccount == null)
+                return false;
+
+            if (originAccount.Balance < model.Amount)
+                return false;
+
+            var newOriginBalance = originAccount.Balance - model.Amount;
+            var newDestinationBalance = destinationAccount.Balance + model.Amount;
+
+            var debit = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                OriginAccountId = originAccount.Id,
+                DestinationAccountId = destinationAccount.Id,
+                Amount = model.Amount,
+                Date = model.Timestamp,
+                Type = TransactionType.Transfer,
+                Status = "APROBADA",
+                Origin = model.OriginAccountNumber,
+                Beneficiary = model.BeneficiaryAccountNumber
+            };
+
+            var credit = new Transaction
+            {
+                Id = Guid.NewGuid(),
+                OriginAccountId = originAccount.Id,
+                DestinationAccountId = destinationAccount.Id,
+                Amount = model.Amount,
+                Date = model.Timestamp,
+                Type = TransactionType.Transfer,
+                Status = "APROBADA",
+                Origin = model.OriginAccountNumber,
+                Beneficiary = model.BeneficiaryAccountNumber
+            };
+
+            var debitSaved = await transactionRepository.RegisterTransactionAsync(debit);
+            var creditSaved = await transactionRepository.RegisterTransactionAsync(credit);
+
+            var originUpdated = await savingsAccountRepository.UpdateBalanceAsync(originAccount.Id, newOriginBalance);
+            var destinationUpdated = await savingsAccountRepository.UpdateBalanceAsync(destinationAccount.Id, newDestinationBalance);
+
+            if (!debitSaved || !creditSaved || !originUpdated || !destinationUpdated)
+                return false;
+
+            var sender = await userAccountService.GetUserById(originAccount.UserId.ToString());
+            var receiver = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
+
+            var last4Dest = model.BeneficiaryAccountNumber[^4..];
+            var last4Origin = model.OriginAccountNumber[^4..];
+            var fecha = model.Timestamp.ToString("dd/MM/yyyy HH:mm:ss");
+
+            await emailService.SendAsync(new EmailRequestDto
+            {
+                To = sender.Email,
+                Subject = $"Transacción realizada a la cuenta {last4Dest}",
+                HtmlBody = $"Se ha enviado un monto de {model.Amount:C} el día {fecha}."
+            });
+
+            await emailService.SendAsync(new EmailRequestDto
+            {
+                To = receiver.Email,
+                Subject = $"Transacción enviada desde la cuenta {last4Origin}",
+                HtmlBody = $"Ha recibido un monto de {model.Amount:C} el día {fecha}."
+            });
+
+            return true;
+        }
+
 
 
     }

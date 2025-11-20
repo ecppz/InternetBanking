@@ -22,5 +22,8 @@ namespace Application.Dtos.Transaction
 
         public string VisualType { get; set; } // "CRÉDITO" o "DÉBITO"
 
+        public string Description { get; set; } = string.Empty;
+
+
     }
 }
