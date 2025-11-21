@@ -77,17 +77,10 @@ namespace Presentation.Controllers
                 return View(model);
             }
 
-            //  Validación: no puede transferirse a sí mismo
+            // No puede transferirse a sí mismo (a cualquier cuenta suya)
             if (destinationAccount.UserId == userId)
             {
                 ModelState.AddModelError("", "No puedes transferirte a ti mismo. Usa la opción de Transferencias Internas.");
-                return View(model);
-            }
-
-            //  Validación: no puede transferir a cuenta secundaria
-            if (!destinationAccount.IsPrimary)
-            {
-                ModelState.AddModelError("", "No puedes transferir a una cuenta secundaria. Usa la opción de Transferencias Internas.");
                 return View(model);
             }
 
@@ -115,7 +108,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> ConfirmExpress(string action)
         {
             if (action == "cancelar")
-                return RedirectToAction("Index", "CustomerHome");
+                return RedirectToAction("CustomerHome", "CustomerHome");
 
             var json = TempData["TransferData"] as string;
             if (string.IsNullOrEmpty(json))
@@ -235,7 +228,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> ConfirmBeneficiaryTransfer()
         {
             if (!TempData.ContainsKey("BeneficiaryTransferData"))
-                return RedirectToAction("Home", "Customer");
+                return RedirectToAction("CustomerHome", "CustomerHome");
 
             var confirmation = JsonConvert.DeserializeObject<ConfirmBeneficiaryTransferViewModel>(
                 TempData["BeneficiaryTransferData"]!.ToString()!
@@ -243,6 +236,7 @@ namespace Presentation.Controllers
 
             var dto = new ExecuteBeneficiaryTransferDto
             {
+
                 OriginAccountNumber = confirmation.OriginAccountNumber,
                 BeneficiaryAccountNumber = confirmation.BeneficiaryAccountNumber,
                 BeneficiaryFullName = confirmation.BeneficiaryFullName,
@@ -257,7 +251,7 @@ namespace Presentation.Controllers
                 return View("ConfirmBeneficiaryTransfer", confirmation);
             }
 
-            return RedirectToAction("Home", "Customer");
+            return RedirectToAction("CustomerHome", "CustomerHome");
         }
 
         private async Task RefillFormAsync(BeneficiaryTransferFormViewModel model)

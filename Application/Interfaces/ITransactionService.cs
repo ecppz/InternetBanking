@@ -66,11 +66,11 @@ namespace Application.Interfaces
 
 
         Task<ConfirmBeneficiaryTransferViewModel> PrepareBeneficiaryTransferConfirmationAsync(
-            string originAccountNumber,
-            string beneficiaryAccountNumber,
-            decimal amount,
-            Guid ownerUserId
-        );
+    string originAccountNumber,
+    string beneficiaryAccountNumber,
+    decimal amount,
+    Guid ownerUserId
+);
 
         Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
 
