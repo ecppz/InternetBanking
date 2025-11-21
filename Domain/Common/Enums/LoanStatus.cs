@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Domain.Common.Enums
+﻿namespace Domain.Common.Enums
 {
     public enum LoanStatus
     {

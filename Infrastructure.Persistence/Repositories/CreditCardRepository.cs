@@ -22,6 +22,13 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<CreditCard>> GetActiveCardsByUserIdAsync(Guid userId)
+        {
+            return await context.CreditCards
+                .Where(c => c.UserId == userId && c.Status == CreditCardStatus.Active)
+                .ToListAsync();
+        }
+
         public async Task<List<CreditCard>> GetCancelledCardsAsync()
         {
             return await context.CreditCards
@@ -82,6 +89,12 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<int> GetCardCountAsync()
         {
             return await context.CreditCards.CountAsync();
+        }
+
+        public async Task<CreditCard?> GetByNumberAsync(string cardNumber)
+        {
+            return await context.CreditCards
+                .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);
         }
     }
 }

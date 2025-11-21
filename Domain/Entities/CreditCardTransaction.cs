@@ -1,4 +1,4 @@
-﻿using System.Transactions;
+﻿using Domain.Common.Enums;
 
 namespace Domain.Entities
 {
@@ -10,6 +10,7 @@ namespace Domain.Entities
         public required decimal Amount { get; set; }
         public required string TransactionOrigin { get; set; } 
         public TransactionStatus Status { get; set; }
+        public CreditCardTransactionType Type { get; set; }
     }
 
 }

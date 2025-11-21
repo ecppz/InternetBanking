@@ -33,9 +33,9 @@ namespace Presentation.Controllers
 
                 return role switch
                 {
-                    "Admin" => RedirectToAction("Index", "MaintenanceUser"),
-                    "Cashier" => RedirectToAction("TransferToThirdParty", "Transaction"),
-                    "Customer" => RedirectToAction("Index", "Beneficiary"),
+                    "Admin" => RedirectToAction("Index", "AdminHome"),
+                    "Cashier" => RedirectToAction("Index", "CashierHome"),
+                    "Customer" => RedirectToAction("Index", "CustomerHome"),
                     _ => RedirectToAction("AccessDenied", "Login")
                 };
             }
@@ -56,13 +56,13 @@ namespace Presentation.Controllers
             if (userSession != null && userSession.IsActive)
             {
                 if (userSession.Role == Roles.Admin.ToString())
-                    return RedirectToRoute(new { controller = "MaintenanceUser", action = "Index" });
+                    return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
 
                 if (userSession.Role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
+                    return RedirectToRoute(new { controller = "CashierHome", action = "Index" });
 
                 if (userSession.Role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "Beneficiary", action = "Index" });
+                    return RedirectToRoute(new { controller = "CustomerHome", action = "Index" });
             }
 
             // Validación de modelo
@@ -86,13 +86,13 @@ namespace Presentation.Controllers
                 var role = response.Roles.FirstOrDefault();
 
                 if (role == Roles.Admin.ToString())
-                    return RedirectToRoute(new { controller = "MaintenanceUser", action = "Index" });
+                    return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
 
                 if (role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "Transaction", action = "TransferToThirdParty" });
+                    return RedirectToRoute(new { controller = "CashierHome", action = "Index" });
 
                 if (role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "Beneficiary", action = "Index" });
+                    return RedirectToRoute(new { controller = "CustomerHome", action = "Index" });
 
                 ModelState.AddModelError("userValidation", "Rol no reconocido.");
             }

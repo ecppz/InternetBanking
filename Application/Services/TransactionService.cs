@@ -167,7 +167,7 @@ namespace Application.Services
                 Amount = amount,
                 Date = now,
                 Type = TransactionType.Transfer,
-                Status = "APROBADA",
+                Status = TransactionStatus.Approved,
                 Origin = origin.AccountNumber,
                 Beneficiary = destination.AccountNumber
             });
@@ -185,12 +185,12 @@ namespace Application.Services
                 var last4Dest = destination.AccountNumber[^4..];
                 var subjectOrigin = $"Transacción realizada a la cuenta {last4Dest}";
                 var bodyOrigin = $@"
-        <div style='font-family:Arial,sans-serif;color:#333'>
-            <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
-            <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
-            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-            <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
-        </div>";
+                    <div style='font-family:Arial,sans-serif;color:#333'>
+                        <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
+                        <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
+                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                        <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
+                    </div>";
 
                 await emailService.SendAsync(new EmailRequestDto
                 {
@@ -203,12 +203,12 @@ namespace Application.Services
                 var last4Origin = origin.AccountNumber[^4..];
                 var subjectDest = $"Transacción enviada desde la cuenta {last4Origin}";
                 var bodyDest = $@"
-        <div style='font-family:Arial,sans-serif;color:#333'>
-            <h2 style='color:#28B463'>Depósito Recibido</h2>
-            <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
-            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-        </div>";
+                    <div style='font-family:Arial,sans-serif;color:#333'>
+                        <h2 style='color:#28B463'>Depósito Recibido</h2>
+                        <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
+                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                        <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                    </div>";
 
                 await emailService.SendAsync(new EmailRequestDto
                 {
@@ -253,7 +253,8 @@ namespace Application.Services
                 Amount = amount,
                 Date = DateTime.UtcNow,
                 Type = TransactionType.Transfer,
-                Status = $"RECHAZADA: {reason}",
+                Status = TransactionStatus.Rejected,
+                Reason = reason,
                 Origin = originAccountNumber,
                 Beneficiary = destinationAccountNumber
             });
@@ -299,7 +300,7 @@ namespace Application.Services
                 Amount = request.Amount,
                 Date = now,
                 Type = TransactionType.Deposit,
-                Status = "APROBADA",
+                Status = TransactionStatus.Approved,
                 Origin = "DEPÓSITO",
                 Beneficiary = destination.AccountNumber
             });
@@ -313,12 +314,12 @@ namespace Application.Services
 
                 var subject = $"Depósito realizado a su cuenta {last4}";
                 var body = $@"
-        <div style='font-family:Arial,sans-serif;color:#333'>
-            <h2 style='color:#28B463'>Depósito Recibido</h2>
-            <p>Se ha depositado <strong>{formattedAmount}</strong> en su cuenta <strong>{last4}</strong>.</p>
-            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-        </div>";
+                        <div style='font-family:Arial,sans-serif;color:#333'>
+                            <h2 style='color:#28B463'>Depósito Recibido</h2>
+                            <p>Se ha depositado <strong>{formattedAmount}</strong> en su cuenta <strong>{last4}</strong>.</p>
+                            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                        </div>";
 
                 await emailService.SendAsync(new EmailRequestDto
                 {
@@ -370,7 +371,7 @@ namespace Application.Services
                 Amount = request.Amount,
                 Date = now,
                 Type = TransactionType.CashWithdrawal,
-                Status = "APROBADA",
+                Status = TransactionStatus.Approved,
                 Origin = origin.AccountNumber,
                 Beneficiary = "RETIRO"
             });
@@ -384,12 +385,12 @@ namespace Application.Services
 
                 var subject = $"Retiro realizado a su cuenta {last4}";
                 var body = $@"
-        <div style='font-family:Arial,sans-serif;color:#333'>
-            <h2 style='color:#C0392B'>Retiro Procesado</h2>
-            <p>Se ha retirado <strong>{formattedAmount}</strong> de su cuenta <strong>{last4}</strong>.</p>
-            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-        </div>";
+                        <div style='font-family:Arial,sans-serif;color:#333'>
+                            <h2 style='color:#C0392B'>Retiro Procesado</h2>
+                            <p>Se ha retirado <strong>{formattedAmount}</strong> de su cuenta <strong>{last4}</strong>.</p>
+                            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                        </div>";
 
                 await emailService.SendAsync(new EmailRequestDto
                 {

@@ -16,8 +16,8 @@ namespace Domain.Interfaces
         Task<SavingsAccount?> GetSecondaryByIdAsync(Guid accountId);
         Task<List<SavingsAccount>> GetAllByUserIdOrderedAsync(Guid userId);
         Task<List<SavingsAccount>> GetAllActiveAsync();
+        Task<List<SavingsAccount>> GetActiveAccountsByUserIdAsync(Guid userId);
         Task<List<SavingsAccount>> GetAllByFiltersAsync(bool? isActive, bool? isPrimary);
-
         Task<SavingsAccount?> GetByIdAsync(Guid accountId);
 
 

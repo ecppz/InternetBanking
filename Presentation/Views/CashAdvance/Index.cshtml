@@ -1,0 +1,65 @@
+﻿@model CashAdvanceViewModel
+
+@{
+    ViewData["Title"] = "Avance de efectivo";
+    Layout = "_LayoutCustomer";
+}
+
+<h2>Avance de efectivo</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+<form asp-action="Index" method="post">
+    <div class="form-group">
+        <label for="CreditCardId">Tarjeta de crédito origen</label>
+        @if (ViewBag.CreditCards == null || !((SelectList)ViewBag.CreditCards).Any())
+        {
+            <p class="text-warning">No tiene tarjetas de crédito asignadas.</p>
+        }
+        else
+        {
+            <select asp-for="CreditCardId" class="form-control" asp-items="ViewBag.CreditCards">
+                <option value="">Seleccione una tarjeta</option>
+            </select>
+            <span asp-validation-for="CreditCardId" class="text-danger"></span>
+        }
+    </div>
+
+    <div class="form-group">
+        <label for="SavingsAccountId">Cuenta de ahorro destino</label>
+        @if (ViewBag.SavingsAccounts == null || !((SelectList)ViewBag.SavingsAccounts).Any())
+        {
+            <p class="text-warning">No tiene cuentas de ahorro creadas.</p>
+        }
+        else
+        {
+            <select asp-for="SavingsAccountId" class="form-control" asp-items="ViewBag.SavingsAccounts">
+                <option value="">-Seleccione una cuenta</option>
+            </select>
+            <span asp-validation-for="SavingsAccountId" class="text-danger"></span>
+        }
+    </div>
+
+    <div class="form-group">
+        <label for="Amount">Monto del avance</label>
+        <input asp-for="Amount" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Continuar</button>
+</form>

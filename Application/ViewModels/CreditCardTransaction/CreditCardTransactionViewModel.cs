@@ -11,5 +11,6 @@ namespace Application.ViewModels.CreditCardTransaction
         public required decimal Amount { get; set; }
         public required string TransactionOrigin { get; set; }
         public TransactionStatus Status { get; set; }
+        public CreditCardTransactionType Type { get; set; }
     }
 }

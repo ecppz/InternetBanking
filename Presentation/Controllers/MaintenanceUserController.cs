@@ -117,7 +117,8 @@ namespace Presentation.Controllers
                     UserId = Guid.Parse(result.Id), // Asegúrate que `result.UserId` esté disponible
                     AccountNumber = await savingsAccountService.GenerateUniqueAccountNumberAsync(),
                     Balance = vm.CurrentBalance.Value,
-                    IsPrimary = true
+                    IsPrimary = true,
+                    Status = SavingsAccountStatus.Activa
                 };
 
                 var savingsAccountDto = mapper.Map<SavingsAccountDto>(savingsAccount);

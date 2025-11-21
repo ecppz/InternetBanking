@@ -21,7 +21,7 @@ namespace Domain.Interfaces
         Task<List<Transaction>> GetByTypeAsync(TransactionType type);
 
         // Obtiene transacciones por estado (APROBADA, RECHAZADA) — útil para auditoría
-        Task<List<Transaction>> GetByStatusAsync(string status);
+        Task<List<Transaction>> GetByStatusAsync(TransactionStatus status);
 
 
         // Para cuenta de ahorro aqui finaliza sus metodos

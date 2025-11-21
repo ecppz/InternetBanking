@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.CreditCard;
-using Domain.Interfaces;
 
 namespace Application.Interfaces
 {
@@ -7,9 +6,11 @@ namespace Application.Interfaces
     {
         Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto);
         Task<List<CreditCardDto>> GetActiveCardsAsync();
+        Task<List<CreditCardDto>> GetActiveCardsByUserIdAsync(Guid userId);
         Task<List<CreditCardDto>> GetCancelledCardsAsync();
         Task<List<EligibleCustomerForCreditCardDto>> GetEligibleCustomersForCreditCard();
         Task<List<CreditCardDisplayDto>> GetAllDisplayAsync(string? documentNumber, string? statusFilter);
+        Task<Guid?> GetCardIdByNumberAsync(string cardNumber);
         Task<CreditCardDetailsDto> GetCardDetailsAsync(Guid cardId);
         Task<bool> UpdateCreditLimitAsync(EditCreditCardDto dto);
         Task<bool> CancelCardAsync(CancelCreditCardDto dto);

@@ -17,7 +17,9 @@ namespace Application
             services.AddScoped<IBeneficiaryService, BeneficiaryService>();
             services.AddScoped<ICreditCardService, CreditCardService>();
             services.AddScoped<ICreditCardTransactionService, CreditCardTransactionService>();
+            services.AddScoped<ICashAdvanceService, CashAdvanceService>();
             services.AddScoped<ILoanService, LoanService>();
+            services.AddScoped<ILoanPaymentService, LoanPaymentService>();
             services.AddScoped<ILoanInstallmentService, LoanInstallmentService>();
             services.AddScoped<ISavingsAccountService, SavingsAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();

@@ -16,5 +16,13 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<LoanInstallment>> GetPendingByLoanIdAsync(Guid loanId)
+        {
+            return await context.LoanInstallments
+                .Where(i => i.LoanId == loanId && !i.IsPaid)
+                .OrderBy(i => i.DueDate)
+                .ToListAsync();
+        }
+
     }
 }

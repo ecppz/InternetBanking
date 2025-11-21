@@ -1,0 +1,70 @@
+﻿@model CreditCardPaymentViewModel
+
+@{
+    ViewData["Title"] = "Pago de Tarjeta de Crédito";
+    Layout = "_LayoutCashier";
+}
+
+<h2 class="text-primary mb-4">
+    <i class="bi bi-credit-card-2-front text-primary"></i> Pago de Tarjeta de Crédito
+</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <i class="bi bi-pencil-square"></i> Ingrese los datos del pago
+    </div>
+
+    <div class="card-body">
+
+        <form asp-action="Index" method="post">
+
+            <div class="form-group mb-3">
+                <label for="CreditCardNumber">
+                    <i class="bi bi-credit-card"></i> Número de Tarjeta
+                </label>
+                <input asp-for="CreditCardNumber" class="form-control" />
+                <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="OriginAccountNumber">
+                    <i class="bi bi-bank"></i> Cuenta Origen
+                </label>
+                <input asp-for="OriginAccountNumber" class="form-control" />
+                <span asp-validation-for="OriginAccountNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="Amount">
+                    <i class="bi bi-currency-dollar"></i> Monto a Pagar
+                </label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-arrow-right-circle"></i> Continuar
+            </button>
+
+        </form>
+
+    </div>
+</div>

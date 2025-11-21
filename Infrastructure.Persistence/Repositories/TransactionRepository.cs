@@ -60,14 +60,14 @@ namespace Infrastructure.Persistence.Repositories
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
-
-        public async Task<List<Transaction>> GetByStatusAsync(string status)
+        public async Task<List<Transaction>> GetByStatusAsync(TransactionStatus status)
         {
             return await context.Transactions
                 .Where(t => t.Status == status)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
+
 
         //Aqui finaliza los metodos de cuenta de ahoo   
 

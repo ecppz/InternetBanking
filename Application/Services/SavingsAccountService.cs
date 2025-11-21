@@ -41,6 +41,13 @@ namespace Application.Services
             return account?.Id;
         }
 
+        public async Task<List<SavingsAccountDto>> GetActiveAccountsByUserIdAsync(Guid userId)
+        {
+            var accounts = await savingsAccountRepository.GetActiveAccountsByUserIdAsync(userId);
+            return mapper.Map<List<SavingsAccountDto>>(accounts);
+        }
+
+
         public async Task<bool> ExistsAccountNumberAsync(string accountNumber)
         {
             return await savingsAccountRepository.ExistsAccountNumberAsync(accountNumber);
@@ -79,7 +86,6 @@ namespace Application.Services
                 Amount = tx.Amount,
                 Date = tx.Date,
                 Type = tx.Type, // Deposit, Transfer, etc.
-
                 Status = tx.Status,
                 Origin = string.IsNullOrWhiteSpace(tx.Origin) ? "DEPÓSITO" : tx.Origin,
                 Beneficiary = string.IsNullOrWhiteSpace(tx.Beneficiary) ? "RETIRO" : tx.Beneficiary,

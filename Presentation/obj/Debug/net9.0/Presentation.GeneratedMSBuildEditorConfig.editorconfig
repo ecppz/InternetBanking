@@ -36,6 +36,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmVuZWZpY2lhcnlcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CashAdvance/Confirm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FzaEFkdmFuY2VcQ29uZmlybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CashAdvance/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FzaEFkdmFuY2VcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CashierHome/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FzaGllckhvbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CreditCardPayment/Confirm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlZGl0Q2FyZFBheW1lbnRcQ29uZmlybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CreditCardPayment/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlZGl0Q2FyZFBheW1lbnRcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CreditCard/AssignCreditCard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlZGl0Q2FyZFxBc3NpZ25DcmVkaXRDYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -60,16 +80,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlZGl0Q2FyZFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/CustomerHome/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3VzdG9tZXJIb21lXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Loan/AssignLoan.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9hblxBc3NpZ25Mb2FuLmNzaHRtbA==
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/LoanPayment/Confirm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9hblBheW1lbnRcQ29uZmlybS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Loan/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9hblxDcmVhdGUuY3NodG1s
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/LoanPayment/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9hblBheW1lbnRcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Loan/AssignLoan.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9hblxBc3NpZ25Mb2FuLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/admin/Desktop/InternetBanking/Presentation/Views/Loan/Details.cshtml]

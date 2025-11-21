@@ -24,22 +24,39 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="MaintenanceUser" asp-action="Index">Gestion de usuarios</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="MaintenanceUser" asp-action="Index">
+                                <i class="bi bi-people"></i> Gestión de usuarios
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Loan" asp-action="Index">Gestion de prestamos</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Loan" asp-action="Index">
+                                <i class="bi bi-cash-coin"></i> Gestión de préstamos
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CreditCard" asp-action="Index">Gestion de tarjetas de credito</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="CreditCard" asp-action="Index">
+                                <i class="bi bi-credit-card"></i> Gestión de tarjetas de crédito
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SavingsAccount" asp-action="List">Gestion de cuentas de ahorro</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="SavingsAccount" asp-action="List">
+                                <i class="bi bi-piggy-bank"></i> Gestión de cuentas de ahorro
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">Log out(@User.Identity?.Name)</a>
+                            <a class="nav-link text-danger" asp-area="" asp-controller="Login" asp-action="Logout">
+                                <i class="bi bi-box-arrow-right"></i> Log out (@User.Identity?.Name)
+                            </a>
                         </li>
                     </ul>
                 </div>

@@ -5,7 +5,9 @@ namespace Domain.Interfaces
     {
         Task<bool> HasActiveLoanAsync(Guid userId);
         Task<List<Loan>> GetByUserIdAsync(Guid userId);
+        Task<Loan?> GetByNumberAsync(string loanNumber);
         Task<bool> LoanNumberExistsAsync(string loanNumber);
         Task<decimal> GetTotalDebtAsync(Guid userId);
+
     }
 }

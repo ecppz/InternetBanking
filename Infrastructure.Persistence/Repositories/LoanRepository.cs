@@ -18,6 +18,12 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Loan?> GetByNumberAsync(string loanNumber)
+        {
+            return await context.Loans
+                .FirstOrDefaultAsync(l => l.LoanNumber == loanNumber);
+        }
+
         public async Task<bool> HasActiveLoanAsync(Guid userId)
         {
             return await context.Loans.AnyAsync(l => l.UserId == userId && l.Status == LoanStatus.Active);

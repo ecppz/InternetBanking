@@ -133,6 +133,13 @@ namespace Application.Services
             return mapper.Map<List<CreditCardDto>>(cards);
         }
 
+        public async Task<List<CreditCardDto>> GetActiveCardsByUserIdAsync(Guid userId)
+        {
+            var cards = await creditCardRepository.GetActiveCardsByUserIdAsync(userId);
+            return mapper.Map<List<CreditCardDto>>(cards);
+        }
+
+
         public async Task<List<CreditCardDto>> GetCancelledCardsAsync()
         {
             var cards = await creditCardRepository.GetCancelledCardsAsync();
@@ -231,6 +238,12 @@ namespace Application.Services
 
             var dto = mapper.Map<CreditCardDetailsDto>(card);
             return dto;
+        }
+
+        public async Task<Guid?> GetCardIdByNumberAsync(string cardNumber)
+        {
+            var card = await creditCardRepository.GetByNumberAsync(cardNumber);
+            return card?.Id;
         }
 
         public async Task<bool> UpdateCreditLimitAsync(EditCreditCardDto dto)

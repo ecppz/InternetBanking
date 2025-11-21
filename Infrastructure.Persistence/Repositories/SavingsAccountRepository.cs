@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common.Enums;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistence.Contexts;
 using Infrastructure.Persistence.Repositories;
@@ -7,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavingsAccountRepository
 {
     public SavingsAccountRepository(InternetBankingContextDB context) : base(context) { }
-
-
 
     public async Task<bool> ExistsAccountNumberAsync(string accountNumber)
     {
@@ -70,6 +69,13 @@ public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavi
     {
         return await context.SavingsAccounts
             .FirstOrDefaultAsync(sa => sa.AccountNumber == accountNumber);
+    }
+
+    public async Task<List<SavingsAccount>> GetActiveAccountsByUserIdAsync(Guid userId)
+    {
+        return await context.SavingsAccounts
+            .Where(a => a.UserId == userId && a.Status == SavingsAccountStatus.Activa)
+            .ToListAsync();
     }
 
     // Retorna una cuenta secundaria por su Id, validando que no sea principal

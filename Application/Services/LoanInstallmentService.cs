@@ -3,6 +3,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services
 {
@@ -53,5 +54,40 @@ namespace Application.Services
             await loanInstallmentRepository.UpdateRangeAsync(installments);
             return "Cuotas recalculadas correctamente";
         }
+
+        public async Task<LoanInstallmentDto?> GetNextPendingInstallmentAsync(Guid loanId)
+        {
+            var next = await loanInstallmentRepository
+                .GetAllQuery()
+                .Where(i => i.LoanId == loanId && !i.IsPaid)
+                .OrderBy(i => i.DueDate)
+                .FirstOrDefaultAsync();
+
+            if (next == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<LoanInstallmentDto>(next);
+        }
+
+        public async Task<LoanInstallmentDto?> MarkInstallmentAsPaidAsync(Guid loanId)
+        {
+            var installment = await loanInstallmentRepository
+                .GetAllQuery()
+                .Where(i => i.LoanId == loanId && !i.IsPaid)
+                .OrderBy(i => i.DueDate)
+                .FirstOrDefaultAsync();
+
+            if (installment == null)
+            {
+                return null;    
+            }
+
+            installment.IsPaid = true;
+            await loanInstallmentRepository.UpdateAsync(installment.Id, installment);
+            return mapper.Map<LoanInstallmentDto>(installment); 
+        }
+
     }
 }

@@ -100,6 +100,12 @@ namespace Application.Services
             await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
 
             var user = await userAccountService.GetUserById(dto.UserId.ToString());
+
+            if (user == null)
+            {
+                return null;
+            }
+
             await emailService.SendAsync(new EmailRequestDto
             {
                 To = user.Email,
@@ -269,6 +275,24 @@ namespace Application.Services
                 .OrderByDescending(l => l.Status == LoanStatus.Active)
                 .ThenByDescending(l => l.CreatedAt)
                 .ToList();
+        }
+
+
+        public async Task<LoanDetailsDto?> GetLoanByNumberAsync(string loanNumber)
+        {
+            if (string.IsNullOrWhiteSpace(loanNumber))
+            {
+                return null;
+            }
+
+            var loan = await loanRepository.GetByNumberAsync(loanNumber);
+
+            if (loan == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<LoanDetailsDto>(loan);
         }
 
         public Task<decimal> CalculateMonthlyInstallment(decimal amount, decimal annualRate, int months)
