@@ -1,0 +1,62 @@
+﻿@using Domain.Common.Enums
+@model AccountTransactionDetailViewModel
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Detalle de Cuenta";
+}
+
+<h2 class="mb-4 d-flex align-items-center">
+    <i class="bi bi-journal-text text-primary me-2 fs-3"></i>
+    Transacciones de la cuenta @Model.AccountNumber
+</h2>
+
+@if (!Model.Transactions.Any())
+{
+    <div class="alert alert-info d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>
+        No se han registrado transacciones para esta cuenta.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-calendar-event me-1"></i> Fecha</th>
+                <th><i class="bi bi-currency-dollar me-1"></i> Monto</th>
+                <th><i class="bi bi-arrow-left-right me-1"></i> Tipo</th>
+                <th><i class="bi bi-person-check me-1"></i> Beneficiario</th>
+                <th><i class="bi bi-box-arrow-in-up me-1"></i> Origen</th>
+                <th><i class="bi bi-shield-check me-1"></i> Estado</th>
+                <th><i class="bi bi-chat-left-text me-1"></i> Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tx in Model.Transactions)
+            {
+                <tr>
+                    <td>@tx.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="@(tx.Type == "CRÉDITO" ? "text-success" : "text-danger")">
+                        <i class="bi @(tx.Type == "CRÉDITO" ? "bi-arrow-down-circle" : "bi-arrow-up-circle") me-1"></i>
+                        @(tx.Type == "CRÉDITO" ? "+" : "-")@tx.Amount.ToString("C")
+                    </td>
+                    <td>@tx.Type</td>
+                    <td>@tx.Destination</td>
+                    <td>@tx.Origin</td>
+                    <td>@tx.Origin</td>
+                    <td>
+                        <i class="bi @(tx.Status == TransactionStatus.Approved
+                                   ? "bi-check-circle-fill text-success"
+                                   : "bi-x-circle-fill text-danger") me-1"></i>
+                        @tx.Status
+                          </td>
+                    <td>@tx.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="CustomerHome" class="btn btn-secondary mt-3">
+    <i class="bi bi-arrow-left-circle me-1"></i> Volver atrás
+</a>

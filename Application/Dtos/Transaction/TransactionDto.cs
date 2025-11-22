@@ -24,6 +24,8 @@ namespace Application.Dtos.Transaction
 
         public string Description { get; set; } = string.Empty;
 
+        public bool EsPropia { get; set; } // true si OriginAccountId == cuenta actual
+
 
     }
 }

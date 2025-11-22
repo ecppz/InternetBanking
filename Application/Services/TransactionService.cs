@@ -54,19 +54,20 @@ namespace Application.Services
         {
             var transactions = await transactionRepository.GetAllByAccountIdOrderedAsync(accountId);
 
-            // Eliminar duplicados donde la cuenta es origen y destino
+            // Solo trasacciones que pertenecenen a la cuenta
             var filtered = transactions
-                .Where(t => !(t.OriginAccountId == accountId && t.DestinationAccountId == accountId))
-                .ToList();
+           .Where(t => t.OriginAccountId == accountId || t.DestinationAccountId == accountId)
+               .ToList();
 
             var dtos = mapper.Map<List<TransactionDto>>(filtered);
 
             foreach (var dto in dtos)
             {
-                dto.VisualType = dto.OriginAccountId == accountId ? "DÉBITO" : "CRÉDITO";
-
-                var original = filtered.First(t => t.Id == dto.Id);
-                dto.Description = GetFriendlyDescription(original, dto.VisualType, accountId);
+                dto.EsPropia = dto.OriginAccountId == accountId;
+                dto.VisualType = dto.EsPropia ? "DÉBITO" : "CRÉDITO";
+                dto.Description = dto.EsPropia
+                    ? $"Transferencia a Beneficiario {dto.Beneficiary}"
+                    : $"Transferencia recibida de {dto.Origin}";
             }
 
             return dtos;
@@ -501,68 +502,76 @@ namespace Application.Services
             if (originAccount.Balance < model.Amount)
                 return false;
 
-            var newOriginBalance = originAccount.Balance - model.Amount;
-            var newDestinationBalance = destinationAccount.Balance + model.Amount;
+            // Actualizar balances
+            originAccount.Balance -= model.Amount;
+            destinationAccount.Balance += model.Amount;
 
-            var debit = new Transaction
+            await savingsAccountRepository.UpdateAsync(originAccount.Id, originAccount);
+            await savingsAccountRepository.UpdateAsync(destinationAccount.Id, destinationAccount);
+
+            var now = model.Timestamp;
+
+            // ✅ Registro único de la transacción
+            var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
                 OriginAccountId = originAccount.Id,
                 DestinationAccountId = destinationAccount.Id,
                 Amount = model.Amount,
-                Date = model.Timestamp,
+                Date = now,
                 Type = TransactionType.Transfer,
                 Status = TransactionStatus.Approved,
-                Origin = model.OriginAccountNumber,
-                Beneficiary = model.BeneficiaryAccountNumber
+                Origin = originAccount.AccountNumber,
+                Beneficiary = destinationAccount.AccountNumber
             };
 
-            var credit = new Transaction
-            {
-                Id = Guid.NewGuid(),
-                OriginAccountId = originAccount.Id,
-                DestinationAccountId = destinationAccount.Id,
-                Amount = model.Amount,
-                Date = model.Timestamp,
-                Type = TransactionType.Transfer,
-                Status = TransactionStatus.Approved,
-                Origin = model.OriginAccountNumber,
-                Beneficiary = model.BeneficiaryAccountNumber
-            };
-
-            var debitSaved = await transactionRepository.RegisterTransactionAsync(debit);
-            var creditSaved = await transactionRepository.RegisterTransactionAsync(credit);
-
-            var originUpdated = await savingsAccountRepository.UpdateBalanceAsync(originAccount.Id, newOriginBalance);
-            var destinationUpdated = await savingsAccountRepository.UpdateBalanceAsync(destinationAccount.Id, newDestinationBalance);
-
-            if (!debitSaved || !creditSaved || !originUpdated || !destinationUpdated)
+            var saved = await transactionRepository.RegisterTransactionAsync(transaction);
+            if (!saved)
                 return false;
 
+            // ✅ Envío de correos
             var sender = await userAccountService.GetUserById(originAccount.UserId.ToString());
             var receiver = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
 
-            var last4Dest = model.BeneficiaryAccountNumber[^4..];
-            var last4Origin = model.OriginAccountNumber[^4..];
-            var fecha = model.Timestamp.ToString("dd/MM/yyyy HH:mm:ss");
-
-            await emailService.SendAsync(new EmailRequestDto
+            if (sender != null && receiver != null)
             {
-                To = sender.Email,
-                Subject = $"Transacción realizada a la cuenta {last4Dest}",
-                HtmlBody = $"Se ha enviado un monto de {model.Amount:C} el día {fecha}."
-            });
+                var formattedAmount = model.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = now.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
 
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = receiver.Email,
-                Subject = $"Transacción enviada desde la cuenta {last4Origin}",
-                HtmlBody = $"Ha recibido un monto de {model.Amount:C} el día {fecha}."
-            });
+                var last4Dest = destinationAccount.AccountNumber[^4..];
+                var last4Origin = originAccount.AccountNumber[^4..];
+
+                // Correo para origen
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = sender.Email,
+                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
+                    <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
+                </div>"
+                });
+
+                // Correo para destino
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = receiver.Email,
+                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#28B463'>Depósito Recibido</h2>
+                    <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                </div>"
+                });
+            }
 
             return true;
         }
-
 
 
     }

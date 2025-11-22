@@ -1,4 +1,5 @@
-﻿@model InternalTransferViewModel
+﻿@using Domain.Common.Enums
+@model InternalTransferViewModel
 @{
     ViewData["Title"] = "Transferencia entre cuentas propias";
     Layout = "_LayoutCustomer";
@@ -21,7 +22,7 @@
                 <label asp-for="TransferRequest.OriginAccountId" class="form-label">
                     <i class="bi bi-wallet2"></i> Cuenta de origen
                 </label>
-                <select asp-for="TransferRequest.OriginAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts, "Id", "AccountNumber"))">
+                <select asp-for="TransferRequest.OriginAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts.Where(a => a.Status == SavingsAccountStatus.Activa), "Id", "AccountNumber"))">
                     <option value="">-- Selecciona una cuenta --</option>
                 </select>
                 <span asp-validation-for="TransferRequest.OriginAccountId" class="text-danger"></span>
@@ -31,7 +32,7 @@
                 <label asp-for="TransferRequest.DestinationAccountId" class="form-label">
                     <i class="bi bi-wallet-fill"></i> Cuenta de destino
                 </label>
-                <select asp-for="TransferRequest.DestinationAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts, "Id", "AccountNumber"))">
+                <select asp-for="TransferRequest.DestinationAccountId" class="form-select" asp-items="@(new SelectList(Model.UserAccounts.Where(a => a.Status == SavingsAccountStatus.Activa), "Id", "AccountNumber"))">
                     <option value="">-- Selecciona una cuenta --</option>
                 </select>
                 <span asp-validation-for="TransferRequest.DestinationAccountId" class="text-danger"></span>
@@ -54,44 +55,43 @@
     </form>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        document.getElementById("btnConfirmTransfer").addEventListener("click", function () {
-            Swal.fire({
-                title: "¿Deseas confirmar la transferencia?",
-                text: "Verifica que los datos sean correctos antes de continuar.",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonColor: "#198754",
-                cancelButtonColor: "#dc3545",
-                confirmButtonText: "Sí, confirmar",
-                cancelButtonText: "Cancelar"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.forms[0].submit();
-                }
-            });
+<script>
+    document.getElementById("btnConfirmTransfer").addEventListener("click", function () {
+        Swal.fire({
+            title: "¿Deseas confirmar la transferencia?",
+            text: "Verifica que los datos sean correctos antes de continuar.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#198754",
+            cancelButtonColor: "#dc3545",
+            confirmButtonText: "Sí, confirmar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.forms[0].submit();
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                //Redirigir al CustomerHomeController → Index
+                window.location.href = '@Url.Action("CustomerHome", "CustomerHome")';
+            }
         });
+    });
 
-        @if (Model.TransferResult != null)
-        {
-                var success = Model.TransferResult.Success.ToString().ToLower();
-                var message = Model.TransferResult.Message;
-                var title = Model.TransferResult.Success ? "¡Transferencia exitosa!" : "Error en la transferencia";
-                var icon = Model.TransferResult.Success ? "success" : "error";
-                var buttonColor = Model.TransferResult.Success ? "#198754" : "#dc3545";
+    @if (Model.TransferResult != null)
+    {
+            var success = Model.TransferResult.Success.ToString().ToLower();
+            var message = Model.TransferResult.Message;
+            var title = Model.TransferResult.Success ? "¡Transferencia exitosa!" : "Error en la transferencia";
+            var icon = Model.TransferResult.Success ? "success" : "error";
+            var buttonColor = Model.TransferResult.Success ? "#198754" : "#dc3545";
 
-                <text>
-                Swal.fire({
-                    icon: '@icon',
-                    title: '@title',
-                    text: '@message',
-                    confirmButtonColor: '@buttonColor',
-                    confirmButtonText: 'Aceptar'
-                });
-                </text>
-        }
-    </script>
-}
+            <text>
+            Swal.fire({
+                icon: '@icon',
+                title: '@title',
+                text: '@message',
+                confirmButtonColor: '@buttonColor',
+                confirmButtonText: 'Aceptar'
+            });
+            </text>
+    }
+</script>
