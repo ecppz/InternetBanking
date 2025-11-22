@@ -65,13 +65,14 @@ else if (Model.Transactions.Any())
                     <td>@tx.VisualType</td>
                     <td>
                         <i class="bi @(tx.Status == TransactionStatus.Approved
-                                             ? "bi-check-circle-fill text-success"
-                                             : "bi-x-circle-fill text-danger") me-1"></i>
-                        @tx.Status
-                    </td>
-                    <td>@tx.Description</td>
-                </tr>
-            }
+                                                           ? "bi-check-circle-fill text-success"
+                                                           : "bi-x-circle-fill text-danger") me-1"></i>
+                @tx.Status.ToString()
+            </td>
+            <td>@tx.Description</td>
+        </tr>
+                }
+
         </tbody>
     </table>
 }

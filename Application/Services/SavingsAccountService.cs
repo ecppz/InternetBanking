@@ -219,5 +219,49 @@ namespace Application.Services
             return entity == null ? null : mapper.Map<SavingsAccountDto>(entity);
         }
 
+        // Retorna todas las cuentas de ahorro registradas en el sistema.
+        // Se utiliza en el Dashboard para calcular el total global.
+        public async Task<List<SavingsAccountDto>> GetAllSavingsAccountsAsync()
+        {
+            // Consulta al repositorio para obtener todas las cuentas
+            var accounts = await savingsAccountRepository.GetAllSavingsAccountsAsync();
+
+            // Convierte las entidades SavingsAccount a DTOs
+            return mapper.Map<List<SavingsAccountDto>>(accounts);
+        }
+
+
+        public async Task<bool> ActivatePrimaryAccountAsync(Guid userId)
+        {
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(userId);
+            if (account == null)
+                return false;
+
+            account.Status = SavingsAccountStatus.Activa;
+            await savingsAccountRepository.UpdateAsync(account.Id, account);
+            return true;
+        }
+
+        public async Task<bool> DeactivatePrimaryAccountAsync(Guid userId)
+        {
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(userId);
+            if (account == null)
+                return false;
+
+            account.Status = SavingsAccountStatus.Cancelada; // o Suspendida, según tu lógica
+            await savingsAccountRepository.UpdateAsync(account.Id, account);
+            return true;
+        }
+
+        public async Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount)
+        {
+            if (amount <= 0)
+                return false; // no aceptamos montos negativos o cero
+
+            return await savingsAccountRepository.AddBalanceToPrimaryAccountAsync(userId, amount);
+        }
+
+
+
     }
 }

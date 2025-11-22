@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Common.Enums;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
@@ -21,16 +22,21 @@ namespace Domain.Interfaces
         Task<SavingsAccount?> GetByIdAsync(Guid accountId);
 
         //Metod de la funcionalidad de cliente de tranferencia entre cuentas propias
-
         Task<SavingsAccount?> GetActiveByIdAndUserAsync(Guid accountId, Guid userId);
 
-
-
         Task<List<SavingsAccount>> GetActiveByUserIdAsync(Guid userId);
+        Task<bool> UpdateBalanceAsync(Guid accountId, decimal newBalance);
 
+        // para el admin:
 
+        // Retorna todas las cuentas de ahorro registradas en el sistema.
+        // Se utilizará en el Dashboard para calcular el total global.
+        Task<List<SavingsAccount>> GetAllSavingsAccountsAsync();
 
-         Task<bool> UpdateBalanceAsync(Guid accountId, decimal newBalance);
+        Task<bool> SetAccountStatusAsync(Guid accountId, SavingsAccountStatus newStatus);
+
+        Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount);
+
 
     }
 }

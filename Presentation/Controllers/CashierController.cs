@@ -1,15 +1,11 @@
-
-using Microsoft.AspNetCore.Authorization;
 ﻿using Application.Interfaces;
-using Application.ViewModels.AdminDashboard;
+using Application.ViewModels.Cashier;
 using AutoMapper;
-using Domain.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    public class AdminHomeController : Controller
+    public class CashierController : Controller
     {
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionService;
@@ -20,11 +16,11 @@ namespace Presentation.Controllers
         private readonly ICreditCardTransactionService creditCardTransactionService;
 
         // Constructor: recibe las dependencias necesarias mediante inyección.
-        public AdminHomeController(
+        public CashierController(
             ISavingsAccountService savingsAccountService,
             IUserAccountService userAccountService,
             ITransactionService transactionService,
-            IMapper mapper,ILoanService loanService, ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService)
+            IMapper mapper, ILoanService loanService, ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService)
         {
             this.savingsAccountService = savingsAccountService;
             this.transactionService = transactionService;
@@ -35,41 +31,27 @@ namespace Presentation.Controllers
             this.creditCardTransactionService = creditCardTransactionService;
         }
 
-        // Acción principal del Dashboard (GET).
-        // Carga los indicadores y los envía a la vista.
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var allTransactions = await transactionService.GetAllTransactionsAsync();
-            var (totalPayments, todayPayments) = await creditCardTransactionService.GetPaymentsIndicatorsAsync();
+            var cashierId = await GetAuthenticatedUserIdAsync();
+            var today = DateTime.Today;
 
-            var model = new AdminDashboardViewModel
+            var model = new CashierHomeViewModel
             {
                 // Indicadores de transacciones
-                TotalTransactions = allTransactions.Count,
-                TodayTransactions = allTransactions.Count(t => t.Date.Date == DateTime.Today),
+                TodayTransactions = 0, // luego lo implementamos
 
-                // Indicadores de pagos (inyectados desde el servicio)
-                TotalPayments = totalPayments,
-                TodayPayments = todayPayments,
+                // Indicadores de pagos
+                TodayPayments = 0, // luego lo implementamos
 
-                // Indicadores de clientes
-                ActiveClients = (await userAccountService.GetAllCustomersAsync()).Count(u => u.IsActive),
-                InactiveClients = (await userAccountService.GetAllCustomersAsync()).Count(u => !u.IsActive),
-
-                TotalSavingsAccounts = (await savingsAccountService.GetAllSavingsAccountsAsync())
-                    .Count(sa => sa.Status == SavingsAccountStatus.Activa),
-
-                // Placeholders para indicadores pendientes
-                ActiveLoans = await loanService.GetActiveLoansCountAsync(),
-                ActiveCreditCards = await creditCardService.GetActiveCreditCardsCountAsync(),
-                AverageDebtPerClient = (await loanService.GetAverageDebtPerClientAsync()).ToString("C")
+                // Indicadores de depósitos y retiros
+                TodayDeposits = await transactionService.GetDepositsCountByCashierAndDateAsync(cashierId, today),
+                TodayWithdrawals = await transactionService.GetWithdrawalsCountByCashierAndDateAsync(cashierId, today)
             };
 
-            // Retorna la vista con el modelo cargado
             return View(model);
         }
-
 
 
         private async Task<Guid> GetAuthenticatedUserIdAsync()
@@ -89,6 +71,5 @@ namespace Presentation.Controllers
 
             return userId;
         }
-
     }
 }

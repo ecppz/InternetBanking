@@ -25,6 +25,7 @@
                     </ul>
                 </div>
             }
+
             <form asp-controller="MaintenanceUser" asp-action="Edit" method="POST">
                 <input type="hidden" asp-for="Id" />
 
@@ -60,15 +61,28 @@
 
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label">Nueva contraseña (opcional):</label>
-                    <input class="form-control" asp-for="Password" />
+                    <input class="form-control" asp-for="Password" type="password" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="ConfirmPassword" class="form-label">Confirmar contraseña:</label>
-                    <input class="form-control" asp-for="ConfirmPassword" />
+                    <input class="form-control" asp-for="ConfirmPassword" type="password" />
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
+
+                <input type="hidden" asp-for="Role" />
+                @if (Model.Role == "Customer")
+                {
+                    <div class="mb-3">
+                        <label asp-for="AdditionalAmount" class="form-label">Monto adicional:</label>
+                        <input class="form-control" asp-for="AdditionalAmount" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="AdditionalAmount" class="text-danger"></span>
+                        <small class="text-muted">
+                            Este monto se sumará al balance actual de la cuenta de ahorro principal del cliente.
+                        </small>
+                    </div>
+                }
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-outline-warning float-end">

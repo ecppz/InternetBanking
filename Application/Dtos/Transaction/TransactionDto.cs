@@ -12,9 +12,9 @@ namespace Application.Dtos.Transaction
         public required DateTime Date { get; set; }
         public TransactionType Type { get; set; }
 
-        // MIs nuevas propiedades
 
         public TransactionStatus Status { get; set; }
+
         public required string Beneficiary { get; set; } // Número de cuenta destino
 
         public required string Origin { get; set; } // Número de cuenta origen

@@ -14,7 +14,6 @@ namespace Domain.Entities
         public required string Beneficiary { get; set; }
         public required string Origin { get; set; }
         public string? Reason { get; set; }
-
     }
 
 }

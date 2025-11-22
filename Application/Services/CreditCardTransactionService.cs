@@ -6,6 +6,7 @@ using Domain.Common.Enums;
 using Domain.Entities;
 using Domain.Interfaces;
 
+
 namespace Application.Services
 {
     public class CreditCardTransactionService : GenericService<CreditCardTransaction, CreditCardTransactionDto>, ICreditCardTransactionService
@@ -27,6 +28,7 @@ namespace Application.Services
             this.emailService = emailService;
             this.mapper = mapper;
         }
+
 
         public async Task<CreditCardTransactionDto?> RegisterPaymentAsync(CreditCardTransactionDto dto)
         {
@@ -83,6 +85,18 @@ namespace Application.Services
             }
 
             return mapper.Map<CreditCardTransactionDto>(transaction);
+        }
+
+        public async Task<(int TotalPayments, int TodayPayments)> GetPaymentsIndicatorsAsync()
+        {
+            var allPayments = await creditCardTransactionRepository.GetAllTransactionsAsync();
+
+            var approvedPayments = allPayments.Where(t => (int)t.Status == (int)TransactionStatus.Approved);
+
+            var totalPayments = approvedPayments.Count();
+            var todayPayments = approvedPayments.Count(t => t.Date.Date == DateTime.Today);
+
+            return (totalPayments, todayPayments);
         }
 
     }

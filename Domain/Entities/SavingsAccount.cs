@@ -14,5 +14,6 @@ namespace Domain.Entities
         public SavingsAccountStatus Status { get; set; }
 
 
+
     }
 }

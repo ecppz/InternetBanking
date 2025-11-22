@@ -74,5 +74,22 @@ namespace Application.Interfaces
 
         Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
 
+        //admin:
+
+        // Retorna todas las transacciones registradas en el sistema.
+        // Se utilizará en el Dashboard para calcular indicadores globales.
+        Task<List<TransactionDto>> GetAllTransactionsAsync();
+
+        // Retorna todas las transacciones de tipo "Pago" registradas en el sistema.
+        // Se utilizará en el Dashboard para calcular la cantidad de pagos procesados.
+        Task<List<TransactionDto>> GetAllPaymentsAsync();
+
+        //para cajero:
+
+        Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date);
+
+        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date);
+
+
     }
 }

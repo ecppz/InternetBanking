@@ -164,6 +164,13 @@ namespace Presentation.Controllers
             }
 
             var vm = mapper.Map<UpdateUserViewModel>(dto);
+
+            // Si el usuario es Cliente, habilitamos el campo de monto adicional en la vista
+            if (vm.Role == Roles.Customer.ToString())
+            {
+                ViewBag.ShowAdditionalAmount = true;
+            }
+
             return View("Edit", vm);
         }
 
@@ -219,12 +226,29 @@ namespace Presentation.Controllers
                 }
             }
 
-            // Mapear y guardar
+            // Mapear y guardar datos personales
             var dto = mapper.Map<SaveUserDto>(vm);
             var origin = $"{Request.Scheme}://{Request.Host}";
             await userAccountService.EditUser(dto, origin: origin, isCreated: false);
 
-            TempData["Success"] = "Usuario actualizado correctamente.";
+            // 💰 Lógica especial: aplicar monto adicional si es Cliente
+            if (vm.Role == Roles.Customer.ToString() && vm.AdditionalAmount.HasValue && vm.AdditionalAmount.Value > 0)
+            {
+                var accountUpdated = await savingsAccountService.AddBalanceToPrimaryAccountAsync(Guid.Parse(vm.Id), vm.AdditionalAmount.Value);
+                if (accountUpdated)
+                {
+                    TempData["Success"] = $"Usuario actualizado correctamente. Se acreditaron {vm.AdditionalAmount.Value:C} adicionales a la cuenta de ahorro.";
+                }
+                else
+                {
+                    TempData["Error"] = "Usuario actualizado, pero no se pudo acreditar el monto adicional en la cuenta.";
+                }
+            }
+            else
+            {
+                TempData["Success"] = "Usuario actualizado correctamente.";
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -235,7 +259,19 @@ namespace Presentation.Controllers
             if (!success)
             {
                 TempData["Error"] = "No se pudo activar el usuario.";
+                return RedirectToAction("Index");
             }
+
+         
+            if (Guid.TryParse(id, out var userId))
+            {
+                var accountActivated = await savingsAccountService.ActivatePrimaryAccountAsync(userId);
+                if (!accountActivated)
+                {
+                    TempData["Error"] = "El usuario fue activado, pero no se pudo activar su cuenta de ahorro.";
+                }
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -243,10 +279,23 @@ namespace Presentation.Controllers
         public async Task<IActionResult> Deactivate(string id)
         {
             var success = await userAccountService.SetUserActiveStatus(id, false);
+
             if (!success)
             {
                 TempData["Error"] = "No se pudo desactivar el usuario.";
+                return RedirectToAction("Index");
             }
+
+            // Desactivar la cuenta de ahorro principal del usuario
+            if (Guid.TryParse(id, out var userId))
+            {
+                var accountDeactivated = await savingsAccountService.DeactivatePrimaryAccountAsync(userId);
+                if (!accountDeactivated)
+                {
+                    TempData["Error"] = "El usuario fue desactivado, pero no se pudo desactivar su cuenta de ahorro.";
+                }
+            }
+
             return RedirectToAction("Index");
         }
 

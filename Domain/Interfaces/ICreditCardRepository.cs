@@ -15,5 +15,8 @@ namespace Domain.Interfaces
         Task<decimal> GetTotalDebtAsync();
         Task<int> GetCardCountAsync();
         Task<CreditCard?> GetByNumberAsync(string cardNumber);
+        Task<int> GetActiveCreditCardsCountAsync();
+
+
     }
 }

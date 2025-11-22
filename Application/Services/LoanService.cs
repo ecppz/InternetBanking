@@ -74,7 +74,7 @@ namespace Application.Services
             }
 
             await loanInstallmentRepository.AddRangeAsync(installments);
-           
+
             var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(dto.UserId);
 
             if (accounts == null || !accounts.Any())
@@ -400,5 +400,16 @@ namespace Application.Services
 
             return number;
         }
+
+        public async Task<int> GetActiveLoansCountAsync()
+        {
+            return await loanRepository.GetActiveLoansCountAsync();
+        }
+
+        public async Task<decimal> GetAverageDebtPerClientAsync()
+        {
+            return await loanRepository.GetAverageDebtPerClientAsync();
+        }
+
     }
 }

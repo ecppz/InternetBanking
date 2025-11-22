@@ -34,13 +34,8 @@
     <tbody>
         @foreach (var tx in Model.Account.Transactions)
         {
-            var estadoColor = tx.Status == TransactionStatus.Approved
-            ? "text-success"
-            : "text-danger";
-
-            var estadoIcono = tx.Status == TransactionStatus.Approved
-            ? "fas fa-check-circle"
-            : "fas fa-times-circle";
+            var estadoColor = tx.Status == TransactionStatus.Approved ? "text-success" : "text-danger";
+            var estadoIcono = tx.Status == TransactionStatus.Approved ? "fas fa-check-circle" : "fas fa-times-circle";
             var tipoIcono = tx.VisualType == "CRÉDITO" ? "fas fa-arrow-down text-success" : "fas fa-arrow-up text-danger";
 
             <tr>
@@ -54,6 +49,7 @@
         }
     </tbody>
 </table>
+
 <div class="mt-3">
     <a asp-action="List" class="btn btn-secondary">
         <i class="bi bi-arrow-left-circle"></i> Volver al listado

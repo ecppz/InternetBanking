@@ -29,8 +29,14 @@ namespace Application.ViewModels.User
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
-        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]       
+        [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]
         [DataType(DataType.Password)]
         public string? ConfirmPassword { get; set; }
+
+        // Campo especial para clientes
+        [Range(0, double.MaxValue, ErrorMessage = "El monto adicional debe ser mayor o igual a 0")]
+        public decimal? AdditionalAmount { get; set; }
+
+
     }
 }

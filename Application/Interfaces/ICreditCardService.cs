@@ -16,5 +16,8 @@ namespace Application.Interfaces
         Task<bool> CancelCardAsync(CancelCreditCardDto dto);
         Task<int> ExpireCardsAsync();
         Task<decimal> GetAverageDebtAsync();
+
+        Task<int> GetActiveCreditCardsCountAsync();
+
     }
 }

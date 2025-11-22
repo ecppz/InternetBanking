@@ -27,6 +27,7 @@ namespace Application.Services
             this.mapper = mapper;
         }
 
+
         public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto)
         {
             var hasActive = await creditCardRepository.HasActiveCardAsync(dto.UserId);
@@ -41,7 +42,7 @@ namespace Application.Services
 
             var cardNumber = GenerateUniqueCardNumber();
             var cvcHash = GenerateCvcHash();
-            
+
             var expirationDate = DateTime.UtcNow.AddYears(3);
 
             var card = new CreditCard
@@ -253,7 +254,7 @@ namespace Application.Services
             {
                 return false;
             }
-                
+
 
             if (dto.NewLimit < card.CurrentDebt)
             {
@@ -312,5 +313,13 @@ namespace Application.Services
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+
+        public async Task<int> GetActiveCreditCardsCountAsync()
+        {
+            return await creditCardRepository.GetActiveCreditCardsCountAsync();
+        }
+
+
+
     }
 }

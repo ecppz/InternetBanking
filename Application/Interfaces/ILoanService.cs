@@ -14,5 +14,9 @@ namespace Application.Interfaces
         Task<decimal> GetAverageDebtAsync();
         Task<LoanDetailsDto> GetLoanDetailsAsync(Guid loanId);
 
+        Task<int> GetActiveLoansCountAsync();
+
+        Task<decimal> GetAverageDebtPerClientAsync();
+
     }
 }

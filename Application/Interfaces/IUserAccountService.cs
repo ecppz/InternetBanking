@@ -20,5 +20,9 @@ namespace Application.Interfaces
         Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin);
         Task<bool> SetUserActiveStatus(string id, bool isActive);
 
+        // Retorna todos los usuarios con rol "Customer".
+        Task<List<UserDto>> GetAllCustomersAsync();
+
+
     }
 }

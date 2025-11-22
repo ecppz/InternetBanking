@@ -1,9 +1,95 @@
-﻿@{
-    ViewData["Title"] = "Admin Home Page";
+﻿@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard Administrador";
     Layout = "_LayoutAdmin";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome Admin</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-primary">
+        <i class="bi bi-bank2 me-2"></i> Panel de Control - Banco
+    </h2>
+
+    <div class="row g-4">
+        <!-- Transacciones -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack text-success display-4 mb-3"></i>
+                    <h5 class="card-title">Transacciones</h5>
+                    <p class="fw-bold mb-1">Total: @Model.TotalTransactions</p>
+                    <p class="text-muted">Hoy: @Model.TodayTransactions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagos -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-credit-card-2-front text-info display-4 mb-3"></i>
+                    <h5 class="card-title">Pagos</h5>
+                    <p class="fw-bold mb-1">Total: @Model.TotalPayments</p>
+                    <p class="text-muted">Hoy: @Model.TodayPayments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill text-primary display-4 mb-3"></i>
+                    <h5 class="card-title">Clientes</h5>
+                    <p class="fw-bold mb-1">Activos: @Model.ActiveClients</p>
+                    <p class="text-muted">Inactivos: @Model.InactiveClients</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuentas de Ahorro -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-piggy-bank-fill text-warning display-4 mb-3"></i>
+                    <h5 class="card-title">Cuentas de Ahorro</h5>
+                    <p class="fw-bold mb-1">Total: @Model.TotalSavingsAccounts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-3">
+        <!-- Préstamos -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-earmark-text-fill text-danger display-4 mb-3"></i>
+                    <h5 class="card-title">Préstamos</h5>
+                    <p class="fw-bold mb-1">Activos: @Model.ActiveLoans</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjetas de Crédito -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-credit-card-fill text-dark display-4 mb-3"></i>
+                    <h5 class="card-title">Tarjetas de Crédito</h5>
+                    <p class="fw-bold mb-1">Activas: @Model.ActiveCreditCards</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deuda Promedio -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-bar-chart-fill text-secondary display-4 mb-3"></i>
+                    <h5 class="card-title">Deuda Promedio</h5>
+                    <p class="fw-bold mb-1">@Model.AverageDebtPerClient</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

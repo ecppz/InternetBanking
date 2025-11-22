@@ -22,7 +22,7 @@ namespace Application.Services
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository,IBeneficiaryRepository beneficiaryRepository ,IEmailService email, IUserAccountService userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
+        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, IEmailService email, IUserAccountService userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
         {
             this.transactionRepository = transactionRepository;
             this.mapper = mapper;
@@ -572,6 +572,57 @@ namespace Application.Services
 
             return true;
         }
+
+        // Retorna todas las transacciones registradas en el sistema.
+        // Se utiliza en el Dashboard para calcular indicadores globales.
+        public async Task<List<TransactionDto>> GetAllTransactionsAsync()
+        {
+            // Consulta al repositorio para obtener todas las transacciones
+            var transactions = await transactionRepository.GetAllTransactionsAsync();
+
+            // Convierte las entidades Transaction a DTOs para exponerlos a la capa de presentación
+            return mapper.Map<List<TransactionDto>>(transactions);
+        }
+
+        // Retorna todas las transacciones de tipo "Pago" registradas en el sistema.
+        // Se utiliza en el Dashboard para calcular la cantidad de pagos procesados.
+        public async Task<List<TransactionDto>> GetAllPaymentsAsync()
+        {
+            // Consulta al repositorio filtrando por tipo de transacción "Pago"
+            var payments = await transactionRepository.GetByTypeAsync(TransactionType.Payment);
+
+            // Convierte las entidades Transaction a DTOs
+            return mapper.Map<List<TransactionDto>>(payments);
+        }
+
+
+
+
+        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date)
+        {
+            var user = await userAccountService.GetUserById(userId.ToString());
+            if (user == null) return 0;
+
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
+            if (account == null) return 0;
+
+            // Delegamos al repositorio
+            return await transactionRepository.GetDepositsCountByCashierAndDateAsync(account.Id, date);
+        }
+
+        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date)
+        {
+            var user = await userAccountService.GetUserById(userId.ToString());
+            if (user == null) return 0;
+
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
+            if (account == null) return 0;
+
+            // Delegamos al repositorio
+            return await transactionRepository.GetWithdrawalsCountByCashierAndDateAsync(account.Id, date);
+        }
+
+
 
 
     }

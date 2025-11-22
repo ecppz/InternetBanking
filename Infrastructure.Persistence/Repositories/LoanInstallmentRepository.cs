@@ -39,6 +39,5 @@ namespace Infrastructure.Persistence.Repositories
                 .SumAsync(i => i.Amount);
         }
 
-
     }
 }

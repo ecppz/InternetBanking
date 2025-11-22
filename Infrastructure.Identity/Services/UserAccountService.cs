@@ -1,12 +1,14 @@
 ﻿using Application.Dtos.Email;
 using Application.Dtos.User;
 using Application.Interfaces;
+using AutoMapper;
 using Domain.Common.Enums;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Text;
 
 namespace Infrastructure.Identity.Services
@@ -663,8 +665,6 @@ namespace Infrastructure.Identity.Services
         }
 
         // cuando me levante le meto mano ------------------->
-
-
         public async Task<bool> SetUserActiveStatus(string id, bool isActive)
         {
             var user = await userManager.FindByIdAsync(id);
@@ -674,5 +674,39 @@ namespace Infrastructure.Identity.Services
             var result = await userManager.UpdateAsync(user);
             return result.Succeeded;
         }
+
+        public async Task<List<UserDto>> GetAllCustomersAsync()
+        {
+            // Obtiene todos los usuarios desde el UserManager
+            var users = userManager.Users.ToList();
+
+            List<UserDto> customers = new();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+
+                // Filtra solo los que tienen rol "Customer"
+                if (roles.Contains(Roles.Customer.ToString()))
+                {
+                    customers.Add(new UserDto
+                    {
+                        Id = user.Id,
+                        Name = user.Name,
+                        LastName = user.LastName,
+                        UserName = user.UserName ?? string.Empty,
+                        Email = user.Email ?? string.Empty,
+                        DocumentNumber = user.DocumentNumber,
+                        IsActive = user.IsActive,
+                        Role = Roles.Customer.ToString(),
+                        isVerified = user.EmailConfirmed,
+                    });
+                }
+            }
+
+            return customers;
+        }
+
+
     }
 }
