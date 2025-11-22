@@ -20,6 +20,17 @@ namespace Domain.Interfaces
         Task<List<SavingsAccount>> GetAllByFiltersAsync(bool? isActive, bool? isPrimary);
         Task<SavingsAccount?> GetByIdAsync(Guid accountId);
 
+        //Metod de la funcionalidad de cliente de tranferencia entre cuentas propias
+
+        Task<SavingsAccount?> GetActiveByIdAndUserAsync(Guid accountId, Guid userId);
+
+
+
+        Task<List<SavingsAccount>> GetActiveByUserIdAsync(Guid userId);
+
+
+
+         Task<bool> UpdateBalanceAsync(Guid accountId, decimal newBalance);
 
     }
 }

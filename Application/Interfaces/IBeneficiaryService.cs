@@ -15,5 +15,7 @@ namespace Application.Interfaces
 
         // Verifica si un beneficiario ya está registrado para ese usuario
         Task<bool> ExistsAsync(Guid ownerUserId, string beneficiaryAccountNumber);
+
+        Task<BeneficiaryDto?> GetByAccountNumberAndOwnerAsync(Guid ownerUserId, string beneficiaryAccountNumber);
     }
 }

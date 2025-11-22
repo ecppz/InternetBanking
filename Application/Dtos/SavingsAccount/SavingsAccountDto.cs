@@ -12,7 +12,6 @@ namespace Application.Dtos.SavingsAccount
         public bool IsPrimary { get; set; }
 
         public bool IsActive { get; set; }
-
         public SavingsAccountStatus Status { get; set; }
 
 

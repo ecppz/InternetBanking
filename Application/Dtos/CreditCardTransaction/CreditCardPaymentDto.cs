@@ -2,8 +2,8 @@
 {
     public class CreditCardPaymentDto
     {
-        public required string OriginAccountNumber { get; set; }
+        public required Guid OriginAccountId { get; set; }
         public required decimal Amount { get; set; }
-        public required string CreditCardNumber { get; set; }
+        public required Guid CreditCardId { get; set; }
     }
 }

@@ -91,7 +91,7 @@ namespace Application.Services
                 CreditCardId = card.Id,
                 Amount = dto.Amount,
                 Date = dto.Date,
-                TransactionOrigin = account.AccountNumber,
+                TransactionOrigin = account.Id,
                 Status = TransactionStatus.Approved,
                 Type = CreditCardTransactionType.CashAdvance
             });

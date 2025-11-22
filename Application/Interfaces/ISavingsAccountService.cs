@@ -16,6 +16,12 @@ namespace Application.Interfaces
         Task<Guid?> GetAccountIdByAccountNumberAsync(string accountNumber);
         Task<List<SavingsAccountDto>> GetActiveAccountsByUserIdAsync(Guid userId);
 
+        Task<List<SavingsAccountSummaryDto>> GetActiveAccountSummariesByUserIdAsync(Guid userId);
+        //metodo para obtener las cuentas activas del cliente:
+
+        Task<List<SavingsAccountDto>> GetActiveByUserIdAsync(Guid userId);
+
+        Task<SavingsAccountDto?> GetByAccountNumberAsync(string accountNumber);
 
     }
 }

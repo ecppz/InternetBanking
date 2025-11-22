@@ -1,0 +1,20 @@
+﻿@model Application.ViewModels.Transaction.ConfirmThirdPartyTransferViewModel
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Confirmar Transacción";
+}
+
+<h2>Confirmar Transacción</h2>
+
+<div class="alert alert-info">
+    <p><strong>Cuenta origen:</strong> @Model.OriginAccountNumber</p>
+    <p><strong>Cuenta destino:</strong> @Model.DestinationAccountNumber</p>
+    <p><strong>Titular destino:</strong> @Model.DestinationFullName</p>
+    <p><strong>Monto:</strong> @Model.Amount.ToString("C")</p>
+    <p><strong>Fecha y hora:</strong> @Model.Timestamp.ToString("dd/MM/yyyy HH:mm")</p>
+</div>
+
+<form asp-action="ConfirmExpress" method="post">
+    <button type="submit" name="action" value="confirmar" class="btn btn-success">Confirmar</button>
+    <button type="submit" name="action" value="cancelar" class="btn btn-secondary">Cancelar</button>
+</form>

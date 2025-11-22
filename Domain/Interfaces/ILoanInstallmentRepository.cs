@@ -6,6 +6,7 @@ namespace Domain.Interfaces
     {
         Task<List<LoanInstallment>> GetByLoanIdAsync(Guid loanId);
         Task<List<LoanInstallment>> GetPendingByLoanIdAsync(Guid loanId);
-
+        Task<int> CountPaidByLoanIdAsync(Guid loanId);
+        Task<decimal> GetPendingAmountByLoanIdAsync(Guid loanId);
     }
 }

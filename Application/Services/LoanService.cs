@@ -69,8 +69,7 @@ namespace Application.Services
                     LoanId = loan.Id,
                     DueDate = DateTime.UtcNow.AddMonths(i),
                     Amount = cuota,
-                    IsPaid = false,
-                    IsLate = false
+                    Status = InstallmentStatus.Pending
                 });
             }
 
@@ -152,11 +151,12 @@ namespace Application.Services
 
             foreach (var installment in installments)
             {
-                if (installment.DueDate > now && !installment.IsPaid)
+                if (installment.DueDate > now && installment.Status == InstallmentStatus.Pending)
                 {
-                    installment.Amount = nuevaCuota; 
+                    installment.Amount = nuevaCuota;
                 }
             }
+
 
             await loanInstallmentRepository.UpdateRangeAsync(installments);
 
@@ -243,11 +243,12 @@ namespace Application.Services
                 var user = users.FirstOrDefault(u => Guid.Parse(u.Id) == loan.UserId);
                 var loanInstallments = installments.Where(i => i.LoanId == loan.Id).ToList();
 
-                var status = loanInstallments.All(i => i.IsPaid)
+                var status = loanInstallments.All(i => i.Status == InstallmentStatus.Paid)
                     ? LoanStatus.Completed
-                    : loanInstallments.Any(i => i.IsLate)
+                    : loanInstallments.Any(i => i.Status == InstallmentStatus.Late)
                         ? LoanStatus.Overdue
                         : LoanStatus.Active;
+
 
                 if (!string.IsNullOrEmpty(statusFilter) && status.ToString() != statusFilter)
                 {
@@ -264,11 +265,14 @@ namespace Application.Services
                     TermMonths = loan.TermMonths,
                     AnnualInterestRate = loan.AnnualInterestRate,
                     TotalInstallments = loanInstallments.Count,
-                    PaidInstallments = loanInstallments.Count(i => i.IsPaid),
-                    PendingAmount = loanInstallments.Where(i => !i.IsPaid).Sum(i => i.Amount),
+                    PaidInstallments = loanInstallments.Count(i => i.Status == InstallmentStatus.Paid),
+                    PendingAmount = loanInstallments
+                                        .Where(i => i.Status == InstallmentStatus.Pending)
+                                        .Sum(i => i.Amount),
                     Status = status,
                     CreatedAt = loan.CreatedAt
                 });
+
             }
 
             return result
@@ -293,7 +297,32 @@ namespace Application.Services
             }
 
             return mapper.Map<LoanDetailsDto>(loan);
+        
         }
+
+        public async Task<List<LoanDisplayDto>> GetActiveLoansByUserIdAsync(Guid userId)
+        {
+            var loans = await loanRepository.GetActiveLoansByUserIdAsync(userId);
+
+            var loanDtos = mapper.Map<List<LoanDisplayDto>>(loans);
+
+            foreach (var dto in loanDtos)
+            {
+                var user = await userAccountService.GetUserById(userId.ToString());
+                if (user != null)
+                {
+                    dto.CustomerFullName = $"{user.Name} {user.LastName}";
+                    dto.DocumentNumber = user.DocumentNumber;
+                }
+
+                dto.TotalInstallments = dto.TermMonths;
+                dto.PaidInstallments = await loanInstallmentRepository.CountPaidByLoanIdAsync(dto.Id);
+                dto.PendingAmount = await loanInstallmentRepository.GetPendingAmountByLoanIdAsync(dto.Id);
+            }
+
+            return loanDtos;
+        }
+
 
         public Task<decimal> CalculateMonthlyInstallment(decimal amount, decimal annualRate, int months)
         {
@@ -353,8 +382,7 @@ namespace Application.Services
                 {
                     DueDate = i.DueDate,
                     Amount = i.Amount,
-                    IsPaid = i.IsPaid,
-                    IsLate = i.IsLate
+                    Status = i.Status
                 }).ToList()
             };
         }
@@ -372,6 +400,5 @@ namespace Application.Services
 
             return number;
         }
-
     }
 }

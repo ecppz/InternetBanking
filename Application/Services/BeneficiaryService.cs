@@ -84,7 +84,21 @@ namespace Application.Services
             return await beneficiaryRepository.DeleteByIdAndOwnerAsync(beneficiaryId, ownerUserId);
         }
 
+        public async Task<BeneficiaryDto?> GetByAccountNumberAndOwnerAsync(Guid ownerUserId, string beneficiaryAccountNumber)
+        {
+            var entity = await beneficiaryRepository.GetByAccountNumberAndOwnerAsync(ownerUserId, beneficiaryAccountNumber);
+            if (entity == null) return null;
 
+            return new BeneficiaryDto
+            {
+                Id = entity.Id,
+                OwnerUserId = entity.OwnerUserId,
+                BeneficiaryUserId = entity.BeneficiaryUserId,
+                BeneficiaryAccountNumber = entity.BeneficiaryAccountNumber,
+                Name = entity.Name,
+                LastName = entity.LastName
+            };
+        }
 
     }
 }

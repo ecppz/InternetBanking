@@ -3,7 +3,6 @@ using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction;
 using AutoMapper;
 using Domain.Common.Enums;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,23 +29,19 @@ namespace Presentation.Controllers
 
         public IActionResult Index()
         {
-            var vm = new CreditCardPaymentViewModel
-            {
-                OriginAccountNumber = "",
-                Amount = 0,
+            return View(new CreditCardPaymentViewModel { 
                 CreditCardNumber = "",
-            };
-
-            return View(vm);
+                AccountNumber = "",
+                Amount = 0
+            });
         }
-
         [HttpPost]
         public async Task<IActionResult> Index(CreditCardPaymentViewModel vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var accountId = await savingsAccountService.GetAccountIdByAccountNumberAsync(vm.OriginAccountNumber);
+            var accountId = await savingsAccountService.GetAccountIdByAccountNumberAsync(vm.AccountNumber);
             if (accountId == null)
             {
                 ModelState.AddModelError("", "La cuenta de origen no existe.");
@@ -54,9 +49,9 @@ namespace Presentation.Controllers
             }
 
             var originAccount = await savingsAccountService.GetAccountSummaryAsync(accountId.Value);
-            if (originAccount == null || !originAccount.IsActive)
+            if (originAccount == null)
             {
-                ModelState.AddModelError("", "La cuenta de origen está inactiva.");
+                ModelState.AddModelError("", "No se pudo obtener la cuenta de origen.");
                 return View(vm);
             }
 
@@ -74,7 +69,6 @@ namespace Presentation.Controllers
             }
 
             var creditCard = await creditCardService.GetCardDetailsAsync(cardId.Value);
-
             if (creditCard == null || creditCard.Status != CreditCardStatus.Active)
             {
                 ModelState.AddModelError("", "La tarjeta de crédito está inactiva.");
@@ -94,10 +88,9 @@ namespace Presentation.Controllers
             }
 
             var user = await userAccountService.GetUserById(creditCard.UserId.ToString());
-
             if (user == null)
             {
-                ModelState.AddModelError("", "El usuario asociado al préstamo no existe.");
+                ModelState.AddModelError("", "El usuario asociado a la tarjeta no existe.");
                 return View(vm);
             }
 
@@ -106,13 +99,17 @@ namespace Presentation.Controllers
             confirmVm.UserId = creditCard.UserId;
             confirmVm.HolderName = user.Name;
             confirmVm.HolderLastName = user.LastName;
-            confirmVm.CreditCardNumber = vm.CreditCardNumber;
-            confirmVm.OriginAccountNumber = vm.OriginAccountNumber;
+            confirmVm.CreditCardId = cardId.Value;
+            confirmVm.OriginAccountId = originAccount.Id;
             confirmVm.PaymentAmount = vm.Amount;
             confirmVm.TransactionDate = DateTime.UtcNow;
+            confirmVm.CreditCardNumber = creditCard.CardNumber;
+            confirmVm.OriginAccountNumber = originAccount.AccountNumber;
 
             return View("Confirm", confirmVm);
         }
+
+
 
         [HttpPost]
         public async Task<IActionResult> Confirm(CreditCardPaymentConfirmationViewModel vm)
@@ -125,7 +122,7 @@ namespace Presentation.Controllers
             var transactionDto = new CreditCardTransactionDto
             {
                 CreditCardId = vm.CreditCardId,
-                TransactionOrigin = vm.OriginAccountNumber,
+                TransactionOrigin = vm.OriginAccountId,
                 Amount = vm.PaymentAmount,
                 Date = DateTime.UtcNow,
                 Status = TransactionStatus.Approved

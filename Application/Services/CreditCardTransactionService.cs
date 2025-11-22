@@ -36,7 +36,7 @@ namespace Application.Services
                 return null;
             }
 
-            var originAccount = await savingsAccountRepository.GetByAccountNumberAsync(dto.TransactionOrigin);
+            var originAccount = await savingsAccountRepository.GetByIdAsync(dto.TransactionOrigin); 
             if (originAccount == null || originAccount.Balance < dto.Amount)
             {
                 return null;

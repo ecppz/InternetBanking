@@ -33,6 +33,14 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await context.Loans.AnyAsync(l => l.LoanNumber == loanNumber);
         }
+
+        public async Task<List<Loan>> GetActiveLoansByUserIdAsync(Guid userId)
+        {
+            return await context.Loans
+                .Where(l => l.UserId == userId && l.Status == LoanStatus.Active)
+                .ToListAsync();
+        }
+
         public async Task<decimal> GetTotalDebtAsync(Guid userId)
         {
             return await context.Loans

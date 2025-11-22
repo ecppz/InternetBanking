@@ -19,6 +19,8 @@ namespace Application.Mappings.EntitiesAndDtos
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => src.Origin))
                 .ForMember(dest => dest.Beneficiary, opt => opt.MapFrom(src => src.Beneficiary))
+                .ForMember(dest => dest.VisualType, opt => opt.Ignore())
+                .ForMember(dest => dest.Description, opt => opt.Ignore())
                 .ReverseMap();
 
 

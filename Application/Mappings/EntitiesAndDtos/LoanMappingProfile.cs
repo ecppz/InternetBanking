@@ -29,9 +29,12 @@ namespace Application.Mappings.EntitiesAndDtos
                 .ForMember(dest => dest.HolderLastName, opt => opt.Ignore())
                 .ForMember(dest => dest.InstallmentsDetails, opt => opt.Ignore());
 
-
-
-
+            CreateMap<Loan, LoanDisplayDto>()
+                .ForMember(dest => dest.CustomerFullName, opt => opt.Ignore())   
+                .ForMember(dest => dest.DocumentNumber, opt => opt.Ignore())   
+                .ForMember(dest => dest.TotalInstallments, opt => opt.Ignore()) 
+                .ForMember(dest => dest.PaidInstallments, opt => opt.Ignore())
+                .ForMember(dest => dest.PendingAmount, opt => opt.Ignore());
         }
     }
 }

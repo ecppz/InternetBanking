@@ -1,4 +1,6 @@
-﻿namespace Application.Dtos.LoanInstallment
+﻿using Domain.Common.Enums;
+
+namespace Application.Dtos.LoanInstallment
 {
     public class LoanInstallmentDetailsDto
     {
@@ -6,7 +8,6 @@
         public Guid LoanId { get; set; }
         public required DateTime DueDate { get; set; }
         public required decimal Amount { get; set; }
-        public bool IsPaid { get; set; }
-        public bool IsLate { get; set; }
+        public InstallmentStatus Status { get; set; }
     }
 }

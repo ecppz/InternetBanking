@@ -30,15 +30,14 @@ namespace Presentation.Controllers
 
         public IActionResult Index()
         {
-            var vm = new LoanPaymentViewModel
+            return View(new LoanPaymentViewModel
             {
                 OriginAccountNumber = "",
                 Amount = 0,
-                LoanNumber = "",
-            };
-
-            return View(vm);
+                LoanNumber = ""
+            });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Index(LoanPaymentViewModel vm)
@@ -111,9 +110,10 @@ namespace Presentation.Controllers
             confirmVm.HolderName = user.Name;
             confirmVm.HolderLastName = user.LastName;
             confirmVm.OriginAccountId = originAccount.Id;
-            confirmVm.OriginAccountNumber = vm.OriginAccountNumber; 
             confirmVm.PaymentAmount = vm.Amount;
             confirmVm.TransactionDate = DateTime.UtcNow;
+            confirmVm.OriginAccountNumber = originAccount.AccountNumber;
+            confirmVm.LoanNumber = loan.LoanNumber!;
 
             return View("Confirm", confirmVm);
 

@@ -5,7 +5,9 @@
         Deposit = 1,
         CashWithdrawal,
         Transfer,
-        Payment
+        Payment,
+        CreditCardPayment,
+        LoanPayment
     }
 
 }

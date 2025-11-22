@@ -1,4 +1,5 @@
-﻿@model LoanDetailsViewModel
+﻿@using Domain.Common.Enums
+@model LoanDetailsViewModel
 @{
     ViewData["Title"] = "Petalles";
     Layout = "_LayoutAdmin";
@@ -20,8 +21,32 @@
             <tr>
                 <td>@inst.DueDate.ToString("dd/MM/yyyy")</td>
                 <td>@inst.Amount.ToString("C")</td>
-                <td>@(inst.IsPaid ? "Pagada" : "Pendiente")</td>
-                <td>@(inst.IsLate ? "En mora" : "Al día")</td>
+                <td>
+                    @switch (inst.Status)
+                    {
+                        case InstallmentStatus.Paid:
+                            @:Pagada
+                            break;
+                        case InstallmentStatus.Pending:
+                            @:Pendiente
+                            break;
+                        case InstallmentStatus.Late:
+                            @:Pendiente
+                            break;
+                    }
+                </td>
+                <td>
+                    @switch (inst.Status)
+                    {
+                        case InstallmentStatus.Late:
+                            @:En mora
+                            break;
+                        default:
+                            @:Al día
+                            break;
+                    }
+                </td>
+
             </tr>
         }
     </tbody>

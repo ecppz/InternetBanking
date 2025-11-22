@@ -10,22 +10,17 @@ namespace Application.Mappings.DtosAndViewModels
         public SavingsAccountDtoMappingProfile()
         {
             CreateMap<SavingsAccount, SavingsAccountDto>()
-        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-        .ReverseMap()
-        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ReverseMap()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             // CreateSavingsAccountDto -> SavingsAccount
             CreateMap<CreateSavingsAccountDto, SavingsAccount>();
 
-            // SavingsAccountSummaryDto <-> SavingsAccount
-            CreateMap<SavingsAccount, SavingsAccountSummaryDto>()
-                .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Status))
-                .ReverseMap()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Estado));
-
-            // SavingsAccountDetailDto -> SavingsAccount (solo ida, las transacciones se ignoran)
+        // SavingsAccountDetailDto -> SavingsAccount (solo ida, las transacciones se ignoran)
             CreateMap<SavingsAccountDetailDto, SavingsAccount>().ReverseMap()
-                .ForMember(dest => dest.Transactions, opt => opt.Ignore());
+                    .ForMember(dest => dest.Transactions, opt => opt.Ignore());
+
         }
     }
 }

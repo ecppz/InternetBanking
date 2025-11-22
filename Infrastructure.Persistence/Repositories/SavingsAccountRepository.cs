@@ -71,12 +71,14 @@ public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavi
             .FirstOrDefaultAsync(sa => sa.AccountNumber == accountNumber);
     }
 
+
     public async Task<List<SavingsAccount>> GetActiveAccountsByUserIdAsync(Guid userId)
     {
         return await context.SavingsAccounts
             .Where(a => a.UserId == userId && a.Status == SavingsAccountStatus.Activa)
             .ToListAsync();
     }
+
 
     // Retorna una cuenta secundaria por su Id, validando que no sea principal
     public async Task<SavingsAccount?> GetSecondaryByIdAsync(Guid accountId)
@@ -132,6 +134,40 @@ public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavi
 
     //Para cuenta de ahorro aqui finalizan sus metodos
 
+
+    //Metod de la funcionalidad de cliente de tranferencia entre cuentas propias
+
+
+    public async Task<SavingsAccount?> GetActiveByIdAndUserAsync(Guid accountId, Guid userId)
+    {
+        return await context.SavingsAccounts
+            .FirstOrDefaultAsync(sa =>
+                sa.Id == accountId &&
+                sa.UserId == userId &&
+                sa.Status == SavingsAccountStatus.Activa);
+    }
+
+    public async Task<List<SavingsAccount>> GetActiveByUserIdAsync(Guid userId)
+    {
+        return await context.SavingsAccounts
+            .Where(a => a.UserId == userId && a.Status == SavingsAccountStatus.Activa)
+            .OrderByDescending(a => a.AccountNumber)
+            .ToListAsync();
+    }
+
+    public async Task<bool> UpdateBalanceAsync(Guid accountId, decimal newBalance)
+    {
+        var account = await context.SavingsAccounts.FindAsync(accountId);
+        if (account == null)
+            return false;
+
+        account.Balance = newBalance;
+
+        context.SavingsAccounts.Update(account);
+        var changes = await context.SaveChangesAsync();
+
+        return changes > 0;
+    }
 
 
 }

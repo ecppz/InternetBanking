@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Common.Enums;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,16 +22,20 @@ namespace Application.Services
         {
             var today = DateTime.Today;
             var installments = await loanInstallmentRepository.GetAllQuery()
-                .Where(i => !i.IsPaid)
+                .Where(i => i.Status == InstallmentStatus.Pending)
                 .ToListAsync();
 
             foreach (var installment in installments)
             {
-                installment.IsLate = installment.DueDate < today;
+                if (installment.DueDate < today)
+                {
+                    installment.Status = InstallmentStatus.Late; 
+                }
             }
 
             await unitOfWork.SaveAsync();
         }
+
     }
 
 }

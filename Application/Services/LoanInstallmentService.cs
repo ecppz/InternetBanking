@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.LoanInstallment;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Common.Enums;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,7 @@ namespace Application.Services
 
             foreach (var i in installments)
             {
-                if (i.DueDate > now && !i.IsPaid)
+                if (i.DueDate > now && i.Status == InstallmentStatus.Pending)
                 {
                     i.Amount = cuota;
                 }
@@ -59,7 +60,7 @@ namespace Application.Services
         {
             var next = await loanInstallmentRepository
                 .GetAllQuery()
-                .Where(i => i.LoanId == loanId && !i.IsPaid)
+                .Where(i => i.LoanId == loanId && i.Status == InstallmentStatus.Pending)
                 .OrderBy(i => i.DueDate)
                 .FirstOrDefaultAsync();
 
@@ -75,19 +76,21 @@ namespace Application.Services
         {
             var installment = await loanInstallmentRepository
                 .GetAllQuery()
-                .Where(i => i.LoanId == loanId && !i.IsPaid)
+                .Where(i => i.LoanId == loanId && i.Status == InstallmentStatus.Pending)
                 .OrderBy(i => i.DueDate)
                 .FirstOrDefaultAsync();
 
             if (installment == null)
             {
-                return null;    
+                return null;
             }
 
-            installment.IsPaid = true;
+            installment.Status = InstallmentStatus.Paid; // 👈 marcar como pagada
             await loanInstallmentRepository.UpdateAsync(installment.Id, installment);
-            return mapper.Map<LoanInstallmentDto>(installment); 
+
+            return mapper.Map<LoanInstallmentDto>(installment);
         }
+
 
     }
 }

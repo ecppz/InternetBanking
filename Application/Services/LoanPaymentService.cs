@@ -53,12 +53,12 @@ namespace Application.Services
             {
                 if (remaining <= 0) break;
 
-                if (!installment.IsPaid)
+                if (installment.Status == InstallmentStatus.Pending)
                 {
                     if (remaining >= installment.Amount)
                     {
                         remaining -= installment.Amount;
-                        installment.IsPaid = true;
+                        installment.Status = InstallmentStatus.Paid;
                         await loanInstallmentRepository.UpdateAsync(installment.Id, installment);
                     }
                     else
@@ -67,6 +67,7 @@ namespace Application.Services
                     }
                 }
             }
+
 
             account.Balance -= dto.Amount;
             if (remaining > 0)
@@ -90,7 +91,10 @@ namespace Application.Services
 
             var transactionDto = mapper.Map<TransactionDto>(transaction);
 
-            var saldoPendiente = installments.Where(i => !i.IsPaid).Sum(i => i.Amount);
+            var saldoPendiente = installments
+                  .Where(i => i.Status == InstallmentStatus.Pending)
+                  .Sum(i => i.Amount);
+
 
             var user = await userAccountService.GetUserById(dto.UserId.ToString());
 
