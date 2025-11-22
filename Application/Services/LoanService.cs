@@ -75,7 +75,7 @@ namespace Application.Services
             }
 
             await loanInstallmentRepository.AddRangeAsync(installments);
-           
+
             var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(dto.UserId);
 
             if (accounts == null || !accounts.Any())
@@ -148,7 +148,7 @@ namespace Application.Services
             {
                 if (installment.DueDate > now && !installment.IsPaid)
                 {
-                    installment.Amount = nuevaCuota; 
+                    installment.Amount = nuevaCuota;
                 }
             }
 
@@ -347,6 +347,16 @@ namespace Application.Services
             while (await loanRepository.LoanNumberExistsAsync(number));
 
             return number;
+        }
+
+        public async Task<int> GetActiveLoansCountAsync()
+        {
+            return await loanRepository.GetActiveLoansCountAsync();
+        }
+
+        public async Task<decimal> GetAverageDebtPerClientAsync()
+        {
+            return await loanRepository.GetAverageDebtPerClientAsync();
         }
 
     }

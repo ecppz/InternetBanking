@@ -23,10 +23,6 @@ namespace Application.Mappings.EntitiesAndDtos
                 .ForMember(dest => dest.Description, opt => opt.Ignore())
                 .ReverseMap();
 
-
-
-
-
         }
     }
 }

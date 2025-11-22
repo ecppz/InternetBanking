@@ -81,7 +81,7 @@ namespace Application.Services
                 Amount = dto.Amount,
                 Date = DateTime.UtcNow,
                 Type = TransactionType.Transfer,
-                Status = "APROBADA",
+                Status = TransactionStatus.Approved,
                 Origin = originAccount.AccountNumber,
                 Beneficiary = destinationAccount.AccountNumber
             };

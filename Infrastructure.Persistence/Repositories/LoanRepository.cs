@@ -33,5 +33,29 @@ namespace Infrastructure.Persistence.Repositories
                 .Where(l => l.UserId == userId && l.Status == LoanStatus.Active)
                 .SumAsync(l => l.Amount);
         }
+
+        public async Task<int> GetActiveLoansCountAsync()
+        {
+            return await context.Loans
+                .CountAsync(l => l.Status == LoanStatus.Active);
+        }
+
+        public async Task<decimal> GetAverageDebtPerClientAsync()
+        {
+            var activeLoans = await context.Loans
+                .Where(l => l.Status == LoanStatus.Active)
+                .ToListAsync();
+
+            if (!activeLoans.Any())
+                return 0;
+
+            var totalDebt = activeLoans.Sum(l => l.Amount);
+            var activeClientsCount = activeLoans.Select(l => l.UserId).Distinct().Count();
+
+            if (activeClientsCount == 0)
+                return 0;
+
+            return totalDebt / activeClientsCount;
+        }
     }
 }

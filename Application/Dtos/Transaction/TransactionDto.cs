@@ -14,7 +14,7 @@ namespace Application.Dtos.Transaction
 
         // MIs nuevas propiedades
 
-        public required string Status { get; set; } // "APROBADA" o "RECHAZADA"
+        public TransactionStatus Status { get; set; }
 
         public required string Beneficiary { get; set; } // Número de cuenta destino
 

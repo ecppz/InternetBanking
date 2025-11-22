@@ -14,9 +14,11 @@ namespace Domain.Entities
         // campos nuevos:
 
         // PROPIEDADES AGREGADAS:
-        public required string Status { get; set; } // "APROBADA" o "RECHAZADA"
+        public TransactionStatus Status { get; set; }
         public required string Beneficiary { get; set; } // Ej: Número de Cuenta Destino
         public required string Origin { get; set; } // Ej: Número de Cuenta Origen
+
+
     }
 
 }

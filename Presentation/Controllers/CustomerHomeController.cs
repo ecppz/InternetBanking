@@ -67,7 +67,7 @@ namespace Presentation.Controllers
                     Type = tx.VisualType,
                     Origin = tx.Origin,
                     Destination = tx.Beneficiary,
-                    Status = tx.Status,
+                    Status = tx.Status.ToString(),
                     Description = tx.Description
                 }).ToList()
             };

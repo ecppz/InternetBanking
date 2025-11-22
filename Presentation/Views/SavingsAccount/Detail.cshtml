@@ -1,4 +1,5 @@
-﻿@model SavingsAccountDetailViewModel
+﻿@using Domain.Common.Enums
+@model SavingsAccountDetailViewModel
 
 @{
     Layout = "_LayoutAdmin";
@@ -33,8 +34,8 @@
     <tbody>
         @foreach (var tx in Model.Account.Transactions)
         {
-            var estadoColor = tx.Status == "APROBADA" ? "text-success" : "text-danger";
-            var estadoIcono = tx.Status == "APROBADA" ? "fas fa-check-circle" : "fas fa-times-circle";
+            var estadoColor = tx.Status == TransactionStatus.Approved ? "text-success" : "text-danger";
+            var estadoIcono = tx.Status == TransactionStatus.Approved ? "fas fa-check-circle" : "fas fa-times-circle";
             var tipoIcono = tx.VisualType == "CRÉDITO" ? "fas fa-arrow-down text-success" : "fas fa-arrow-up text-danger";
 
             <tr>

@@ -1,4 +1,5 @@
-﻿@model CustomerTransactionHistoryViewModel
+﻿@using Domain.Common.Enums
+@model CustomerTransactionHistoryViewModel
 
 @{
     Layout = "_LayoutCustomer";
@@ -63,9 +64,11 @@ else if (Model.Transactions.Any())
                     </td>
                     <td>@tx.VisualType</td>
                     <td>
-                        <i class="bi @(tx.Status == "Completado" ? "bi-check-circle-fill text-success" : "bi-hourglass-split text-warning") me-1"></i>
-                        @tx.Status
-                    </td>
+                        <i class="bi @(tx.Status == TransactionStatus.Approved
+                                          ? "bi-check-circle-fill text-success"
+                                          : "bi-x-circle-fill text-danger") me-1"></i>
+                @tx.Status.ToString()
+            </td>
                     <td>@tx.Description</td>
                 </tr>
             }

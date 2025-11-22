@@ -12,5 +12,8 @@ namespace Domain.Interfaces
         Task<decimal> GetTotalDebtByUserAsync(Guid userId);
         Task<decimal> GetTotalDebtAsync();
         Task<int> GetCardCountAsync();
+
+        Task<int> GetActiveCreditCardsCountAsync();
+
     }
 }

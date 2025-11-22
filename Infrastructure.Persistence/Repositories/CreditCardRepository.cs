@@ -83,5 +83,11 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await context.CreditCards.CountAsync();
         }
+
+        public async Task<int> GetActiveCreditCardsCountAsync()
+        {
+            return await context.CreditCards
+                .CountAsync(c => c.Status == CreditCardStatus.Active);
+        }
     }
 }

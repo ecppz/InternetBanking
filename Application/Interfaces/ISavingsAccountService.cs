@@ -37,5 +37,20 @@ namespace Application.Interfaces
 
         Task<SavingsAccountDto?> GetByAccountNumberAsync(string accountNumber);
 
+        // para el home de administrdor
+
+        Task<List<SavingsAccountDto>> GetAllSavingsAccountsAsync();
+
+
+        Task<bool> ActivatePrimaryAccountAsync(Guid userId);
+
+
+        Task<bool> DeactivatePrimaryAccountAsync(Guid userId);
+
+
+        Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount);
+
+
+
     }
 }

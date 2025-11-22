@@ -1,0 +1,64 @@
+﻿@model Application.ViewModels.Cashier.CashierHomeViewModel
+@{
+    Layout = "_LayoutCashier";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">
+        <i class="bi bi-speedometer2"></i> Panel de Cajero
+    </h2>
+
+    <div class="row">
+        <!-- Total de transacciones -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-check text-info" style="font-size:2rem;"></i>
+                    <h5 class="card-title mt-2">Transacciones Hoy</h5>
+                    <p class="display-6 fw-bold">@Model.TodayTransactions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagos -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-credit-card text-success" style="font-size:2rem;"></i>
+                    <h5 class="card-title mt-2">Pagos Hoy</h5>
+                    <p class="display-6 fw-bold">@Model.TodayPayments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Depósitos -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-wallet2 text-primary" style="font-size:2rem;"></i>
+                    <h5 class="card-title mt-2">Depósitos Hoy</h5>
+                    <p class="display-6 fw-bold">@Model.TodayDeposits</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retiros -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-coin text-danger" style="font-size:2rem;"></i>
+                    <h5 class="card-title mt-2">Retiros Hoy</h5>
+                    <p class="display-6 fw-bold">@Model.TodayWithdrawals</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="text-center">
+        <p class="text-muted">Bienvenido al sistema bancario ITLA. Seleccione una opción del menú superior para comenzar.</p>
+    </div>
+</div>

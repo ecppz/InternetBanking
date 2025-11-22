@@ -26,7 +26,18 @@ namespace Domain.Interfaces
 
         // Para cuenta de ahorro aqui finaliza sus metodos
 
-       
+        //Para el home del admin - Indicadores
+
+        // Retorna todas las transacciones registradas en el sistema.
+        // Se utilizará en el Dashboard para cálculos globales.
+        Task<List<Transaction>> GetAllTransactionsAsync();
+
+        //pra el home de cajero:
+
+        Task<List<Transaction>> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
+
 
     }
 }

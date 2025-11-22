@@ -161,6 +161,46 @@ public class SavingsAccountRepository : GenericRepository<SavingsAccount>, ISavi
 
         return changes > 0;
     }
+    //para admin
+
+    // Retorna todas las cuentas de ahorro registradas en el sistema.
+    // Se ordenan por fecha de creación (Id como referencia) descendente.
+    public async Task<List<SavingsAccount>> GetAllSavingsAccountsAsync()
+    {
+        return await context.SavingsAccounts
+            .OrderByDescending(sa => sa.Id) // si tienes campo DateCreated, cámbialo aquí
+            .ToListAsync();
+    }
+
+    public async Task<bool> SetAccountStatusAsync(Guid accountId, SavingsAccountStatus newStatus)
+    {
+        var account = await context.SavingsAccounts.FirstOrDefaultAsync(a => a.Id == accountId);
+        if (account == null) return false;
+
+        account.Status = newStatus;
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+
+    public async Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount)
+    {
+        // Buscar la cuenta principal del usuario
+        var account = await context.SavingsAccounts
+            .FirstOrDefaultAsync(a => a.UserId == userId && a.IsPrimary);
+
+        if (account == null)
+            return false;
+
+        // Sumar el monto adicional al balance existente
+        account.Balance += amount;
+
+        // Guardar cambios
+        context.SavingsAccounts.Update(account);
+        await context.SaveChangesAsync();
+
+        return true;
+    }
 
 
 }

@@ -10,5 +10,11 @@ namespace Application.Interfaces
         Task<decimal> CalculateMonthlyInstallment(decimal amount, decimal annualRate, int months);
         Task<decimal> GetAverageDebtAsync();
         Task<LoanDetailsDto> GetLoanDetailsAsync(Guid loanId);
+
+        Task<int> GetActiveLoansCountAsync();
+
+        Task<decimal> GetAverageDebtPerClientAsync();
+
+
     }
 }

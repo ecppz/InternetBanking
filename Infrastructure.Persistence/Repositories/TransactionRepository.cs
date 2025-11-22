@@ -60,11 +60,17 @@ namespace Infrastructure.Persistence.Repositories
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
-
         public async Task<List<Transaction>> GetByStatusAsync(string status)
         {
+            // Parse el string a enum
+            if (!Enum.TryParse<TransactionStatus>(status, true, out var parsedStatus))
+            {
+                // Si no se puede convertir, retorna lista vacía
+                return new List<Transaction>();
+            }
+
             return await context.Transactions
-                .Where(t => t.Status == status)
+                .Where(t => t.Status == parsedStatus)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
@@ -106,8 +112,52 @@ namespace Infrastructure.Persistence.Repositories
             }
         }
 
+        // Retorna todas las transacciones registradas en el sistema.
+        // Se ordenan por fecha descendente para que las más recientes aparezcan primero.
+        public async Task<List<Transaction>> GetAllTransactionsAsync()
+        {
+            return await context.Transactions
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
+        }
 
-       
+        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid accountId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            return await context.Transactions
+                .CountAsync(t => t.DestinationAccountId == accountId &&   // 👈 cambio aquí
+                                 t.Type == TransactionType.Deposit &&
+                                 t.Date >= start && t.Date < end);
+        }
+
+        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid accountId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            return await context.Transactions
+                .CountAsync(t => t.OriginAccountId == accountId &&        // 👈 retiros salen de la cuenta
+                                 t.Type == TransactionType.CashWithdrawal &&
+                                 t.Date >= start && t.Date < end);
+        }
+
+        // Ya tienes este método en la interfaz, lo implementamos igual:
+        public async Task<List<Transaction>> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            return await context.Transactions
+                .Where(t => t.OriginAccountId == cashierId &&
+                            t.Date >= start && t.Date < end)
+                .ToListAsync();
+        }
+
+
+
+
 
     }
 }
