@@ -274,6 +274,7 @@ namespace Presentation.Controllers
 
             return RedirectToAction("Index");
         }
+        
 
         [HttpPost]
         public async Task<IActionResult> Deactivate(string id)
