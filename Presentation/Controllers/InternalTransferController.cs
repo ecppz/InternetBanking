@@ -62,23 +62,22 @@ namespace Presentation.Controllers
         private async Task<Guid> GetUserIdAsync()
         {
             if (User?.Identity?.IsAuthenticated != true)
-                throw new Exception("Usuario no autenticado");
+                return Guid.Empty; // Usuario no autenticado
 
-            var userName = User.Identity.Name;
-
+            var userName = User.Identity?.Name;
             if (string.IsNullOrWhiteSpace(userName))
-                throw new Exception("Nombre de usuario no disponible");
+                return Guid.Empty; // Nombre no disponible
 
             var user = await _userAccountService.GetUserByUserName(userName);
-
             if (user == null || string.IsNullOrWhiteSpace(user.Id))
-                throw new Exception("No se pudo obtener el ID del usuario autenticado");
+                return Guid.Empty; // No se pudo obtener el ID
 
             if (!Guid.TryParse(user.Id, out var userId))
-                throw new Exception("El ID del usuario no tiene un formato válido de GUID");
+                return Guid.Empty; // ID inválido
 
             return userId;
         }
+
 
 
     }

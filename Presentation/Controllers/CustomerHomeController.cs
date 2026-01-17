@@ -1,9 +1,6 @@
 ﻿using Application.Dtos.Loan;
 using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.HomeCustomerAccounts;
-using Application.ViewModels.Loan;
-using Application.ViewModels.LoanInstallment;
 using AutoMapper;
 using Domain.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -32,8 +29,6 @@ namespace Presentation.Controllers
             this.mapper = mapper;
             this.userAccountService = userAccountService;
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> CustomerHome()

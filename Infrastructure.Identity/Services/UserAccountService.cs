@@ -1,14 +1,11 @@
 ﻿using Application.Dtos.Email;
 using Application.Dtos.User;
 using Application.Interfaces;
-using AutoMapper;
 using Domain.Common.Enums;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Text;
 
 namespace Infrastructure.Identity.Services

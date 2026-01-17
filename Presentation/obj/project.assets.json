@@ -6211,11 +6211,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\admin\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj",
+      "projectUniqueName": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\Presentation.csproj",
       "projectName": "Presentation",
-      "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Presentation\\Presentation.csproj",
+      "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\Presentation.csproj",
       "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Presentation\\obj\\",
+      "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6236,20 +6236,20 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Application\\Application.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj"
             },
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj"
             },
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj"
             },
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj"
             },
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Shared\\Infrastructure.Shared.csproj"
             }
           }
         }

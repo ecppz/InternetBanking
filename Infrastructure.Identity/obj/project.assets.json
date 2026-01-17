@@ -3662,11 +3662,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+      "projectUniqueName": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
       "projectName": "Infrastructure.Identity",
-      "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+      "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
       "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\obj\\",
+      "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3687,11 +3687,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Application\\Application.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Application\\Application.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj"
             },
-            "C:\\Users\\admin\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+            "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj"
             }
           }
         }

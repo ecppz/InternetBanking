@@ -65,14 +65,12 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "CustomerHome", action = "CustomerHome" });
             }
 
-            // Validación de modelo
             if (!ModelState.IsValid)
             {
                 vm.Password = "";
                 return View(vm);
             }
 
-            // Autenticación
             var loginDto = new LoginDto
             {
                 UserName = vm.UserName,
