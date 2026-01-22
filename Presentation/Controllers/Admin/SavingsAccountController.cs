@@ -1,14 +1,13 @@
 ﻿using Application.Dtos.SavingsAccount;
 using Application.Interfaces;
-using Application.Mappings.DtosAndViewModels;
 using Application.ViewModels.SavingsAccount;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Admin
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class SavingsAccountController : Controller
     {
         private readonly ISavingsAccountService savingsAccountService;

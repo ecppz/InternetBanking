@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Identity.Seeds
 {
-    public static class DefaultAdminUser
+    public static class DefaultCahierUser
     {
         public static async Task SeedAsync(UserManager<UserAccount> userManager)
         {
             UserAccount user = new()
             {
-                Name = "admin",
-                LastName = "admin",
-                Email = "admin@email.com",
+                Name = "Cajero",
+                LastName = "Cajero",
+                Email = "cajero@email.com",
                 EmailConfirmed = true,
                 IsActive = true,
-                DocumentNumber = "123456789",
-                UserName = "admin",
+                DocumentNumber = "1234567890",
+                UserName = "cajero",
             };
 
             if (await userManager.Users.AllAsync(u => u.Id != user.Id))
@@ -26,7 +26,7 @@ namespace Infrastructure.Identity.Seeds
                 if(entityUser == null)
                 {
                     await userManager.CreateAsync(user, "123Pa$$word!");
-                    await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+                    await userManager.AddToRoleAsync(user, Roles.Cashier.ToString());
                 }
             }
        

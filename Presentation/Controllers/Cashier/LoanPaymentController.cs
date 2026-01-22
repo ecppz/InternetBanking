@@ -3,11 +3,10 @@ using Application.Interfaces;
 using Application.ViewModels.Loan;
 using AutoMapper;
 using Domain.Common.Enums;
-using Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Cashier
 {
     [Authorize(Roles = "Cashier")]
     public class LoanPaymentController : Controller

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     public class LoanController : Controller

@@ -69,6 +69,7 @@ namespace Infrastructure.Identity
 
             await DefaultRoles.SeedAsync(roleManager);
             await DefaultAdminUser.SeedAsync(userManager);
+            await DefaultCahierUser.SeedAsync(userManager);
         }
 
         //private methods

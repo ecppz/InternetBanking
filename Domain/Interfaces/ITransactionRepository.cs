@@ -32,9 +32,10 @@ namespace Domain.Interfaces
         // Se utilizará en el Dashboard para cálculos globales.
         Task<List<Transaction>> GetAllTransactionsAsync();
 
-        //pra el home de cajero:
+        //para el home de cajero:
 
-        Task<List<Transaction>> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date); 
         Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
         Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
 

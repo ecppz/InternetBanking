@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {}
   },
   "projects": {
@@ -12,12 +13,25 @@
         "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\obj\\",
+=======
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj",
+        "projectName": "Application",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj",
+        "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\obj\\",
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\miese\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +46,13 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
+<<<<<<< HEAD
               "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {
                 "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj"
+=======
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
               }
             }
           }
@@ -103,6 +122,7 @@
         }
       }
     },
+<<<<<<< HEAD
     "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -111,12 +131,22 @@
         "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\obj\\",
+=======
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "projectName": "Domain",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\obj\\",
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\miese\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -168,6 +198,7 @@
         }
       }
     },
+<<<<<<< HEAD
     "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -176,12 +207,22 @@
         "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\obj\\",
+=======
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
+        "projectName": "Infrastructure.Persistence",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
+        "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Infrastructure.Persistence\\obj\\",
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\miese\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -196,11 +237,19 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
+<<<<<<< HEAD
               "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj": {
                 "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Application\\Application.csproj"
               },
               "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {
                 "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj"
+=======
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Application\\Application.csproj"
+              },
+              "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj"
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
               }
             }
           }

@@ -85,10 +85,13 @@ namespace Application.Interfaces
         Task<List<TransactionDto>> GetAllPaymentsAsync();
 
         //para cajero:
+        //home cajero
+        Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date); 
 
-        Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date);
+        Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
 
-        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date);
+        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
 
 
     }

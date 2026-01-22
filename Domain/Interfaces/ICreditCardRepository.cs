@@ -1,5 +1,4 @@
-﻿using Domain.Common.Enums;
-using Domain.Entities;
+﻿using Domain.Entities;
 
 namespace Domain.Interfaces
 {
@@ -16,7 +15,6 @@ namespace Domain.Interfaces
         Task<int> GetCardCountAsync();
         Task<CreditCard?> GetByNumberAsync(string cardNumber);
         Task<int> GetActiveCreditCardsCountAsync();
-
 
     }
 }

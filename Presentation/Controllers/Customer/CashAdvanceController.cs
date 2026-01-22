@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Customer
 {
     [Authorize(Roles = "Customer")]
     public class CashAdvanceController : Controller

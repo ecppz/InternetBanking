@@ -1,9 +1,7 @@
 ﻿using Application.Dtos.CreditCardTransaction;
 using Application.Dtos.Loan;
-using Application.Dtos.SavingsAccount;
 using Application.Dtos.Transaction;
 using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.CreditCardTransaction;
 using Application.ViewModels.ExpressTransaction;
 using Application.ViewModels.Loan;
@@ -15,9 +13,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Identity.Client;
+
 using Newtonsoft.Json;
-using System.Security.Principal;
 namespace Presentation.Controllers
 {
     [Authorize(Roles = "Customer")]

@@ -1,7 +1,6 @@
 ﻿using Application.Dtos.SavingsAccount;
 using Application.Dtos.User;
 using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.User;
 using AutoMapper;
 using Domain.Common.Enums;
@@ -11,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Admin
 {
      [Authorize(Roles = "Admin")] 
     public class MaintenanceUserController : Controller
@@ -127,15 +126,8 @@ namespace Presentation.Controllers
             }
 
             TempData["Success"] = $"Usuario creado correctamente. Se ha enviado un correo de confirmación a {result.Email}.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index");   
         }
-
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
-        {
-            string message = await userAccountService.ConfirmAccountAsync(userId, token);
-            return View("ConfirmEmail", model: message); // explícito
-        }
-
 
         // GET: Editar usuario
         public async Task<IActionResult> Edit(string id)
@@ -274,6 +266,7 @@ namespace Presentation.Controllers
 
             return RedirectToAction("Index");
         }
+        
 
         [HttpPost]
         public async Task<IActionResult> Deactivate(string id)

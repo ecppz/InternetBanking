@@ -5,6 +5,16 @@
     Layout = "_LayoutAdmin";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
 <div class="row">
     <div class="text-center">
         <h1 class="display-4">Crear Usuarios</h1>

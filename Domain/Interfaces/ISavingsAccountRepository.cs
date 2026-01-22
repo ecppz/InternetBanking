@@ -32,11 +32,7 @@ namespace Domain.Interfaces
         // Retorna todas las cuentas de ahorro registradas en el sistema.
         // Se utilizará en el Dashboard para calcular el total global.
         Task<List<SavingsAccount>> GetAllSavingsAccountsAsync();
-
         Task<bool> SetAccountStatusAsync(Guid accountId, SavingsAccountStatus newStatus);
-
         Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount);
-
-
     }
 }

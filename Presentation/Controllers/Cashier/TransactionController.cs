@@ -1,21 +1,21 @@
 ﻿using Application.Dtos.Transaction;
 using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.Transaction;
 using AutoMapper;
 using Domain.Common.Enums;
-using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Cashier
 {
+    [Authorize(Roles = "Cashier")]
     public class TransactionController : Controller
     {
-        private readonly IMapper mapper;
         private readonly ITransactionService transactionService;
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountService userAccountService;
+        private readonly IMapper mapper;
 
         public TransactionController(IMapper mapper, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService)
         {

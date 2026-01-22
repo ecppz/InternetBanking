@@ -121,42 +121,55 @@ namespace Infrastructure.Persistence.Repositories
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
+        //home  cajero ------------------------------------------------------------------------------------------------------------
 
+       //transacciones
+        public async Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            return await context.Transactions
+                .CountAsync(t => t.OriginAccountId == cashierId &&
+                            t.Date >= start && t.Date < end);
+        }
+        //pagos
+
+        public async Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        {
+            var start = date.Date;
+            var end = start.AddDays(1);
+
+            return await context.Transactions
+                .CountAsync(t => t.OriginAccountId == cashierId &&        
+                                 (t.Type == TransactionType.LoanPayment ||  
+                                  t.Type == TransactionType.CreditCardPayment)  
+                                 && t.Date >= start && t.Date < end);
+        }
+        //depositos
         public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid accountId, DateTime date)
         {
             var start = date.Date;
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.DestinationAccountId == accountId &&   // 👈 cambio aquí
+                .CountAsync(t => t.DestinationAccountId == accountId &&  
                                  t.Type == TransactionType.Deposit &&
                                  t.Date >= start && t.Date < end);
         }
-
+        //retiros
         public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid accountId, DateTime date)
         {
             var start = date.Date;
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.OriginAccountId == accountId &&        // 👈 retiros salen de la cuenta
+                .CountAsync(t => t.OriginAccountId == accountId &&  
                                  t.Type == TransactionType.CashWithdrawal &&
                                  t.Date >= start && t.Date < end);
         }
 
-        // Ya tienes este método en la interfaz, lo implementamos igual:
-        public async Task<List<Transaction>> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date)
-        {
-            var start = date.Date;
-            var end = start.AddDays(1);
-
-            return await context.Transactions
-                .Where(t => t.OriginAccountId == cashierId &&
-                            t.Date >= start && t.Date < end)
-                .ToListAsync();
-        }
-
-
+       
 
 
 

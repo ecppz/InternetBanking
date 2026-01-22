@@ -7,7 +7,7 @@ using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Auth
 {
     public class LoginController : Controller
     {
@@ -33,10 +33,10 @@ namespace Presentation.Controllers
 
                 return role switch
                 {
-                    "Admin" => RedirectToAction("Index", "AdminHome"),
-                    "Cashier" => RedirectToAction("Index", "CashierHome"),
-                    "Customer" => RedirectToAction("CustomerHome", "CustomerHome"),
-                    _ => RedirectToAction("AccessDenied", "Login")
+                    "Admin" => RedirectToRoute(new { controller = "Admin", action = "Index" }),
+                    "Cashier" => RedirectToRoute(new { controller = "Cashier", action = "Index" }),
+                    "Customer" => RedirectToRoute(new { controller = "Customer", action = "Index" }),
+                   _ => RedirectToRoute(new { controller = "Login", action = "AccessDenied" }),
                 };
             }
 
@@ -59,10 +59,10 @@ namespace Presentation.Controllers
                     return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
 
                 if (userSession.Role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "CashierHome", action = "Index" });
+                    return RedirectToRoute(new { controller = "Cashier", action = "Index" });
 
                 if (userSession.Role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "CustomerHome", action = "CustomerHome" });
+                    return RedirectToRoute(new { controller = "Customer", action = "Index" });
             }
 
             if (!ModelState.IsValid)
@@ -84,13 +84,13 @@ namespace Presentation.Controllers
                 var role = response.Roles.FirstOrDefault();
 
                 if (role == Roles.Admin.ToString())
-                    return RedirectToRoute(new { controller = "AdminHome", action = "Index" });
+                    return RedirectToRoute(new { controller = "Admin", action = "Index" });
 
                 if (role == Roles.Cashier.ToString())
-                    return RedirectToRoute(new { controller = "CashierHome", action = "Index" });
+                    return RedirectToRoute(new { controller = "Cashier", action = "Index" });
 
                 if (role == Roles.Customer.ToString())
-                    return RedirectToRoute(new { controller = "CustomerHome", action = "CustomerHome" });
+                    return RedirectToRoute(new { controller = "Customer", action = "Index" });
 
                 ModelState.AddModelError("userValidation", "Rol no reconocido.");
             }
@@ -105,6 +105,13 @@ namespace Presentation.Controllers
             vm.Password = "";
             return View(vm);
         }
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            string message = await _userAccountService.ConfirmAccountAsync(userId, token);
+            return View("ConfirmEmail", model: message); // explícito
+        }
+
 
         public IActionResult ForgotPassword()
         {
@@ -165,6 +172,20 @@ namespace Presentation.Controllers
         public async Task<IActionResult> Logout()
         {
             await _userAccountService.SignOutAsync();
+            return RedirectToRoute(new { controller = "Login", action = "Index" });
+        }
+
+        public async Task<IActionResult> AccessDenied()
+        {
+            UserAccount? userSession = await _userManager.GetUserAsync(User);
+
+            if (userSession != null)
+            {
+                var user = await _userAccountService.GetUserByUserName(userSession.UserName ?? "");
+                ViewBag.CurrentRol = user?.Role ?? "";
+                return View();
+            }
+
             return RedirectToRoute(new { controller = "Login", action = "Index" });
         }
 

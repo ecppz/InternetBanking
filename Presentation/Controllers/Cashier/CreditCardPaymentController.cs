@@ -6,7 +6,7 @@ using Domain.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Cashier
 {
     [Authorize(Roles = "Cashier")]
     public class CreditCardPaymentController : Controller

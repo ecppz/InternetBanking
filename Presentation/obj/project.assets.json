@@ -6211,9 +6211,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\Presentation.csproj",
-      "projectName": "Presentation",
-      "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\Presentation.csproj",
+      "projectUniqueName": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\InternetBankingApp.csproj",
+      "projectName": "InternetBankingApp",
+      "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\InternetBankingApp.csproj",
       "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Presentation\\obj\\",
       "projectStyle": "PackageReference",

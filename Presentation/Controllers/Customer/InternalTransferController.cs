@@ -1,11 +1,12 @@
 ﻿using Application.Dtos.Transfer;
 using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.InternalTransfer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Customer
 {
+    [Authorize(Roles = "Customer")]
     public class InternalTransferController : Controller
     {
         private readonly IInternalTransferService _service;

@@ -6,12 +6,11 @@ using Domain.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Customer
 {
     [Authorize(Roles = "Customer")]
-    public class CustomerHomeController : Controller
+    public class CustomerController : Controller
     {
-
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionlService;
         private readonly IUserAccountService userAccountService;
@@ -19,7 +18,7 @@ namespace Presentation.Controllers
         private readonly ICreditCardService creditCardService;
         private readonly IMapper mapper;
 
-        public CustomerHomeController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, IUserAccountService userAccountService, ITransactionService transactionlService,
+        public CustomerController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, IUserAccountService userAccountService, ITransactionService transactionlService,
             ILoanService loanService, IMapper mapper)
         {
             this.savingsAccountService = savingsAccountService;
@@ -31,7 +30,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CustomerHome()
+        public async Task<IActionResult> Index()
         {
             var userId = await GetAuthenticatedUserIdAsync();
 
@@ -142,15 +141,6 @@ namespace Presentation.Controllers
                 throw new Exception("El ID del usuario no tiene un formato válido.");
 
             return userId;
-        }
-
-
-        public async Task<IActionResult> Index()
-        {
-            var userId = await GetAuthenticatedUserIdAsync();
-            var loans = await loanService.GetActiveLoansByUserIdAsync(userId);
-
-            return View(loans); // 👉 Vista: Views/Loan/Index.cshtml
         }
 
         public async Task<IActionResult> LoanDetails(string loanNumber)

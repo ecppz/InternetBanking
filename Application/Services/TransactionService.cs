@@ -596,29 +596,40 @@ namespace Application.Services
         }
 
 
+        //home cajero--------------------------------------------------
 
-
-        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date)
+        //transaciones
+        public async Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
-            if (user == null) return 0;
-
-            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
-            if (account == null) return 0;
-
-            // Delegamos al repositorio
-            return await transactionRepository.GetDepositsCountByCashierAndDateAsync(account.Id, date);
+            return await transactionRepository.GetTransactionsByCashierAndDateAsync(cashierId, date);
         }
 
-        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date)
+        //pagos
+        public async Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
+            return await transactionRepository.GetPaymentsCountByCashierAndDateAsync(cashierId, date);
+        }
+
+        //depositos
+        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        {
+            var user = await userAccountService.GetUserById(cashierId.ToString());
             if (user == null) return 0;
 
             var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
             if (account == null) return 0;
 
-            // Delegamos al repositorio
+            return await transactionRepository.GetDepositsCountByCashierAndDateAsync(account.Id, date);
+        }
+        //retiros
+        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        {
+            var user = await userAccountService.GetUserById(cashierId.ToString());
+            if (user == null) return 0;
+
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
+            if (account == null) return 0;
+
             return await transactionRepository.GetWithdrawalsCountByCashierAndDateAsync(account.Id, date);
         }
 

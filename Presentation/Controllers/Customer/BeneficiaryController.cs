@@ -2,15 +2,13 @@
 using Application.Interfaces;
 using Application.ViewModels.Beneficiary;
 using AutoMapper;
-using Domain.Common.Enums;
-using Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace InternetBankingApp.Controllers.Customer
 {
 
-    [Authorize]
+    [Authorize(Roles = "Customer")]
     public class BeneficiaryController : Controller
     {
 

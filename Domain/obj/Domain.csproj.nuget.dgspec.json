@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj": {}
   },
   "projects": {
@@ -12,12 +13,25 @@
         "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Domain\\obj\\",
+=======
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "projectName": "Domain",
+        "projectPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\Domain.csproj",
+        "packagesPath": "C:\\Users\\miese\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\miese\\Desktop\\InternetBanking\\Domain\\obj\\",
+>>>>>>> b6cb8ea8c9dc2774b257ba3e495b80e9c1b44eb2
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\miese\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

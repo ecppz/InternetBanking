@@ -56,7 +56,7 @@ namespace Infrastructure.Identity.Services
             if (!user.IsActive)
             {
                 response.HasError = true;
-                response.Errors.Add($"La cuenta {loginDto.UserName} está inactiva. Actívala desde el enlace enviado a tu correo.");
+                response.Errors.Add($"La cuenta {loginDto.UserName} está inactiva. Contacte con un administrador para activarla.");
                 return response;
             }
 
@@ -480,7 +480,7 @@ namespace Infrastructure.Identity.Services
 
         public async Task<List<Guid>> GetAllUserIdsAsync()
         {
-            var users = await userManager.Users.ToListAsync();   // compa dara error aki pq no hemos hecho migracion! dont do a migration yet
+            var users = await userManager.Users.ToListAsync();  
             var filteredIds = new List<Guid>();
 
             foreach (var user in users)
@@ -570,6 +570,7 @@ namespace Infrastructure.Identity.Services
             return resetUri;
         }
 
+
         public async Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin)
         {
             var response = new UserResponseDto
@@ -579,6 +580,7 @@ namespace Infrastructure.Identity.Services
 
             try
             {
+                // Inicializar usuario
                 var user = new UserAccount
                 {
                     Name = dto.Name,
@@ -586,15 +588,23 @@ namespace Infrastructure.Identity.Services
                     DocumentNumber = dto.DocumentNumber,
                     UserName = dto.UserName,
                     Email = dto.Email,
-                    EmailConfirmed = false,
-                    IsActive = false,
                     PhoneNumberConfirmed = false,
                     TwoFactorEnabled = false,
-                    LockoutEnabled = true
+                    LockoutEnabled = true,
+                    IsActive = false,
                 };
 
-                var result = await userManager.CreateAsync(user, dto.Password);
+                if (dto.Role == Roles.Admin.ToString() || dto.Role == Roles.Cashier.ToString())
+                {
+                    user.EmailConfirmed = true;
+                }
+                else if (dto.Role == Roles.Customer.ToString())
+                {
+                    user.EmailConfirmed = false;
+                }
 
+
+                var result = await userManager.CreateAsync(user, dto.Password);
                 if (!result.Succeeded)
                 {
                     response.HasError = true;
@@ -602,7 +612,7 @@ namespace Infrastructure.Identity.Services
                     return response;
                 }
 
-                //  Asignar rol usando Identity
+                // Asignar rol
                 var roleResult = await userManager.AddToRoleAsync(user, dto.Role);
                 if (!roleResult.Succeeded)
                 {
@@ -611,38 +621,39 @@ namespace Infrastructure.Identity.Services
                     return response;
                 }
 
-                //  Validar y construir origin
-                if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
+                // Solo clientes reciben correo de confirmación
+                if (dto.Role == Roles.Customer.ToString())
                 {
-                    response.HasError = true;
-                    response.Errors.Add("El parámetro 'origin' no es una URI válida.");
-                    return response;
+                    if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
+                    {
+                        response.HasError = true;
+                        response.Errors.Add("El parámetro 'origin' no es una URI válida.");
+                        return response;
+                    }
+
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+                    var confirmUrl = new Uri(baseUri, "Login/ConfirmEmail");
+                    var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
+                    verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
+
+                    var subject = "Confirma tu cuenta";
+                    var body = $"""
+                        Hola {user.Name},<br><br>
+                        Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
+                        <a href='{verificationUri}'>Confirmar cuenta</a>
+                     """;
+
+                    await emailService.SendAsync(new EmailRequestDto
+                    {
+                        To = user.Email,
+                        Subject = subject,
+                        HtmlBody = body
+                    });
                 }
 
-                //  Generar token y enlace de confirmación
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-                var confirmUrl = new Uri(baseUri, "MaintenanceUser/ConfirmEmail"); // 
-                var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
-                verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
-
-                //  Enviar correo
-                var subject = "Confirma tu cuenta";
-                var body = $"""
-                Hola {user.Name},<br><br>
-                Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
-                <a href='{verificationUri}'>Confirmar cuenta</a>
-               """;
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = subject,
-                    HtmlBody = body
-                });
-
-                //  Preparar respuesta
+                // Respuesta
                 response.HasError = false;
                 response.Id = user.Id;
                 response.Email = user.Email;
@@ -661,7 +672,7 @@ namespace Infrastructure.Identity.Services
             }
         }
 
-        // cuando me levante le meto mano ------------------->
+
         public async Task<bool> SetUserActiveStatus(string id, bool isActive)
         {
             var user = await userManager.FindByIdAsync(id);
