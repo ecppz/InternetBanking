@@ -38,7 +38,7 @@ namespace Application.Interfaces
         Task<bool> HasSufficientFundsAsync(string accountNumber, decimal amount);
 
         // Orquesta la transferencia entre cuentas de terceros (ejecuta y registra)
-        Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount);
+        Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId);
 
         // Genera el modelo de confirmación visual para la transferencia
         Task<ConfirmThirdPartyTransferViewModel?> PrepareTransferConfirmationAsync(string originAccountNumber, string destinationAccountNumber, decimal amount);
@@ -49,18 +49,18 @@ namespace Application.Interfaces
 
         Task<string?> GetAccountStatusAsync(string accountNumber);
 
-        Task RegisterRejectedTransactionAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, string reason);
+        Task RegisterRejectedTransactionAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, string reason, Guid userId);
 
         //Para cajero apartado de deposito y retiro
 
         //Deposito
         Task<DepositConfirmationDto?> ValidateDepositAsync(DepositRequestDto request);
-        Task<bool> ExecuteDepositAsync(DepositRequestDto request);
+        Task<bool> ExecuteDepositAsync(DepositRequestDto request, Guid userId);
 
         //Retiro
 
         Task<WithdrawalConfirmationDto?> ValidateWithdrawalAsync(WithdrawalRequestDto request);
-        Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request);
+        Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId);
 
         //Trasaccion para beneficiarios
 
@@ -86,13 +86,13 @@ namespace Application.Interfaces
 
         //para cajero:
         //home cajero
-        Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date);
-        Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date); 
+        Task<int> GetTransactionsByCashierAndDateAsync(Guid userId, DateTime date);
+        Task<int> GetPaymentsCountByCashierAndDateAsync(Guid userId, DateTime date); 
 
-        Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date);
 
-        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
+        Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date);
 
-
+        Task<(int TotalPayments, int TodayPayments)> GetLoanAndCreditCardPaymentsAsync();
     }
 }

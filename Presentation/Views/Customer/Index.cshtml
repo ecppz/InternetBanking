@@ -5,6 +5,22 @@
     ViewData["Title"] = "Home del Cliente";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 <h2 class="mb-4 d-flex align-items-center">
     <i class="bi bi-wallet2 text-primary me-2 fs-3"></i>
     Mis Cuentas de Ahorro

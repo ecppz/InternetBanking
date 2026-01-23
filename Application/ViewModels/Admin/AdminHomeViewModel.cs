@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.ViewModels.AdminDashboard
+﻿namespace Application.ViewModels.AdminDashboard
 {
     // ViewModel principal para el Dashboard del Administrador.
     // Contiene todos los indicadores que se mostrarán en la vista.
-    public class AdminDashboardViewModel
+    public class AdminHomeViewModel
     {
         // Indicadores de Transacciones
         public int TotalTransactions { get; set; }              // Total de transacciones registradas en el sistema
         public int TodayTransactions { get; set; }              // Transacciones realizadas en la fecha actual
-
-        // Indicadores de Pagos
         public int TotalPayments { get; set; }                  // Total de pagos procesados en el historial
         public int TodayPayments { get; set; }                  // Pagos procesados en la fecha actual
 

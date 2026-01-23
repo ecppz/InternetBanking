@@ -5,6 +5,6 @@ namespace Application.Interfaces
 {
     public interface ILoanPaymentService
     {
-        Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto);
+        Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid userId);
     }
 }

@@ -5,6 +5,7 @@ using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction;
 using Application.ViewModels.ExpressTransaction;
 using Application.ViewModels.Loan;
+using Application.ViewModels.Transaction;
 using Application.ViewModels.TransactionBeneficiaryTransfer;
 using AutoMapper;
 using Domain.Common.Enums;
@@ -57,7 +58,23 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> Express()
         {
-            var userId = await GetAuthenticatedUserIdAsync();
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+
+            var userId = Guid.Parse(userSession.Id);
+
             var allAccounts = await savingsAccountService.GetAllByUserIdOrderedAsync(userId);
 
             var accounts = allAccounts
@@ -83,7 +100,22 @@ namespace Presentation.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var userId = await GetAuthenticatedUserIdAsync();
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+
+            var userId = Guid.Parse(userSession.Id);
 
             // Obtener cuenta destino
             var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(model.DestinationAccountNumber);
@@ -123,6 +155,22 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmExpress(string action)
         {
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var userId = Guid.Parse(userSession.Id);
+
             if (action == "cancelar")
                 return RedirectToAction("CustomerHome", "CustomerHome");
 
@@ -135,7 +183,8 @@ namespace Presentation.Controllers
             var success = await transactionService.ExecuteThirdPartyTransferAsync(
                 model.OriginAccountNumber,
                 model.DestinationAccountNumber,
-                model.Amount
+                model.Amount,
+                userId
             );
 
             if (!success)
@@ -144,7 +193,8 @@ namespace Presentation.Controllers
                     model.OriginAccountNumber,
                     model.DestinationAccountNumber,
                     model.Amount,
-                    "Error inesperado en la ejecución"
+                    "Error inesperado en la ejecución",
+                    userId
                 );
 
                 TempData["Error"] = "La transacción no pudo completarse.";
@@ -154,30 +204,26 @@ namespace Presentation.Controllers
             return RedirectToAction("Express");
         }
 
-        private async Task<Guid> GetAuthenticatedUserIdAsync()
-        {
-            var userName = User?.Identity?.Name;
-
-            if (string.IsNullOrWhiteSpace(userName))
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var user = await userAccountService.GetUserByUserName(userName);
-
-            if (user == null || string.IsNullOrWhiteSpace(user.Id))
-                throw new Exception("No se pudo obtener el usuario autenticado.");
-
-            if (!Guid.TryParse(user.Id, out var userId))
-                throw new Exception("El ID del usuario no tiene un formato válido.");
-
-            return userId;
-        }
-
         // Trasaccion para beneficiario registrado 
 
         [HttpGet]
         public async Task<IActionResult> BeneficiaryTransfer()
         {
-            var userId = await GetAuthenticatedUserIdAsync();
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var userId = Guid.Parse(userSession.Id);
 
             var beneficiaries = (await beneficiaryService.GetByOwnerUserIdAsync(userId))
               .Select(b => new SelectListItem
@@ -209,6 +255,22 @@ namespace Presentation.Controllers
                 return View(model);
             }
 
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var userId = Guid.Parse(userSession.Id);
+
             var originAccount = await savingsAccountService.GetAccountSummaryAsync(model.OriginAccountId);
             if (originAccount == null || originAccount.Balance < model.Amount)
             {
@@ -217,7 +279,6 @@ namespace Presentation.Controllers
                 return View(model);
             }
 
-            var userId = await GetAuthenticatedUserIdAsync();
             var beneficiary = await beneficiaryService.GetByAccountNumberAndOwnerAsync(userId, model.BeneficiaryAccountNumber);
             if (beneficiary == null)
             {
@@ -270,9 +331,23 @@ namespace Presentation.Controllers
             return RedirectToAction("CustomerHome", "CustomerHome");
         }
 
-        private async Task RefillFormAsync(BeneficiaryTransferFormViewModel model)
+        private async Task<bool> RefillFormAsync(BeneficiaryTransferFormViewModel model)
         {
-            var userId = await GetAuthenticatedUserIdAsync();
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return false;
+            }   
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Customer.ToString()))
+            {
+                return false;
+            }
+
+            var userId = Guid.Parse(userSession.Id);
 
             var beneficiaries = await beneficiaryService.GetByOwnerUserIdAsync(userId);
 
@@ -289,6 +364,8 @@ namespace Presentation.Controllers
                     Id = a.Id,
                     AccountNumber = a.AccountNumber
                 }).ToList();
+
+            return true;
         }
 
         [HttpGet]
@@ -297,6 +374,44 @@ namespace Presentation.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CustomerTransactionHistory(Guid? accountId)
+        {
+            var user = await userAccountService.GetUserByUserName(User.Identity!.Name!);
+            if (user == null)
+                return Unauthorized();
+
+            if (!Guid.TryParse(user.Id, out var userGuid))
+                return BadRequest("ID de usuario inválido.");
+
+            var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(userGuid);
+
+            var model = new CustomerTransactionHistoryViewModel
+            {
+                UserAccounts = accounts,
+                SelectedAccountId = accountId
+            };
+
+            if (accountId.HasValue)
+            {
+                var selectedAccount = accounts.FirstOrDefault(a => a.Id == accountId.Value);
+                if (selectedAccount == null)
+                {
+                    model.Message = "La cuenta seleccionada no pertenece al usuario.";
+                    return View(model);
+                }
+
+                model.SelectedAccountNumber = selectedAccount.AccountNumber;
+                model.Transactions = await transactionService.GetAllByAccountIdOrderedAsync(accountId.Value);
+
+                if (!model.Transactions.Any())
+                {
+                    model.Message = "No hay transacciones registradas para esta cuenta.";
+                }
+            }
+
+            return View(model);
+        }
 
         //=======================================================================================================
 
@@ -322,11 +437,11 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> CreditCardPaymentTransaction(CreditCardPaymentViewModel vm)
         {
+            var user = await userManager.GetUserAsync(User);
+            var userId = Guid.Parse(user.Id);
+
             if (!ModelState.IsValid)
             {
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
-
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
 
@@ -340,8 +455,6 @@ namespace Presentation.Controllers
             if (accountId == null)
             {
                 ModelState.AddModelError("", "La cuenta de origen no existe.");
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
 
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
@@ -357,8 +470,6 @@ namespace Presentation.Controllers
             if (originAccount.Balance < vm.Amount)
             {
                 ModelState.AddModelError("", "Fondos insuficientes en la cuenta de origen.");
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
 
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
@@ -373,8 +484,6 @@ namespace Presentation.Controllers
             if (cardId == null)
             {
                 ModelState.AddModelError("", "La tarjeta de crédito no existe.");
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
 
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
@@ -389,8 +498,6 @@ namespace Presentation.Controllers
             if (creditCard == null || creditCard.Status != CreditCardStatus.Active)
             {
                 ModelState.AddModelError("", "La tarjeta de crédito está inactiva.");
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
 
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
@@ -411,13 +518,11 @@ namespace Presentation.Controllers
                 Type = CreditCardTransactionType.Payment
             };
 
-            var result = await creditCardTransactionService.RegisterPaymentAsync(dto);
+            var result = await creditCardTransactionService.RegisterPaymentAsync(dto, userId);
 
             if (result == null)
             {
                 TempData["ErrorMessage"] = "No se pudo procesar el pago a la tarjeta.";
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
 
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
@@ -429,7 +534,7 @@ namespace Presentation.Controllers
             }
 
             TempData["SuccessMessage"] = "El pago a la tarjeta se ha realizado correctamente.";
-            return RedirectToAction("Index", "CustomerHome");
+            return RedirectToAction("Index", "Customer");
         }
 
 
@@ -454,11 +559,11 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> LoanPaymentTransaction(LoanPaymentViewModel vm)
         {
+            var user = await userManager.GetUserAsync(User);
+            var userId = Guid.Parse(user.Id);
+
             if (!ModelState.IsValid)
             {
-                var user = await userManager.GetUserAsync(User);
-                var userId = Guid.Parse(user.Id);
-
                 var loans = await loanService.GetActiveLoansByUserIdAsync(userId);
                 var accounts = await savingsAccountService.GetActiveAccountsByUserIdAsync(userId);
 
@@ -467,6 +572,7 @@ namespace Presentation.Controllers
 
                 return View(vm);
             }
+
 
             var accountId = await savingsAccountService.GetAccountIdByAccountNumberAsync(vm.OriginAccountNumber);
             if (accountId == null)
@@ -514,7 +620,7 @@ namespace Presentation.Controllers
                 Amount = vm.Amount,
                 LoanNumber = loan.LoanNumber! 
             };
-            var result = await loanPaymentService.RegisterPaymentAsync(dto);
+            var result = await loanPaymentService.RegisterPaymentAsync(dto, userId);
 
             if (result == null)
             {
@@ -523,7 +629,7 @@ namespace Presentation.Controllers
             }
 
             TempData["SuccessMessage"] = "El pago al préstamo se ha realizado correctamente.";
-            return RedirectToAction("Index", "CustomerHome");
+            return RedirectToAction("Index", "Customer");
         }
 
     }

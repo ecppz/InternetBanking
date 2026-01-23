@@ -130,7 +130,7 @@ namespace Infrastructure.Persistence.Repositories
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.OriginAccountId == cashierId &&
+                .CountAsync(t => t.PerformedByUserId == cashierId &&
                             t.Date >= start && t.Date < end);
         }
         //pagos
@@ -141,37 +141,47 @@ namespace Infrastructure.Persistence.Repositories
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.OriginAccountId == cashierId &&        
+                .CountAsync(t => t.PerformedByUserId == cashierId &&        
                                  (t.Type == TransactionType.LoanPayment ||  
                                   t.Type == TransactionType.CreditCardPayment)  
                                  && t.Date >= start && t.Date < end);
         }
         //depositos
-        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid accountId, DateTime date)
+        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
         {
             var start = date.Date;
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.DestinationAccountId == accountId &&  
+                .CountAsync(t => t.PerformedByUserId == cashierId &&  
                                  t.Type == TransactionType.Deposit &&
                                  t.Date >= start && t.Date < end);
         }
         //retiros
-        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid accountId, DateTime date)
+        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
         {
             var start = date.Date;
             var end = start.AddDays(1);
 
             return await context.Transactions
-                .CountAsync(t => t.OriginAccountId == accountId &&  
+                .CountAsync(t => t.PerformedByUserId == cashierId &&  
                                  t.Type == TransactionType.CashWithdrawal &&
                                  t.Date >= start && t.Date < end);
         }
 
-       
+        //------
+        public async Task<(int TotalPayments, int TodayPayments)> GetLoanAndCreditCardPaymentsAsync()
+        {
+           var approvedPayments = await context.Transactions
+               .Where(t => (t.Type == TransactionType.LoanPayment ||
+                            t.Type == TransactionType.CreditCardPayment) &&
+                            t.Status == TransactionStatus.Approved)
+               .ToListAsync();
 
+           var totalPayments = approvedPayments.Count;
+           var todayPayments = approvedPayments.Count(t => t.Date.Date == DateTime.Today);
 
-
+             return (totalPayments, todayPayments);
+        }
     }
 }

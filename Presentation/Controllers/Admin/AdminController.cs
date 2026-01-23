@@ -35,15 +35,13 @@ namespace InternetBankingApp.Controllers.Admin
             this.creditCardTransactionService = creditCardTransactionService;
         }
 
-        // Acción principal del Dashboard (GET).
-        // Carga los indicadores y los envía a la vista.
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var allTransactions = await transactionService.GetAllTransactionsAsync();
-            var (totalPayments, todayPayments) = await creditCardTransactionService.GetPaymentsIndicatorsAsync();
+            var (totalPayments, todayPayments) = await transactionService.GetLoanAndCreditCardPaymentsAsync();
 
-            var model = new AdminDashboardViewModel
+            var model = new AdminHomeViewModel
             {
                 // Indicadores de transacciones
                 TotalTransactions = allTransactions.Count,
@@ -70,25 +68,6 @@ namespace InternetBankingApp.Controllers.Admin
             return View(model);
         }
 
-
-
-        private async Task<Guid> GetAuthenticatedUserIdAsync()
-        {
-            var userName = User?.Identity?.Name;
-
-            if (string.IsNullOrWhiteSpace(userName))
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var user = await userAccountService.GetUserByUserName(userName);
-
-            if (user == null || string.IsNullOrWhiteSpace(user.Id))
-                throw new Exception("No se pudo obtener el usuario autenticado.");
-
-            if (!Guid.TryParse(user.Id, out var userId))
-                throw new Exception("El ID del usuario no tiene un formato válido.");
-
-            return userId;
-        }
 
     }
 }

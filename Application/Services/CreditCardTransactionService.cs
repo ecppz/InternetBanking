@@ -13,16 +13,19 @@ namespace Application.Services
     {
         private readonly ICreditCardTransactionRepository creditCardTransactionRepository;
         private readonly ICreditCardRepository creditCardRepository;
+        private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly IUserAccountService userAccountService;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
-        public CreditCardTransactionService(ICreditCardTransactionRepository creditCardTransactionRepository, ICreditCardRepository creditCardRepository, 
-            ISavingsAccountRepository savingsAccountRepository, IUserAccountService userAccountService, IEmailService emailService, IMapper mapper) 
+        public CreditCardTransactionService(ICreditCardTransactionRepository creditCardTransactionRepository, ICreditCardRepository creditCardRepository,
+            ITransactionRepository transactionRepository, ISavingsAccountRepository savingsAccountRepository, IUserAccountService userAccountService, 
+            IEmailService emailService, IMapper mapper) 
             : base(creditCardTransactionRepository, mapper)
         {
             this.creditCardTransactionRepository = creditCardTransactionRepository;
             this.creditCardRepository = creditCardRepository;
+            this.transactionRepository = transactionRepository;
             this.savingsAccountRepository = savingsAccountRepository;
             this.userAccountService = userAccountService;
             this.emailService = emailService;
@@ -30,7 +33,7 @@ namespace Application.Services
         }
 
 
-        public async Task<CreditCardTransactionDto?> RegisterPaymentAsync(CreditCardTransactionDto dto)
+        public async Task<CreditCardTransactionDto?> RegisterPaymentAsync(CreditCardTransactionDto dto, Guid userId)
         {
             var card = await creditCardRepository.GetById(dto.CreditCardId);
             if (card == null || card.Status != CreditCardStatus.Active)
@@ -38,7 +41,7 @@ namespace Application.Services
                 return null;
             }
 
-            var originAccount = await savingsAccountRepository.GetByIdAsync(dto.TransactionOrigin); 
+            var originAccount = await savingsAccountRepository.GetByIdAsync(dto.TransactionOrigin);
             if (originAccount == null || originAccount.Balance < dto.Amount)
             {
                 return null;
@@ -49,21 +52,39 @@ namespace Application.Services
             originAccount.Balance -= actualAmount;
             card.CurrentDebt -= actualAmount;
 
-            var transaction = new CreditCardTransaction
+            var creditCardTransaction = new CreditCardTransaction
             {
                 Id = Guid.NewGuid(),
                 CreditCardId = dto.CreditCardId,
                 Date = DateTime.UtcNow,
                 Amount = actualAmount,
                 TransactionOrigin = dto.TransactionOrigin,
-                Status = TransactionStatus.Approved
+                Status = TransactionStatus.Approved,
+
             };
 
-            await creditCardTransactionRepository.AddAsync(transaction);
+            await creditCardTransactionRepository.AddAsync(creditCardTransaction);
 
+            var generalTransaction = new Transaction
+            {
+                OriginAccountId = originAccount.Id,
+                DestinationAccountId = null, 
+                Amount = actualAmount,
+                Date = DateTime.UtcNow,
+                Type = TransactionType.CreditCardPayment,
+                Status = TransactionStatus.Approved,
+                Origin = originAccount.AccountNumber,
+                Beneficiary = card.CardNumber,
+                PerformedByUserId = userId,
+            };
+
+            await transactionRepository.AddAsync(generalTransaction);
+
+            // Actualizar saldos
             await savingsAccountRepository.UpdateAsync(originAccount.Id, originAccount);
             await creditCardRepository.UpdateAsync(card.Id, card);
 
+            // Notificación al usuario
             var user = await userAccountService.GetUserById(card.UserId.ToString());
             if (user != null)
             {
@@ -72,31 +93,19 @@ namespace Application.Services
                     To = user.Email,
                     Subject = $"Pago realizado a la tarjeta ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}",
                     HtmlBody = $@"
-                        <p>Estimado {user.Name},</p>
-                        <p>Se ha realizado un pago a su tarjeta de crédito.</p>
-                        <ul>
-                            <li><b>Monto:</b> {actualAmount:C}</li>
-                            <li><b>Cuenta origen:</b> ****{originAccount.AccountNumber.Substring(originAccount.AccountNumber.Length - 4)}</li>
-                            <li><b>Tarjeta destino:</b> ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}</li>
-                            <li><b>Fecha:</b> {DateTime.UtcNow:dd/MM/yyyy HH:mm}</li>
-                        </ul>
-                        <p>Gracias por confiar en nosotros.</p>"
+                <p>Estimado {user.Name},</p>
+                <p>Se ha realizado un pago a su tarjeta de crédito.</p>
+                <ul>
+                    <li><b>Monto:</b> {actualAmount:C}</li>
+                    <li><b>Cuenta origen:</b> ****{originAccount.AccountNumber.Substring(originAccount.AccountNumber.Length - 4)}</li>
+                    <li><b>Tarjeta destino:</b> ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}</li>
+                    <li><b>Fecha:</b> {DateTime.UtcNow:dd/MM/yyyy HH:mm}</li>
+                </ul>
+                <p>Gracias por confiar en nosotros.</p>"
                 });
             }
 
-            return mapper.Map<CreditCardTransactionDto>(transaction);
-        }
-
-        public async Task<(int TotalPayments, int TodayPayments)> GetPaymentsIndicatorsAsync()
-        {
-            var allPayments = await creditCardTransactionRepository.GetAllTransactionsAsync();
-
-            var approvedPayments = allPayments.Where(t => (int)t.Status == (int)TransactionStatus.Approved);
-
-            var totalPayments = approvedPayments.Count();
-            var todayPayments = approvedPayments.Count(t => t.Date.Date == DateTime.Today);
-
-            return (totalPayments, todayPayments);
+            return mapper.Map<CreditCardTransactionDto>(creditCardTransaction);
         }
 
     }

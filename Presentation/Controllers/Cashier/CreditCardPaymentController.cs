@@ -3,7 +3,9 @@ using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction;
 using AutoMapper;
 using Domain.Common.Enums;
+using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBankingApp.Controllers.Cashier
@@ -15,15 +17,17 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ICreditCardTransactionService creditCardTransactionService;
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountService userAccountService;
+        private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
         public CreditCardPaymentController(ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService, 
-            ISavingsAccountService savingsAccountService, IUserAccountService userAccountService, IMapper mapper)
+            ISavingsAccountService savingsAccountService, IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.creditCardTransactionService = creditCardTransactionService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
+            this.userManager = userManager;
             this.mapper = mapper;
         }
 
@@ -119,6 +123,9 @@ namespace InternetBankingApp.Controllers.Cashier
                 return View(vm);
             }
 
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+            var userId = Guid.Parse(userSession.Id);
+
             var transactionDto = new CreditCardTransactionDto
             {
                 CreditCardId = vm.CreditCardId,
@@ -128,7 +135,7 @@ namespace InternetBankingApp.Controllers.Cashier
                 Status = TransactionStatus.Approved
             };
 
-            var result = await creditCardTransactionService.RegisterPaymentAsync(transactionDto);
+            var result = await creditCardTransactionService.RegisterPaymentAsync(transactionDto, userId);
 
             if (result == null)
             {

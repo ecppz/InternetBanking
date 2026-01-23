@@ -3,7 +3,9 @@ using Application.Interfaces;
 using Application.ViewModels.Transaction;
 using AutoMapper;
 using Domain.Common.Enums;
+using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -15,11 +17,13 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ITransactionService transactionService;
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountService userAccountService;
+        private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public TransactionController(IMapper mapper, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService)
+        public TransactionController(IMapper mapper, UserManager<UserAccount> userManager, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService)
         {
             this.mapper = mapper;
+            this.userManager = userManager;
             this.transactionService = transactionService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
@@ -78,15 +82,31 @@ namespace InternetBankingApp.Controllers.Cashier
         [HttpPost]
         public async Task<IActionResult> ConfirmTransfer()
         {
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Cashier.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
             if (!TempData.ContainsKey("TransferData"))
                 return RedirectToAction("TransferToThirdParty");
 
             var model = JsonConvert.DeserializeObject<ThirdPartyTransferViewModel>((string)TempData["TransferData"]!);
+            var cashierId = Guid.Parse(userSession.Id);
 
             var success = await transactionService.ExecuteThirdPartyTransferAsync(
-                model.OriginAccountNumber,
+                model.OriginAccountNumber, 
                 model.DestinationAccountNumber,
-                model.Amount
+                model.Amount, 
+                cashierId
             );
 
             if (!success)
@@ -179,13 +199,30 @@ namespace InternetBankingApp.Controllers.Cashier
         [HttpPost]
         public async Task<IActionResult> ConfirmDeposit(DepositConfirmationViewModel model)
         {
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Cashier.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
             var dto = new DepositRequestDto
             {
                 DestinationAccountNumber = model.DestinationAccountNumber,
                 Amount = model.Amount
             };
 
-            var success = await transactionService.ExecuteDepositAsync(dto);
+
+            var cashierId = Guid.Parse(userSession.Id);
+            var success = await transactionService.ExecuteDepositAsync(dto, cashierId);
+
             if (!success)
             {
                 TempData["Error"] = "No se pudo completar el depósito.";
@@ -277,13 +314,30 @@ namespace InternetBankingApp.Controllers.Cashier
         [HttpPost]
         public async Task<IActionResult> ConfirmWithdrawal(WithdrawalConfirmationViewModel model)
         {
+
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+
+            if (userSession == null)
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+            var roles = await userManager.GetRolesAsync(userSession);
+
+            if (!roles.Contains(Roles.Cashier.ToString()))
+            {
+                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
+            }
+
+
             var dto = new WithdrawalRequestDto
             {
                 OriginAccountNumber = model.OriginAccountNumber,
                 Amount = model.Amount
             };
 
-            var success = await transactionService.ExecuteWithdrawalAsync(dto);
+            var cashierId = Guid.Parse(userSession.Id);
+            var success = await transactionService.ExecuteWithdrawalAsync(dto, cashierId);
             if (!success)
             {
                 TempData["Error"] = "No se pudo completar el retiro.";
@@ -292,46 +346,6 @@ namespace InternetBankingApp.Controllers.Cashier
 
             TempData["Success"] = "Retiro realizado exitosamente.";
             return RedirectToAction("Withdrawal");
-        }
-
-        //Metodo para historial de transacciones exclusivo del cliente:
-        [HttpGet]
-        public async Task<IActionResult> CustomerTransactionHistory(Guid? accountId)
-        {
-            var user = await userAccountService.GetUserByUserName(User.Identity!.Name!);
-            if (user == null)
-                return Unauthorized();
-
-            if (!Guid.TryParse(user.Id, out var userGuid))
-                return BadRequest("ID de usuario inválido.");
-
-            var accounts = await savingsAccountService.GetAllByUserIdOrderedAsync(userGuid);
-
-            var model = new CustomerTransactionHistoryViewModel
-            {
-                UserAccounts = accounts,
-                SelectedAccountId = accountId
-            };
-
-            if (accountId.HasValue)
-            {
-                var selectedAccount = accounts.FirstOrDefault(a => a.Id == accountId.Value);
-                if (selectedAccount == null)
-                {
-                    model.Message = "La cuenta seleccionada no pertenece al usuario.";
-                    return View(model);
-                }
-
-                model.SelectedAccountNumber = selectedAccount.AccountNumber;
-                model.Transactions = await transactionService.GetAllByAccountIdOrderedAsync(accountId.Value);
-
-                if (!model.Transactions.Any())
-                {
-                    model.Message = "No hay transacciones registradas para esta cuenta.";
-                }
-            }
-
-            return View(model);
         }
 
 

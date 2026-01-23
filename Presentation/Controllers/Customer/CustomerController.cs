@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.ViewModels.HomeCustomerAccounts;
 using AutoMapper;
 using Domain.Common.Enums;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,8 +38,8 @@ namespace InternetBankingApp.Controllers.Customer
             // cuentas
             var accounts = await savingsAccountService.GetActiveByUserIdAsync(userId);
             var orderedAccounts = accounts
-                .OrderByDescending(a => a.IsPrimary) // principal primero
-                .ThenByDescending(a => a.Balance)    // secundarias por balance
+                .OrderByDescending(a => a.IsPrimary)
+                .ThenByDescending(a => a.Balance)
                 .Select(a => new AccountSummaryViewModel
                 {
                     Id = a.Id,
@@ -48,11 +49,13 @@ namespace InternetBankingApp.Controllers.Customer
                 }).ToList();
 
             // préstamo activo (solo uno)
-            var loan = (await loanService.GetActiveLoansByUserIdAsync(userId)).FirstOrDefault();
+            var loan = (await loanService.GetActiveLoansByUserIdAsync(userId))
+                .Where(l => l.Status != LoanStatus.Completed)
+                .FirstOrDefault();
+
             LoanDisplayDto? loanVm = null;
             if (loan != null)
             {
-                // 👉 aquí usamos loan.LoanNumber en vez de loanNumber
                 var loanDto = await loanService.GetLoanByNumberAsync(loan.LoanNumber);
 
                 loanVm = new LoanDisplayDto
@@ -65,13 +68,16 @@ namespace InternetBankingApp.Controllers.Customer
                     AnnualInterestRate = loanDto.AnnualInterestRate,
                     TotalInstallments = loanDto.InstallmentsDetails.Count,
                     PaidInstallments = loanDto.InstallmentsDetails.Count(i => i.Status == InstallmentStatus.Paid),
-                    PendingAmount = loanDto.InstallmentsDetails.Where(i => i.Status != InstallmentStatus.Paid).Sum(i => i.Amount),
-                    Status = loanDto.Status,
-                    // quita CreatedAt si tu DTO no lo tiene
+                    PendingAmount = loanDto.InstallmentsDetails
+                                        .Where(i => i.Status != InstallmentStatus.Paid)
+                                        .Sum(i => i.Amount),
+                    Status = loanDto.InstallmentsDetails.Any(i => i.Status == InstallmentStatus.Pending && i.DueDate < DateTime.UtcNow)
+                                ? LoanStatus.Overdue
+                                : LoanStatus.Active
                 };
             }
 
-            // tarjeta activa (solo una)
+            // tarjeta
             var card = (await creditCardService.GetActiveCardsByUserIdAsync(userId)).FirstOrDefault();
             CreditCardSummaryViewModel? cardVm = null;
             if (card != null)
@@ -88,13 +94,12 @@ namespace InternetBankingApp.Controllers.Customer
             var model = new CustomerHomeViewModel
             {
                 Accounts = orderedAccounts,
-                Loan = loanVm,
+                Loan = loanVm, 
                 CreditCard = cardVm
             };
 
             return View(model);
         }
-
 
 
 
@@ -142,20 +147,6 @@ namespace InternetBankingApp.Controllers.Customer
 
             return userId;
         }
-
-        public async Task<IActionResult> LoanDetails(string loanNumber)
-        {
-            var loan = await loanService.GetLoanByNumberAsync(loanNumber);
-            if (loan == null)
-            {
-                TempData["ErrorMessage"] = "El préstamo no existe.";
-                return RedirectToAction("Index");
-            }
-
-            return View(loan);
-        }
-
-
 
     }
 }

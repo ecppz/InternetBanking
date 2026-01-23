@@ -39,6 +39,6 @@ namespace Domain.Interfaces
         Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
         Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date);
 
-
+        Task<(int TotalPayments, int TodayPayments)> GetLoanAndCreditCardPaymentsAsync();
     }
 }

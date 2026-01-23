@@ -31,7 +31,7 @@ namespace Application.Services
             this.emailService = emailService;
             this.mapper = mapper;
         }
-        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto)
+        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid userId)
         {
             var loan = await loanRepository.GetByNumberAsync(dto.LoanNumber); 
             if (loan == null || loan.Status == LoanStatus.Completed)
@@ -81,10 +81,11 @@ namespace Application.Services
                 DestinationAccountId = null,
                 Amount = dto.Amount,
                 Date = DateTime.UtcNow,
-                Type = TransactionType.Payment,
+                Type = TransactionType.LoanPayment,
                 Status = TransactionStatus.Approved,
                 Origin = dto.OriginAccountNumber,
-                Beneficiary = loan.LoanNumber
+                Beneficiary = loan.LoanNumber,
+                PerformedByUserId = userId,
             };
 
             await transactionRepository.AddAsync(transaction);

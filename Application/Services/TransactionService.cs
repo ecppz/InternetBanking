@@ -157,26 +157,26 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount)
+        public async Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId)
         {
             // Validación 1: Cuenta origen
             if (!await IsOriginAccountValidAsync(originAccountNumber))
             {
-                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta origen inválida o inactiva");
+                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta origen inválida o inactiva", userId);
                 return false;
             }
 
             // Validación 2: Fondos suficientes
             if (!await HasSufficientFundsAsync(originAccountNumber, amount))
             {
-                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Fondos insuficientes");
+                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Fondos insuficientes", userId);
                 return false;
             }
 
             // Validación 3: Cuenta destino
             if (!await IsDestinationAccountValidAsync(destinationAccountNumber))
             {
-                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta destino inválida o inactiva");
+                await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta destino inválida o inactiva", userId);
                 return false;
             }
 
@@ -204,7 +204,8 @@ namespace Application.Services
                 Type = TransactionType.Transfer,
                 Status = TransactionStatus.Approved,
                 Origin = origin.AccountNumber,
-                Beneficiary = destination.AccountNumber
+                Beneficiary = destination.AccountNumber,
+                PerformedByUserId = userId
             });
 
             // Envío de correos
@@ -275,7 +276,7 @@ namespace Application.Services
             return account.Status.ToVisualLabel();
         }
 
-        public async Task RegisterRejectedTransactionAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, string reason)
+        public async Task RegisterRejectedTransactionAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, string reason, Guid userId)
         {
             var origin = await savingsAccountRepository.GetByAccountNumberAsync(originAccountNumber);
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(destinationAccountNumber);
@@ -291,7 +292,8 @@ namespace Application.Services
                 Status = TransactionStatus.Rejected,
                 Reason = reason,
                 Origin = originAccountNumber,
-                Beneficiary = destinationAccountNumber
+                Beneficiary = destinationAccountNumber,
+                PerformedByUserId = userId
             });
         }
 
@@ -316,7 +318,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> ExecuteDepositAsync(DepositRequestDto request)
+        public async Task<bool> ExecuteDepositAsync(DepositRequestDto request, Guid userId)
         {
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(request.DestinationAccountNumber);
             if (destination == null || destination.Status != SavingsAccountStatus.Activa)
@@ -337,7 +339,8 @@ namespace Application.Services
                 Type = TransactionType.Deposit,
                 Status = TransactionStatus.Approved,
                 Origin = "DEPÓSITO",
-                Beneficiary = destination.AccountNumber
+                Beneficiary = destination.AccountNumber,
+                PerformedByUserId = userId
             });
 
             var user = await userAccountService.GetUserById(destination.UserId.ToString());
@@ -387,7 +390,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request)
+        public async Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId)
         {
             var origin = await savingsAccountRepository.GetByAccountNumberAsync(request.OriginAccountNumber);
             if (origin == null || origin.Status != SavingsAccountStatus.Activa || origin.Balance < request.Amount)
@@ -408,7 +411,8 @@ namespace Application.Services
                 Type = TransactionType.CashWithdrawal,
                 Status = TransactionStatus.Approved,
                 Origin = origin.AccountNumber,
-                Beneficiary = "RETIRO"
+                Beneficiary = "RETIRO",
+                PerformedByUserId = userId
             });
 
             var user = await userAccountService.GetUserById(origin.UserId.ToString());
@@ -599,42 +603,45 @@ namespace Application.Services
         //home cajero--------------------------------------------------
 
         //transaciones
-        public async Task<int> GetTransactionsByCashierAndDateAsync(Guid cashierId, DateTime date)
+        public async Task<int> GetTransactionsByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            return await transactionRepository.GetTransactionsByCashierAndDateAsync(cashierId, date);
+            var user = await userAccountService.GetUserById(userId.ToString());
+            if (user == null) return 0;
+
+            return await transactionRepository.GetTransactionsByCashierAndDateAsync(userId, date);
         }
 
         //pagos
-        public async Task<int> GetPaymentsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        public async Task<int> GetPaymentsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            return await transactionRepository.GetPaymentsCountByCashierAndDateAsync(cashierId, date);
+            var user = await userAccountService.GetUserById(userId.ToString());
+            if (user == null) return 0;
+
+            return await transactionRepository.GetPaymentsCountByCashierAndDateAsync(userId, date);
         }
 
         //depositos
-        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(cashierId.ToString());
+            var user = await userAccountService.GetUserById(userId.ToString());
             if (user == null) return 0;
 
-            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
-            if (account == null) return 0;
-
-            return await transactionRepository.GetDepositsCountByCashierAndDateAsync(account.Id, date);
+            return await transactionRepository.GetDepositsCountByCashierAndDateAsync(userId, date);
         }
+
         //retiros
-        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid cashierId, DateTime date)
+        public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(cashierId.ToString());
+            var user = await userAccountService.GetUserById(userId.ToString());
             if (user == null) return 0;
 
-            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(user.Id));
-            if (account == null) return 0;
-
-            return await transactionRepository.GetWithdrawalsCountByCashierAndDateAsync(account.Id, date);
+            return await transactionRepository.GetWithdrawalsCountByCashierAndDateAsync(userId, date);
         }
 
-
-
+        public async Task<(int TotalPayments, int TodayPayments)> GetLoanAndCreditCardPaymentsAsync() 
+        {
+            return await transactionRepository.GetLoanAndCreditCardPaymentsAsync(); 
+        }
 
     }
 }

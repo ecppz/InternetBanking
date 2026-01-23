@@ -3,7 +3,9 @@ using Application.Interfaces;
 using Application.ViewModels.Loan;
 using AutoMapper;
 using Domain.Common.Enums;
+using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBankingApp.Controllers.Cashier
@@ -15,15 +17,17 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ILoanPaymentService loanPaymentService;
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountService userAccountService;
+        private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
         public LoanPaymentController(ILoanService loanService, ILoanPaymentService loanPaymentService, ISavingsAccountService savingsAccountService,
-            IUserAccountService userAccountService, IMapper mapper)
+            IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.loanService = loanService;
             this.loanPaymentService = loanPaymentService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
+            this.userManager = userManager;
             this.mapper = mapper;
         }
 
@@ -126,13 +130,19 @@ namespace InternetBankingApp.Controllers.Cashier
                 return View(vm);
             }
 
-            var result = await loanPaymentService.RegisterPaymentAsync(new LoanPaymentDto
+            UserAccount? userSession = await userManager.GetUserAsync(User);
+            var userId = Guid.Parse(userSession.Id);
+
+            var dto = new LoanPaymentDto
             {
                 OriginAccountNumber = vm.OriginAccountNumber,
                 Amount = vm.PaymentAmount,
                 LoanNumber = vm.LoanNumber,
-                UserId = vm.UserId
-            });
+                UserId = vm.UserId,
+                
+            };
+
+            var result = await loanPaymentService.RegisterPaymentAsync(dto, userId);
 
             if (result == null)
             {
