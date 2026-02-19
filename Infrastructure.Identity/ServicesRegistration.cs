@@ -95,7 +95,7 @@ namespace Infrastructure.Identity
                     contextLifetime: ServiceLifetime.Scoped,
                     optionsLifetime: ServiceLifetime.Scoped
                 );
-            }
+            }   
         }
     }
 }

@@ -1,0 +1,57 @@
+﻿@using Domain.Common.Enums
+@model LoanDetailsViewModel
+@{
+    ViewData["Title"] = "Detalles del préstamo";
+    Layout = "_LayoutCustomer";
+}
+
+<h3>Detalles del préstamo @Model.LoanNumber</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha de pago</th>
+            <th>Valor de la cuota</th>
+            <th>Estado</th>
+            <th>Atraso</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inst in Model.InstallmentsDetails)
+        {
+            <tr>
+                <td>@inst.DueDate.ToString("dd/MM/yyyy")</td>
+                <td>@inst.Amount.ToString("C")</td>
+                <td>
+                    @switch (inst.Status)
+                    {
+                        case InstallmentStatus.Paid:
+                            @:Pagada
+                            break;
+                        case InstallmentStatus.Pending:
+                            @:Pendiente
+                            break;
+                        case InstallmentStatus.Late:
+                            @:Pendiente
+                            break;
+                    }
+                </td>
+                <td>
+                    @switch (inst.Status)
+                    {
+                        case InstallmentStatus.Late:
+                            @:En mora
+                            break;
+                        default:
+                            @:Al día
+                            break;
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">
+    <i class="bi bi-arrow-left-circle"></i> Volver
+</a>

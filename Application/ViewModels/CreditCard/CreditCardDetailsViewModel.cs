@@ -5,7 +5,7 @@ namespace Application.ViewModels.CreditCard
 {
     public class CreditCardDetailsViewModel
     {
-        public Guid CreditCardCardId { get; set; }
+        public Guid CreditCardId { get; set; }
         public required string CardNumber { get; set; }    
         public DateTime ExpirationDate { get; set; }
         public decimal CreditLimit { get; set; }

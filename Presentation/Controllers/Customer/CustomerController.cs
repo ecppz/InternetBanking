@@ -1,9 +1,9 @@
-﻿using Application.Dtos.Loan;
-using Application.Interfaces;
+﻿using Application.Interfaces;
+using Application.ViewModels.CreditCard;
 using Application.ViewModels.HomeCustomerAccounts;
+using Application.ViewModels.Loan;
 using AutoMapper;
 using Domain.Common.Enums;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,16 +53,15 @@ namespace InternetBankingApp.Controllers.Customer
                 .Where(l => l.Status != LoanStatus.Completed)
                 .FirstOrDefault();
 
-            LoanDisplayDto? loanVm = null;
+            LoanSummaryViewModel? loanVm = null;
             if (loan != null)
             {
                 var loanDto = await loanService.GetLoanByNumberAsync(loan.LoanNumber);
 
-                loanVm = new LoanDisplayDto
+                loanVm = new LoanSummaryViewModel
                 {
                     Id = loanDto.LoanId,
                     LoanNumber = loanDto.LoanNumber,
-                    CustomerFullName = loanDto.CustomerFullName,
                     Amount = loanDto.Amount,
                     TermMonths = loanDto.TermMonths,
                     AnnualInterestRate = loanDto.AnnualInterestRate,
@@ -84,6 +83,7 @@ namespace InternetBankingApp.Controllers.Customer
             {
                 cardVm = new CreditCardSummaryViewModel
                 {
+                    Id = card.Id,
                     CardNumber = card.CardNumber,
                     CreditLimit = card.CreditLimit,
                     ExpirationDate = card.ExpirationDate,
@@ -101,9 +101,6 @@ namespace InternetBankingApp.Controllers.Customer
             return View(model);
         }
 
-
-
-        [HttpGet]
         public async Task<IActionResult> AccountDetails(Guid accountId)
         {
             var account = await savingsAccountService.GetAccountDetailAsync(accountId);
@@ -129,6 +126,30 @@ namespace InternetBankingApp.Controllers.Customer
 
             return View(model);
         }
+
+        public async Task<IActionResult> LoanDetails(Guid loanId)
+        {
+            var loanDto = await loanService.GetLoanDetailsAsync(loanId);
+            if (loanDto == null)
+                return NotFound();
+
+            var loanVm = mapper.Map<LoanDetailsViewModel>(loanDto);
+
+            return View(loanVm);
+        }
+
+        public async Task<IActionResult> CreditCardDetails(Guid cardId)
+        {
+            var cardDto = await creditCardService.GetCardDetailsAsync(cardId);
+            if (cardDto == null)
+                return NotFound();
+
+            var cardVm = mapper.Map<CreditCardDetailsViewModel>(cardDto);
+
+            return View(cardVm);
+        }
+
+
 
         private async Task<Guid> GetAuthenticatedUserIdAsync()
         {

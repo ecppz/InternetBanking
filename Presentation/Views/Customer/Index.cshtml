@@ -71,8 +71,11 @@
             <p>Tasa de interés: @Model.Loan.AnnualInterestRate %</p>
             <p>Plazo: @Model.Loan.TermMonths meses</p>
             <p>Estado: @(Model.Loan.Status == LoanStatus.Active ? "AL DÍA" : "EN MORA")</p>
-
+            <a asp-action="LoanDetails" asp-route-loanId="@Model.Loan.Id" class="btn btn-outline-success btn-sm"> 
+                <i class="bi bi-eye-fill me-1"></i> Ver detalles del préstamo 
+            </a>
         </div>
+
     </div>
 }
 else
@@ -95,6 +98,9 @@ else
             <p>Límite: <strong>@Model.CreditCard.CreditLimit.ToString("C")</strong></p>
             <p>Expira: @Model.CreditCard.ExpirationDate.ToString("MM/yy")</p>
             <p>Adeudado: <strong>@Model.CreditCard.Debt.ToString("C")</strong></p>
+            <a asp-action="CreditCardDetails" asp-route-cardId="@Model.CreditCard.Id" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-eye-fill me-1"></i> Ver detalles de la tarjeta
+            </a>
         </div>
     </div>
 }

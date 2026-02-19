@@ -5,6 +5,7 @@ namespace Application.ViewModels.HomeCustomerAccounts
 {
     public class LoanSummaryViewModel
     {
+        public Guid Id { get; set; }
         public string LoanNumber { get; set; }
         public decimal Amount { get; set; }
         public int TermMonths { get; set; }
