@@ -24,7 +24,7 @@ namespace Presentation.Controllers
         private readonly IMapper mapper;
         private readonly ITransactionService transactionService;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IBeneficiaryService beneficiaryService;
         private readonly UserManager<UserAccount> userManager;
         private readonly ICreditCardService creditCardService;
@@ -35,7 +35,7 @@ namespace Presentation.Controllers
                IMapper mapper,
                ITransactionService transactionService,
                ISavingsAccountService savingsAccountService,
-               IUserAccountService userAccountService, IBeneficiaryService beneficiaryService,
+               IUserAccountServiceForWebApp userAccountService, IBeneficiaryService beneficiaryService,
                UserManager<UserAccount> userManager,
                ICreditCardService creditCardService,
                ICreditCardTransactionService creditCardTransactionService,

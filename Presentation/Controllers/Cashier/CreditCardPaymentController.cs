@@ -16,12 +16,12 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ICreditCardService creditCardService;
         private readonly ICreditCardTransactionService creditCardTransactionService;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
         public CreditCardPaymentController(ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService, 
-            ISavingsAccountService savingsAccountService, IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+            ISavingsAccountService savingsAccountService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.creditCardTransactionService = creditCardTransactionService;

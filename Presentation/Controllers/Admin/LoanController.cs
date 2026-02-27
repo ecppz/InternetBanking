@@ -15,11 +15,11 @@ namespace InternetBankingApp.Controllers.Admin
     public class LoanController : Controller
     {
         private readonly ILoanService loanService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public LoanController(ILoanService loanService, IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+        public LoanController(ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.loanService = loanService;
             this.userAccountService = userAccountService;

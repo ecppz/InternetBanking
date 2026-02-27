@@ -15,11 +15,11 @@ namespace Application.Services
         private readonly ICreditCardRepository creditCardRepository;
         private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
         public CreditCardTransactionService(ICreditCardTransactionRepository creditCardTransactionRepository, ICreditCardRepository creditCardRepository,
-            ITransactionRepository transactionRepository, ISavingsAccountRepository savingsAccountRepository, IUserAccountService userAccountService, 
+            ITransactionRepository transactionRepository, ISavingsAccountRepository savingsAccountRepository, IUserAccountServiceForWebApp userAccountService, 
             IEmailService emailService, IMapper mapper) 
             : base(creditCardTransactionRepository, mapper)
         {

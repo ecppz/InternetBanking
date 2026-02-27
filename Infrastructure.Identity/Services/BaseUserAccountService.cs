@@ -10,92 +10,17 @@ using System.Text;
 
 namespace Infrastructure.Identity.Services
 {
-    public class UserAccountService : IUserAccountService
+    //public abstract class BaseUserAccountService : IBaseUserAccountService
+    public class BaseUserAccountService : IBaseUserAccountService
     {
         private readonly UserManager<UserAccount> userManager;
-        private readonly SignInManager<UserAccount> signInManager;
         private readonly IEmailService emailService;
-        public UserAccountService(UserManager<UserAccount> userManager, SignInManager<UserAccount> signInManager, IEmailService emailService)
+        public BaseUserAccountService(UserManager<UserAccount> userManager, IEmailService emailService)
         {
             this.userManager = userManager;
-            this.signInManager = signInManager;
             this.emailService = emailService;
         }
-        public async Task<LoginResponseDto> AuthenticateAsync(LoginDto loginDto)
-        {
-            var response = new LoginResponseDto
-            {
-                Id = "",
-                LastName = "",
-                Name = "",
-                UserName = "",
-                Email = "",
-                DocumentNumber = "",
-                HasError = false,
-                Errors = [],
-                Roles = [],
-                IsVerified = false
-            };
-
-            var user = await userManager.FindByNameAsync(loginDto.UserName);
-
-            if (user == null)
-            {
-                response.HasError = true;
-                response.Errors.Add($"No hay cuenta registrada con el usuario: {loginDto.UserName}");
-                return response;
-            }
-
-            if (!user.EmailConfirmed)
-            {
-                response.HasError = true;
-                response.Errors.Add($"La cuenta {loginDto.UserName} no está confirmada. Revisa tu correo para activarla.");
-                return response;
-            }
-
-            if (!user.IsActive)
-            {
-                response.HasError = true;
-                response.Errors.Add($"La cuenta {loginDto.UserName} está inactiva. Contacte con un administrador para activarla.");
-                return response;
-            }
-
-            var result = await signInManager.PasswordSignInAsync(user.UserName ?? "", loginDto.Password, false, true);
-
-            if (!result.Succeeded)
-            {
-                response.HasError = true;
-
-                if (result.IsLockedOut)
-                {
-                    response.Errors.Add($"La cuenta {loginDto.UserName} ha sido bloqueada por múltiples intentos fallidos. Intenta de nuevo en 10 minutos o usa 'Olvidé mi contraseña'.");
-                }
-                else
-                {
-                    response.Errors.Add($"Credenciales inválidas para el usuario {user.UserName}.");
-                }
-
-                return response;
-            }
-
-            var rolesList = await userManager.GetRolesAsync(user);
-
-            response.Id = user.Id;
-            response.Name = user.Name;
-            response.LastName = user.LastName;
-            response.UserName = user.UserName ?? "";
-            response.Email = user.Email ?? "";
-            response.DocumentNumber = user.DocumentNumber;
-            response.IsVerified = user.EmailConfirmed;
-            response.Roles = rolesList.ToList();
-
-            return response;
-        }
-        public async Task SignOutAsync()
-        {
-            await signInManager.SignOutAsync();
-        }
-        public async Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin)
+        public virtual async Task<SaveUserResponseDto> SaveUser(SaveUserDto saveDto, string origin)
         {
             SaveUserResponseDto response = new()
             {
@@ -168,7 +93,7 @@ namespace Infrastructure.Identity.Services
                 return response;
             }
         }
-        public async Task<EditResponseDto> EditUser(SaveUserDto saveDto, string origin, bool? isCreated = false)
+        public virtual async Task<EditResponseDto> EditUser(SaveUserDto saveDto, string? origin, bool? isCreated = false, bool? isApi = false)
         {
             bool isNotcreated = !isCreated ?? false;
             EditResponseDto response = new()
@@ -270,7 +195,7 @@ namespace Infrastructure.Identity.Services
             }
         }
 
-        public async Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request)
+        public virtual async Task<UserResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request, bool? isApi = false)
         {
             UserResponseDto response = new() { HasError = false, Errors = [] };
 
@@ -298,7 +223,7 @@ namespace Infrastructure.Identity.Services
             return response;
         }
 
-        public async Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request)
+        public virtual async Task<UserResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request, bool? isApi = false)
         {
             UserResponseDto response = new() { HasError = false, Errors = [] };
 
@@ -325,7 +250,7 @@ namespace Infrastructure.Identity.Services
 
             return response;
         }
-        public async Task<UserDto?> GetUserByEmail(string email)
+        public virtual async Task<UserDto?> GetUserByEmail(string email)
         {
             var user = await userManager.FindByEmailAsync(email);
 
@@ -351,7 +276,7 @@ namespace Infrastructure.Identity.Services
 
             return userDto;
         }
-        public async Task<UserDto?> GetUserById(string Id)
+        public virtual async Task<UserDto?> GetUserById(string Id)
         {
             var user = await userManager.FindByIdAsync(Id);
 
@@ -377,7 +302,7 @@ namespace Infrastructure.Identity.Services
 
             return userDto;
         }
-        public async Task<List<UserDto>> GetUsersByIds(List<Guid> ids)
+        public virtual async Task<List<UserDto>> GetUsersByIds(List<Guid> ids)
         {
             var users = await userManager.Users
                 .Where(u => ids.Select(id => id.ToString()).Contains(u.Id))
@@ -407,8 +332,7 @@ namespace Infrastructure.Identity.Services
             return result;
         }
 
-
-        public async Task<UserDto?> GetUserByUserName(string userName)
+        public virtual async Task<UserDto?> GetUserByUserName(string userName)
         {
             var user = await userManager.FindByNameAsync(userName);
 
@@ -434,7 +358,7 @@ namespace Infrastructure.Identity.Services
 
             return userDto;
         }
-        public async Task<List<UserDto>> GetAllActiveUsers()
+        public virtual async Task<List<UserDto>> GetAllActiveUsers()
         {
             var listUsersDtos = new List<UserDto>();
             var users = userManager.Users.Where(u => u.IsActive);
@@ -468,17 +392,13 @@ namespace Infrastructure.Identity.Services
             return listUsersDtos;
         }
 
-
-
-        public async Task<IList<string>> GetUserRolesAsync(Guid userId)
+        public virtual async Task<IList<string>> GetUserRolesAsync(Guid userId)
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
             return user == null ? new List<string>() : await userManager.GetRolesAsync(user);
         }
 
-
-
-        public async Task<List<Guid>> GetAllUserIdsAsync()
+        public virtual async Task<List<Guid>> GetAllUserIdsAsync()
         {
             var users = await userManager.Users.ToListAsync();  
             var filteredIds = new List<Guid>();
@@ -500,84 +420,45 @@ namespace Infrastructure.Identity.Services
         }
 
 
-        public async Task<string> ConfirmAccountAsync(string userId, string token)
+        public virtual async Task<UserResponseDto> ConfirmAccountAsync(string userId, string token)
         {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
-            {
-                return "Solicitud inválida: faltan datos para confirmar la cuenta.";
-            }
+            UserResponseDto response = new() { HasError = false, Errors = [] };
 
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return "No existe una cuenta registrada con este usuario.";
+                response.Message = "There is no acccount registered with this user";
+                response.HasError = true;
+                return response;
             }
 
-            try
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            var result = await userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
             {
-                // Decodificar token
-                var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
-
-                var result = await userManager.ConfirmEmailAsync(user, decodedToken);
-
-                if (result.Succeeded)
-                {
-                    return $"Cuenta confirmada para {user.Email}. Ya puedes iniciar sesión.";
-                }
-
-                var errores = string.Join("; ", result.Errors.Select(e => e.Description));
-                return $"Ocurrió un error al confirmar el correo electrónico: {errores}";
+                response.Message = $"Account confirmed for {user.Email}. You can now use the app";
+                response.HasError = false;
+                return response;
             }
-            catch (FormatException)
+            else
             {
-                return "El token de confirmación es inválido o está corrupto.";
-            }
-            catch (Exception ex)
-            {
-                return $"Error interno al confirmar la cuenta: {ex.Message}";
+                response.Message = $"An error occurred while confirming this email {user.Email}";
+                response.HasError = true;
+                return response;
             }
         }
-
-        //Private methods
-
-        private async Task<string> GetVerificationEmailUri(UserAccount user, string origin)
+        public virtual async Task<RegisterResponseDto> RegisterUserAsync(SaveUserDto dto, string? origin, bool? isApi = false)
         {
-            if (string.IsNullOrWhiteSpace(origin) || !Uri.IsWellFormedUriString(origin, UriKind.Absolute))
+            RegisterResponseDto response = new()
             {
-                throw new InvalidOperationException("El parámetro 'origin' no es una URI válida.");
-            }
-
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-            var baseUri = new Uri(origin.TrimEnd('/'));
-            var completeUrl = new Uri(baseUri, "Login/ConfirmEmail");
-
-            var verificationUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
-            verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
-
-            return verificationUri;
-        }
-        private async Task<string> GetResetPasswordUri(UserAccount user, string origin)
-        {
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            var route = "Login/ResetPassword";
-            var completeUrl = new Uri(string.Concat(origin, "/", route));// origin = https://localhost:58296 route=Login/ConfirmEmail
-            var resetUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
-            resetUri = QueryHelpers.AddQueryString(resetUri.ToString(), "token", token);
-
-            return resetUri;
-        }
-
-
-        public async Task<UserResponseDto> RegisterUserAsync(SaveUserDto dto, string origin)
-        {
-            var response = new UserResponseDto
-            {
-                Errors = new List<string>()
+                Email = "",
+                Id = "",
+                LastName = "",
+                Name = "",
+                UserName = "",
+                HasError = false,
+                Errors = []
             };
-
             try
             {
                 // Inicializar usuario
@@ -672,8 +553,7 @@ namespace Infrastructure.Identity.Services
             }
         }
 
-
-        public async Task<bool> SetUserActiveStatus(string id, bool isActive)
+        public virtual async Task<bool> SetUserActiveStatus(string id, bool isActive, bool? isApi = false)
         {
             var user = await userManager.FindByIdAsync(id);
             if (user == null) return false;
@@ -683,7 +563,7 @@ namespace Infrastructure.Identity.Services
             return result.Succeeded;
         }
 
-        public async Task<List<UserDto>> GetAllCustomersAsync()
+        public virtual async Task<List<UserDto>> GetAllCustomersAsync()
         {
             // Obtiene todos los usuarios desde el UserManager
             var users = userManager.Users.ToList();
@@ -715,6 +595,40 @@ namespace Infrastructure.Identity.Services
             return customers;
         }
 
+
+        #region private methods
+
+        private async Task<string> GetVerificationEmailUri(UserAccount user, string origin)
+        {
+            if (string.IsNullOrWhiteSpace(origin) || !Uri.IsWellFormedUriString(origin, UriKind.Absolute))
+            {
+                throw new InvalidOperationException("El parámetro 'origin' no es una URI válida.");
+            }
+
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var baseUri = new Uri(origin.TrimEnd('/'));
+            var completeUrl = new Uri(baseUri, "Login/ConfirmEmail");
+
+            var verificationUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
+
+            return verificationUri;
+        }
+        private async Task<string> GetResetPasswordUri(UserAccount user, string origin)
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var route = "Login/ResetPassword";
+            var completeUrl = new Uri(string.Concat(origin, "/", route));// origin = https://localhost:58296 route=Login/ConfirmEmail
+            var resetUri = QueryHelpers.AddQueryString(completeUrl.ToString(), "userId", user.Id);
+            resetUri = QueryHelpers.AddQueryString(resetUri.ToString(), "token", token);
+
+            return resetUri;
+        }
+
+        #endregion
 
     }
 }

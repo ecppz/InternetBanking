@@ -14,12 +14,12 @@ namespace InternetBankingApp.Controllers.Customer
     {
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionlService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly ILoanService loanService;
         private readonly ICreditCardService creditCardService;
         private readonly IMapper mapper;
 
-        public CustomerController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, IUserAccountService userAccountService, ITransactionService transactionlService,
+        public CustomerController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, IUserAccountServiceForWebApp userAccountService, ITransactionService transactionlService,
             ILoanService loanService, IMapper mapper)
         {
             this.savingsAccountService = savingsAccountService;

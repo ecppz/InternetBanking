@@ -1,0 +1,8 @@
+﻿using Application.Dtos.User;
+namespace Application.Interfaces
+{
+    public interface IUserAccountServiceForWebApi : IBaseUserAccountService
+    {
+        Task<LoginResponseForApiDto> AuthenticateAsync(LoginDto loginDto);
+    }
+}

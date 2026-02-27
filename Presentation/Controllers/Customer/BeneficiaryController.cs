@@ -11,20 +11,15 @@ namespace InternetBankingApp.Controllers.Customer
     [Authorize(Roles = "Customer")]
     public class BeneficiaryController : Controller
     {
-
-        private readonly IMapper _mapper;
+        private readonly IUserAccountServiceForWebApp _userAccountService;
         private readonly IBeneficiaryService _beneficiaryService;
-        private readonly IUserAccountService _userAccountService;
-        private readonly ISavingsAccountService _savingsAccountService;
+        private readonly IMapper _mapper;
 
-
-
-        public BeneficiaryController(IMapper mapper,ISavingsAccountService savingsAccountService ,IBeneficiaryService beneficiaryService, IUserAccountService userAccountService)
+        public BeneficiaryController(IMapper mapper, IBeneficiaryService beneficiaryService, IUserAccountServiceForWebApp userAccountService)
         {
             _mapper = mapper;
             _beneficiaryService = beneficiaryService;
             _userAccountService = userAccountService;
-            _savingsAccountService = savingsAccountService;
         }
 
         private async Task<Guid?> GetCurrentUserIdAsync()

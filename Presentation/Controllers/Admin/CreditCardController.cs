@@ -14,11 +14,11 @@ namespace InternetBankingApp.Controllers.Admin
     public class CreditCardController : Controller
     {
         private readonly ICreditCardService creditCardService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public CreditCardController(ICreditCardService creditCardService, IUserAccountService userAccountService, UserManager<UserAccount> userManager,
+        public CreditCardController(ICreditCardService creditCardService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager,
             IMapper mapper)
         {
             this.creditCardService = creditCardService;

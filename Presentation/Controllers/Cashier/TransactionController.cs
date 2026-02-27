@@ -16,11 +16,11 @@ namespace InternetBankingApp.Controllers.Cashier
     {
         private readonly ITransactionService transactionService;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public TransactionController(IMapper mapper, UserManager<UserAccount> userManager, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService)
+        public TransactionController(IMapper mapper, UserManager<UserAccount> userManager, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountServiceForWebApp userAccountService)
         {
             this.mapper = mapper;
             this.userManager = userManager;

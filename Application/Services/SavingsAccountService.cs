@@ -13,8 +13,8 @@ namespace Application.Services
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
         private readonly IMapper mapper;
-        private readonly IUserAccountService _IUsserAccountService;
-        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IUserAccountService userAccountService, IMapper mapper) : base(savingsAccountRepository, mapper)
+        private readonly IUserAccountServiceForWebApp _IUsserAccountService;
+        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IUserAccountServiceForWebApp userAccountService, IMapper mapper) : base(savingsAccountRepository, mapper)
         {
             this.savingsAccountRepository = savingsAccountRepository;
             this.mapper = mapper;

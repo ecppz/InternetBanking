@@ -15,11 +15,12 @@ namespace Application.Services
         private readonly ILoanRepository loanRepository;
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService, IUserAccountService userAccountService, IEmailService emailService, IMapper mapper)
+        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService,
+               IUserAccountServiceForWebApp userAccountService, IEmailService emailService, IMapper mapper)
             : base(loanRepository, mapper)
         {
             this.loanRepository = loanRepository;

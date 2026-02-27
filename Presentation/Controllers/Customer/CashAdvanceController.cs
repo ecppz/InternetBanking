@@ -17,12 +17,12 @@ namespace InternetBankingApp.Controllers.Customer
         private readonly ICreditCardService creditCardService;
         private readonly ICashAdvanceService cashAdvanceService;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
         public CashAdvanceController(ICreditCardService creditCardService, ICashAdvanceService cashAdvanceService, ISavingsAccountService savingsAccountService,
-            IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+            IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.cashAdvanceService = cashAdvanceService;

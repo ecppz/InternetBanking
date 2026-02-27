@@ -14,11 +14,11 @@ namespace Application.Services
     public class CreditCardService : GenericService<CreditCard, CreditCardDto>, ICreditCardService
     {
         private readonly ICreditCardRepository creditCardRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public CreditCardService(ICreditCardRepository creditCardRepository, IUserAccountService userAccountService, IEmailService emailService, IMapper mapper)
+        public CreditCardService(ICreditCardRepository creditCardRepository, IUserAccountServiceForWebApp userAccountService, IEmailService emailService, IMapper mapper)
             : base(creditCardRepository, mapper)
         {
             this.creditCardRepository = creditCardRepository;

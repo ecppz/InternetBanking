@@ -5,7 +5,7 @@ using Infrastructure.Persistence;
 using Infrastructure.Shared;
 using Hangfire;
 
-namespace Presentation
+namespace InternetBankingApp
 {
     public class Program
     {
@@ -30,7 +30,7 @@ namespace Presentation
 
             builder.Services.PersistenceLayerIoc(builder.Configuration);
             builder.Services.ApplicationLayerIoc();
-            builder.Services.IdentityLayerIoc(builder.Configuration);
+            builder.Services.AddIdentityLayerIocForWebApp(builder.Configuration);
             builder.Services.SharedLayerIoc(builder.Configuration);
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

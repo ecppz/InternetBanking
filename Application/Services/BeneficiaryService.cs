@@ -11,9 +11,9 @@ namespace Application.Services
     {
         private readonly IBeneficiaryRepository beneficiaryRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IMapper mapper;
-        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository,IUserAccountService userAccountService,ISavingsAccountRepository savingsAccountRepository ,IMapper mapper) : base(beneficiaryRepository, mapper)
+        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository, IUserAccountServiceForWebApp userAccountService,ISavingsAccountRepository savingsAccountRepository ,IMapper mapper) : base(beneficiaryRepository, mapper)
         {
             this.beneficiaryRepository = beneficiaryRepository;
             this.savingsAccountRepository = savingsAccountRepository;

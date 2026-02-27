@@ -13,12 +13,12 @@ namespace Application.Services
         private readonly ICreditCardTransactionRepository creditCardTransactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IEmailService emailService;
 
         public CashAdvanceService(ICreditCardRepository creditCardRepository, ICreditCardTransactionRepository creditCardTransactionRepository,
             ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository,
-            IUserAccountService userAccountService, IEmailService emailService)
+            IUserAccountServiceForWebApp userAccountService, IEmailService emailService)
         {
             this.creditCardRepository = creditCardRepository;
             this.creditCardTransactionRepository = creditCardTransactionRepository;

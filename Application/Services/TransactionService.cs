@@ -17,12 +17,12 @@ namespace Application.Services
     {
         private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IBeneficiaryRepository beneficiaryRepository;
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, IEmailService email, IUserAccountService userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
+        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, IEmailService email, IUserAccountServiceForWebApp userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
         {
             this.transactionRepository = transactionRepository;
             this.mapper = mapper;

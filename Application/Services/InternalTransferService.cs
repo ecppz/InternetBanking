@@ -16,13 +16,13 @@ namespace Application.Services
     {
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IMapper mapper;
 
         public InternalTransferService(
             ISavingsAccountRepository savingsAccountRepository,
             ITransactionRepository transactionRepository,
-            IUserAccountService userAccountService,
+            IUserAccountServiceForWebApp userAccountService,
             IMapper mapper
         ) : base(savingsAccountRepository, mapper)
         {

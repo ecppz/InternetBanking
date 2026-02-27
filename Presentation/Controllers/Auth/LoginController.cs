@@ -11,11 +11,11 @@ namespace InternetBankingApp.Controllers.Auth
 {
     public class LoginController : Controller
     {
-        private readonly IUserAccountService _userAccountService;
+        private readonly IUserAccountServiceForWebApp _userAccountService;
         private readonly IMapper _mapper;
         private readonly UserManager<UserAccount> _userManager;
 
-        public LoginController(IUserAccountService IUserAccountService, IMapper mapper, UserManager<UserAccount> userManager)
+        public LoginController(IUserAccountServiceForWebApp IUserAccountService, IMapper mapper, UserManager<UserAccount> userManager)
         {
             _userAccountService = IUserAccountService;
             _mapper = mapper;

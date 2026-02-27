@@ -10,10 +10,10 @@ namespace InternetBankingApp.Controllers.Customer
     public class InternalTransferController : Controller
     {
         private readonly IInternalTransferService _service;
-        private readonly IUserAccountService _userAccountService;
+        private readonly IUserAccountServiceForWebApp _userAccountService;
         private readonly ISavingsAccountService _savingsAccountService;
 
-        public InternalTransferController(IInternalTransferService service, IUserAccountService userAccountService, ISavingsAccountService savingsAccountService)
+        public InternalTransferController(IInternalTransferService service, IUserAccountServiceForWebApp userAccountService, ISavingsAccountService savingsAccountService)
         {
             _service = service;
             _userAccountService = userAccountService;

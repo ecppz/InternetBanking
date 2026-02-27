@@ -15,12 +15,12 @@ namespace InternetBankingApp.Controllers.Admin
      [Authorize(Roles = "Admin")] 
     public class MaintenanceUserController : Controller
     {
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly ISavingsAccountService savingsAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public MaintenanceUserController(IUserAccountService userAccountService, ISavingsAccountService savingsAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+        public MaintenanceUserController(IUserAccountServiceForWebApp userAccountService, ISavingsAccountService savingsAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.userAccountService = userAccountService;
             this.savingsAccountService = savingsAccountService;
@@ -99,7 +99,7 @@ namespace InternetBankingApp.Controllers.Admin
             var dto = mapper.Map<SaveUserDto>(vm);
             dto.Role = parsedRole.ToString();
 
-            UserResponseDto result = await userAccountService.RegisterUserAsync(dto, origin);
+            RegisterResponseDto result = await userAccountService.RegisterUserAsync(dto, origin);
 
             if (result.HasError)
             {

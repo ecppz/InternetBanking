@@ -16,12 +16,12 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ILoanService loanService;
         private readonly ILoanPaymentService loanPaymentService;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
         public LoanPaymentController(ILoanService loanService, ILoanPaymentService loanPaymentService, ISavingsAccountService savingsAccountService,
-            IUserAccountService userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+            IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.loanService = loanService;
             this.loanPaymentService = loanPaymentService;

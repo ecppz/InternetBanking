@@ -14,7 +14,7 @@ namespace InternetBankingApp.Controllers.Cashier
     {
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionService;
-        private readonly IUserAccountService userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IMapper mapper;
         private readonly ILoanService loanService;
         private readonly ICreditCardService creditCardService;
@@ -24,7 +24,7 @@ namespace InternetBankingApp.Controllers.Cashier
         // Constructor: recibe las dependencias necesarias mediante inyección.
         public CashierController(
             ISavingsAccountService savingsAccountService,
-            IUserAccountService userAccountService,
+            IUserAccountServiceForWebApp userAccountService,
             ITransactionService transactionService,
             UserManager<UserAccount> userManager,
         IMapper mapper, ILoanService loanService, ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService)
