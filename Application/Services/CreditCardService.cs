@@ -14,7 +14,7 @@ namespace Application.Services
     public class CreditCardService : GenericService<CreditCard, CreditCardDto>, ICreditCardService
     {
         private readonly ICreditCardRepository creditCardRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountService; 
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
@@ -26,7 +26,6 @@ namespace Application.Services
             this.emailService = emailService;
             this.mapper = mapper;
         }
-
 
         public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto)
         {
@@ -294,7 +293,7 @@ namespace Application.Services
         }
 
 
-        //private methods
+        #region private methods
 
         private string GenerateUniqueCardNumber()
         {
@@ -319,6 +318,7 @@ namespace Application.Services
             return await creditCardRepository.GetActiveCreditCardsCountAsync();
         }
 
+        #endregion
 
 
     }

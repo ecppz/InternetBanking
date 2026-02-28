@@ -108,8 +108,8 @@ namespace InternetBankingApp.Controllers.Auth
 
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            string message = await _userAccountService.ConfirmAccountAsync(userId, token);
-            return View("ConfirmEmail", model: message); // explícito
+            UserResponseDto response = await _userAccountService.ConfirmAccountAsync(userId, token);
+            return View("ConfirmEmail", model: response); // explícito
         }
 
 

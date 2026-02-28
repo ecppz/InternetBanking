@@ -596,9 +596,9 @@ namespace Infrastructure.Identity.Services
         }
 
 
-        #region private methods
+        #region protected methods
 
-        private async Task<string> GetVerificationEmailUri(UserAccount user, string origin)
+        protected async Task<string> GetVerificationEmailUri(UserAccount user, string origin)
         {
             if (string.IsNullOrWhiteSpace(origin) || !Uri.IsWellFormedUriString(origin, UriKind.Absolute))
             {
@@ -616,7 +616,15 @@ namespace Infrastructure.Identity.Services
 
             return verificationUri;
         }
-        private async Task<string> GetResetPasswordUri(UserAccount user, string origin)
+        protected async Task<string?> GetVerificationEmailToken(UserAccount user)
+        {
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            return token;
+        }
+
+        protected async Task<string> GetResetPasswordUri(UserAccount user, string origin)
         {
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
@@ -626,6 +634,14 @@ namespace Infrastructure.Identity.Services
             resetUri = QueryHelpers.AddQueryString(resetUri.ToString(), "token", token);
 
             return resetUri;
+        }
+
+        protected async Task<string?> GetResetPasswordToken(UserAccount user)
+        {
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            return token;
         }
 
         #endregion

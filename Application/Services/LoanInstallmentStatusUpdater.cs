@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Domain.Common.Enums;
+﻿using Domain.Common.Enums;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,13 +8,11 @@ namespace Application.Services
     {
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly IUnitOfWork unitOfWork;
-        private readonly IMapper mapper;
 
-        public LoanInstallmentStatusUpdater(ILoanInstallmentRepository loanInstallmentRepository, IUnitOfWork unitOfWork, IMapper mapper)
+        public LoanInstallmentStatusUpdater(ILoanInstallmentRepository loanInstallmentRepository, IUnitOfWork unitOfWork)
         {
             this.loanInstallmentRepository = loanInstallmentRepository;
             this.unitOfWork = unitOfWork;
-            this.mapper = mapper;
         }
 
         public async Task UpdateLateInstallmentsAsync()
