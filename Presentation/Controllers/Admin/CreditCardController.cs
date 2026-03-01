@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.CreditCard;
+using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.CreditCard;
 using AutoMapper;
@@ -28,7 +29,8 @@ namespace InternetBankingApp.Controllers.Admin
         }
         public async Task<IActionResult> Index(string? documentNumber, string? statusFilter)
         {
-            var dtos = await creditCardService.GetAllDisplayAsync(documentNumber, statusFilter);
+            var allUsers = await userAccountService.GetAllActiveUsers();
+            var dtos = await creditCardService.GetAllDisplayAsync(allUsers, documentNumber, statusFilter);
 
             ViewBag.CurrentFilter = documentNumber;
             ViewBag.StatusFilter = statusFilter;
@@ -49,9 +51,21 @@ namespace InternetBankingApp.Controllers.Admin
             return View(vm);
         }
 
-        public async Task<IActionResult> EligibleCustomers(string? documentNumber)
+        public async Task<IActionResult> EligibleCustomersForCreditCard(string? documentNumber)
         {
-            var eligibleCustomers = await creditCardService.GetEligibleCustomersForCreditCard();
+            var allUsers = await userAccountService.GetAllActiveUsers();
+            var customers = new List<UserDto>();
+
+            foreach (var user in allUsers)
+            {
+                var roles = await userAccountService.GetUserRolesAsync(Guid.Parse(user.Id));
+                if (roles.Contains(Roles.Customer.ToString()) && user.IsActive)
+                {
+                    customers.Add(user);
+                }
+            }
+
+            var eligibleCustomers = await creditCardService.GetEligibleCustomersForCreditCard(customers);
 
             if (!string.IsNullOrWhiteSpace(documentNumber))
             {
@@ -64,9 +78,38 @@ namespace InternetBankingApp.Controllers.Admin
 
             var avgDebt = await creditCardService.GetAverageDebtAsync();
             ViewData["AverageDebt"] = avgDebt;
+
             var vm = mapper.Map<List<EligibleCustomerForCreditCardViewModel>>(eligibleCustomers);
             return View(vm);
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditCreditCardViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+
+            var dto = new EditCreditCardDto
+            {
+                CardId = vm.CardId,
+                NewLimit = vm.NewLimit
+            };
+
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+
+            var result = await creditCardService.UpdateCreditLimitAsync(dto, user);
+            if (!result)
+            {
+                ViewBag.ErrorMessage = "El nuevo límite no puede ser inferior a la deuda actual.";
+                return View(vm);
+            }
+
+            return RedirectToAction("Index");
+        }
+
 
         public async Task<IActionResult> AssignCreditCard(Guid userId)
         {
@@ -77,6 +120,7 @@ namespace InternetBankingApp.Controllers.Admin
             }
 
             var user = await userAccountService.GetUserById(userId.ToString());
+
             if (user == null || !user.IsActive)
             {
                 TempData["Error"] = "El cliente seleccionado no es válido o está inactivo";
@@ -112,20 +156,21 @@ namespace InternetBankingApp.Controllers.Admin
 
             var dto = mapper.Map<AssignCreditCardDto>(vm);
 
-            var response = await creditCardService.AssignCardAsync(dto);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+
+            var response = await creditCardService.AssignCardAsync(dto, user);
             if (!response.Success)
             {
                 ViewBag.ErrorMessage = response.Message;
                 return View(vm);
             }
 
-
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(Guid id)
         {
-            var card = await creditCardService.GetById(id); 
+            var card = await creditCardService.GetById(id);
             if (card == null)
             {
                 return NotFound();
@@ -139,30 +184,6 @@ namespace InternetBankingApp.Controllers.Admin
             return View(vm);
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(EditCreditCardViewModel vm)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(vm);
-            }
-
-            var dto = new EditCreditCardDto
-            {
-                CardId = vm.CardId,
-                NewLimit = vm.NewLimit
-            };
-
-            var result = await creditCardService.UpdateCreditLimitAsync(dto);
-            if (!result)
-            {
-                ViewBag.ErrorMessage = "El nuevo límite no puede ser inferior a la deuda actual.";
-                return View(vm);
-            }
-
-            return RedirectToAction("Index");
-        }
 
         public async Task<IActionResult> CancelCreditCard(Guid id)
         {
@@ -191,8 +212,9 @@ namespace InternetBankingApp.Controllers.Admin
             }
 
             var dto = mapper.Map<CancelCreditCardDto>(vm);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
 
-            var result = await creditCardService.CancelCardAsync(dto);
+            var result = await creditCardService.CancelCardAsync(dto, user);
             if (!result)
             {
                 TempData["ErrorMessage"] = "Para cancelar esta tarjeta, el cliente debe saldar la totalidad de la deuda pendiente.";
