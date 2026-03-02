@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.CreditCard;
 using Application.Dtos.Email;
+using Application.Dtos.User;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Common.Enums;
@@ -14,20 +15,18 @@ namespace Application.Services
     public class CreditCardService : GenericService<CreditCard, CreditCardDto>, ICreditCardService
     {
         private readonly ICreditCardRepository creditCardRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService; 
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public CreditCardService(ICreditCardRepository creditCardRepository, IUserAccountServiceForWebApp userAccountService, IEmailService emailService, IMapper mapper)
+        public CreditCardService(ICreditCardRepository creditCardRepository, IEmailService emailService, IMapper mapper)
             : base(creditCardRepository, mapper)
         {
             this.creditCardRepository = creditCardRepository;
-            this.userAccountService = userAccountService;
             this.emailService = emailService;
             this.mapper = mapper;
         }
 
-        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto)
+        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto, UserDto user)
         {
             var hasActive = await creditCardRepository.HasActiveCardAsync(dto.UserId);
             if (hasActive)
@@ -60,22 +59,20 @@ namespace Application.Services
 
             await creditCardRepository.AddAsync(card);
 
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-
             await emailService.SendAsync(new EmailRequestDto
             {
                 To = user.Email,
                 Subject = "Asignación de tarjeta de crédito",
                 HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>Se le ha asignado una nueva tarjeta de crédito.</p>
-                    <ul>
-                        <li><b>Número de tarjeta:</b> terminada en {card.CardNumber[^4..]}</li>
-                        <li><b>Límite aprobado:</b> {card.CreditLimit:C}</li>
-                        <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
-                        <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
-                    </ul>
-                    <p>Gracias por confiar en nosotros.</p>"
+                        <p>Estimado {user.Name},</p>
+                        <p>Se le ha asignado una nueva tarjeta de crédito.</p>
+                        <ul>
+                            <li><b>Número de tarjeta:</b> terminada en {card.CardNumber[^4..]}</li>
+                            <li><b>Límite aprobado:</b> {card.CreditLimit:C}</li>
+                            <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
+                            <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
+                        </ul>
+                        <p>Gracias por confiar en nosotros.</p>"
             });
 
 
@@ -91,7 +88,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto)
+        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto, UserDto user)
         {
             var card = await creditCardRepository.GetById(dto.CardId);
             if (card == null)
@@ -107,7 +104,6 @@ namespace Application.Services
             card.Status = CreditCardStatus.Cancelled;
             await creditCardRepository.UpdateAsync(card.Id, card);
 
-            var user = await userAccountService.GetUserById(card.UserId.ToString());
             await emailService.SendAsync(new EmailRequestDto
             {
                 To = user.Email,
@@ -146,23 +142,16 @@ namespace Application.Services
             return mapper.Map<List<CreditCardDto>>(cards);
         }
 
-        public async Task<List<EligibleCustomerForCreditCardDto>> GetEligibleCustomersForCreditCard()
+        public async Task<List<EligibleCustomerForCreditCardDto>> GetEligibleCustomersForCreditCard(List<UserDto> customers)
         {
-            var allUsers = await userAccountService.GetAllActiveUsers();
             var eligible = new List<EligibleCustomerForCreditCardDto>();
 
-            foreach (var user in allUsers)
+            foreach (var user in customers)
             {
-                var roles = await userAccountService.GetUserRolesAsync(Guid.Parse(user.Id));
-                if (!roles.Contains(Roles.Customer.ToString()) || !user.IsActive)
-                    continue;
-
                 var hasCard = await creditCardRepository.HasActiveCardAsync(Guid.Parse(user.Id));
-                if (hasCard)
-                    continue;
+                if (hasCard) continue;
 
                 var debt = await creditCardRepository.GetTotalDebtByUserAsync(Guid.Parse(user.Id));
-
 
                 eligible.Add(new EligibleCustomerForCreditCardDto
                 {
@@ -179,11 +168,10 @@ namespace Application.Services
         }
 
 
-        public async Task<List<CreditCardDisplayDto>> GetAllDisplayAsync(string? documentNumber, string? statusFilter)
+        public async Task<List<CreditCardDisplayDto>> GetAllDisplayAsync(List<UserDto> users, string? documentNumber, string? statusFilter)
         {
             var cards = await creditCardRepository.GetAllQuery().ToListAsync();
             var userIds = cards.Select(c => c.UserId).Distinct().ToList();
-            var users = await userAccountService.GetUsersByIds(userIds);
 
             if (!string.IsNullOrEmpty(documentNumber))
             {
@@ -246,7 +234,7 @@ namespace Application.Services
             return card?.Id;
         }
 
-        public async Task<bool> UpdateCreditLimitAsync(EditCreditCardDto dto)
+        public async Task<bool> UpdateCreditLimitAsync(EditCreditCardDto dto, UserDto user)
         {
             var card = await creditCardRepository.GetById(dto.CardId);
             if (card == null)
@@ -264,7 +252,6 @@ namespace Application.Services
 
             await creditCardRepository.UpdateAsync(card.Id, card);
 
-            var user = await userAccountService.GetUserById(card.UserId.ToString());
             await emailService.SendAsync(new EmailRequestDto
             {
                 To = user.Email,
