@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Application.Interfaces;
+using Domain.Interfaces;
 using Infrastructure.Persistence.Contexts;
 
 namespace Infrastructure.Persistence

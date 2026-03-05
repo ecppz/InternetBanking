@@ -8,6 +8,7 @@ namespace Application.ViewModels.Transaction
 {
     public class ConfirmThirdPartyTransferViewModel
     {
+        public Guid DestinationUserId { get; set; }
         public string OriginAccountNumber { get; set; } = string.Empty;
 
         public string DestinationAccountNumber { get; set; } = string.Empty;

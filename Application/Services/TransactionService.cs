@@ -8,8 +8,6 @@ using Domain.Common.Enums;
 using Domain.Common.Enums.Extensions;
 using Domain.Entities;
 using Domain.Interfaces;
-using System.Globalization;
-
 
 namespace Application.Services
 {
@@ -17,18 +15,15 @@ namespace Application.Services
     {
         private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IBeneficiaryRepository beneficiaryRepository;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, IEmailService email, IUserAccountServiceForWebApp userAccountService, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(transactionRepository, mapper)
+        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) 
+               : base(transactionRepository, mapper)
         {
             this.transactionRepository = transactionRepository;
             this.mapper = mapper;
             this.savingsAccountRepository = savingsAccountRepository;
-            this.userAccountService = userAccountService;
-            emailService = email;
             this.beneficiaryRepository = beneficiaryRepository;
         }
 
@@ -124,14 +119,14 @@ namespace Application.Services
             return account != null && account.Status == SavingsAccountStatus.Activa;
         }
 
-        public async Task<string?> GetAccountOwnerFullNameAsync(string accountNumber)
-        {
-            var account = await savingsAccountRepository.GetByAccountNumberAsync(accountNumber);
-            if (account == null) return null;
+        //public async Task<string?> GetAccountOwnerFullNameAsync(string accountNumber)
+        //{
+        //    var account = await savingsAccountRepository.GetByAccountNumberAsync(accountNumber);
+        //    if (account == null) return null;
 
-            var user = await userAccountService.GetUserById(account.UserId.ToString());
-            return user != null ? $"{user.Name} {user.LastName}".Trim() : "Desconocido";
-        }
+        //    var user = await userAccountService.GetUserById(account.UserId.ToString());
+        //    return user != null ? $"{user.Name} {user.LastName}".Trim() : "Desconocido";
+        //}
 
         public async Task<bool> HasSufficientFundsAsync(string accountNumber, decimal amount)
         {
@@ -139,52 +134,45 @@ namespace Application.Services
             return account != null && account.Balance >= amount;
         }
 
-        public async Task<ConfirmThirdPartyTransferViewModel?> PrepareTransferConfirmationAsync(string originAccountNumber, string destinationAccountNumber, decimal amount)
+        public async Task<ConfirmThirdPartyTransferViewModel?> PrepareTransferConfirmationAsync(
+            string originAccountNumber, string destinationAccountNumber, decimal amount)
         {
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(destinationAccountNumber);
             if (destination == null) return null;
-
-            var user = await userAccountService.GetUserById(destination.UserId.ToString());
-            if (user == null) return null;
 
             return new ConfirmThirdPartyTransferViewModel
             {
                 OriginAccountNumber = originAccountNumber,
                 DestinationAccountNumber = destinationAccountNumber,
-                DestinationFullName = user != null ? $"{user.Name} {user.LastName}".Trim() : "Desconocido",
+                DestinationUserId = destination.UserId,
                 Amount = amount,
                 Timestamp = DateTime.Now
             };
         }
 
-        public async Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId)
+        public async Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId)
         {
-            // Validación 1: Cuenta origen
             if (!await IsOriginAccountValidAsync(originAccountNumber))
             {
                 await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta origen inválida o inactiva", userId);
-                return false;
+                return null;
             }
 
-            // Validación 2: Fondos suficientes
             if (!await HasSufficientFundsAsync(originAccountNumber, amount))
             {
                 await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Fondos insuficientes", userId);
-                return false;
+                return null;
             }
 
-            // Validación 3: Cuenta destino
             if (!await IsDestinationAccountValidAsync(destinationAccountNumber))
             {
                 await RegisterRejectedTransactionAsync(originAccountNumber, destinationAccountNumber, amount, "Cuenta destino inválida o inactiva", userId);
-                return false;
+                return null;
             }
 
-            // Recuperar cuentas
             var origin = await savingsAccountRepository.GetByAccountNumberAsync(originAccountNumber);
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(destinationAccountNumber);
 
-            // Actualizar balances
             origin.Balance -= amount;
             destination.Balance += amount;
 
@@ -193,8 +181,7 @@ namespace Application.Services
 
             var now = DateTime.UtcNow;
 
-            // Registro único de la transacción
-            await transactionRepository.RegisterTransactionAsync(new Transaction
+            var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
                 OriginAccountId = origin.Id,
@@ -206,56 +193,14 @@ namespace Application.Services
                 Origin = origin.AccountNumber,
                 Beneficiary = destination.AccountNumber,
                 PerformedByUserId = userId
-            });
+            };
 
-            // Envío de correos
-            var originUser = await userAccountService.GetUserById(origin.UserId.ToString());
-            var destinationUser = await userAccountService.GetUserById(destination.UserId.ToString());
+            var saved = await transactionRepository.RegisterTransactionAsync(transaction);
+            if (!saved) return null;
 
-            if (originUser != null && destinationUser != null)
-            {
-                var formattedAmount = amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = DateTime.Now.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-
-                // Correo para origen
-                var last4Dest = destination.AccountNumber[^4..];
-                var subjectOrigin = $"Transacción realizada a la cuenta {last4Dest}";
-                var bodyOrigin = $@"
-                    <div style='font-family:Arial,sans-serif;color:#333'>
-                        <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
-                        <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
-                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                        <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
-                    </div>";
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = originUser.Email,
-                    Subject = subjectOrigin,
-                    HtmlBody = bodyOrigin
-                });
-
-                // Correo para destino
-                var last4Origin = origin.AccountNumber[^4..];
-                var subjectDest = $"Transacción enviada desde la cuenta {last4Origin}";
-                var bodyDest = $@"
-                    <div style='font-family:Arial,sans-serif;color:#333'>
-                        <h2 style='color:#28B463'>Depósito Recibido</h2>
-                        <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
-                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                        <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-                    </div>";
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = destinationUser.Email,
-                    Subject = subjectDest,
-                    HtmlBody = bodyDest
-                });
-            }
-
-            return true;
+            return mapper.Map<TransactionDto>(transaction); // devolvemos DTO
         }
+
 
         public async Task<bool> IsOriginAccountValidAsync(string accountNumber)
         {
@@ -306,30 +251,26 @@ namespace Application.Services
             if (destination == null || destination.Status != SavingsAccountStatus.Activa)
                 return null;
 
-            var user = await userAccountService.GetUserById(destination.UserId.ToString());
-            if (user == null)
-                return null;
-
             return new DepositConfirmationDto
             {
                 DestinationAccountNumber = destination.AccountNumber,
-                DestinationOwnerFullName = $"{user.Name?.Trim()} {user.LastName?.Trim()}".Trim(),
+                DestinationUserId = destination.UserId, // 👉 devolvemos el UserId
                 Amount = request.Amount
             };
         }
 
-        public async Task<bool> ExecuteDepositAsync(DepositRequestDto request, Guid userId)
+        public async Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId)
         {
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(request.DestinationAccountNumber);
             if (destination == null || destination.Status != SavingsAccountStatus.Activa)
-                return false;
+                return null;
 
             destination.Balance += request.Amount;
             await savingsAccountRepository.UpdateAsync(destination.Id, destination);
 
             var now = DateTime.UtcNow;
 
-            await transactionRepository.RegisterTransactionAsync(new Transaction
+            var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
                 OriginAccountId = Guid.Empty, // No hay cuenta origen
@@ -341,34 +282,14 @@ namespace Application.Services
                 Origin = "DEPÓSITO",
                 Beneficiary = destination.AccountNumber,
                 PerformedByUserId = userId
-            });
+            };
 
-            var user = await userAccountService.GetUserById(destination.UserId.ToString());
-            if (user != null)
-            {
-                var formattedAmount = request.Amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = DateTime.Now.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-                var last4 = destination.AccountNumber[^4..];
+            var saved = await transactionRepository.RegisterTransactionAsync(transaction);
+            if (!saved) return null;
 
-                var subject = $"Depósito realizado a su cuenta {last4}";
-                var body = $@"
-                        <div style='font-family:Arial,sans-serif;color:#333'>
-                            <h2 style='color:#28B463'>Depósito Recibido</h2>
-                            <p>Se ha depositado <strong>{formattedAmount}</strong> en su cuenta <strong>{last4}</strong>.</p>
-                            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-                        </div>";
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = subject,
-                    HtmlBody = body
-                });
-            }
-
-            return true;
+            return mapper.Map<TransactionDto>(transaction); // 👉 devolvemos DTO, no correos
         }
+
 
 
         public async Task<WithdrawalConfirmationDto?> ValidateWithdrawalAsync(WithdrawalRequestDto request)
@@ -378,30 +299,27 @@ namespace Application.Services
             if (origin == null || origin.Status != SavingsAccountStatus.Activa || origin.Balance < request.Amount)
                 return null;
 
-            var user = await userAccountService.GetUserById(origin.UserId.ToString());
-            if (user == null)
-                return null;
-
             return new WithdrawalConfirmationDto
             {
                 OriginAccountNumber = origin.AccountNumber,
-                OriginOwnerFullName = $"{user.Name?.Trim()} {user.LastName?.Trim()}".Trim(),
+                OriginUserId = origin.UserId, 
                 Amount = request.Amount
             };
         }
 
-        public async Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId)
+
+        public async Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId)
         {
             var origin = await savingsAccountRepository.GetByAccountNumberAsync(request.OriginAccountNumber);
             if (origin == null || origin.Status != SavingsAccountStatus.Activa || origin.Balance < request.Amount)
-                return false;
+                return null;
 
             origin.Balance -= request.Amount;
             await savingsAccountRepository.UpdateAsync(origin.Id, origin);
 
             var now = DateTime.UtcNow;
 
-            await transactionRepository.RegisterTransactionAsync(new Transaction
+            var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
                 OriginAccountId = origin.Id,
@@ -413,34 +331,14 @@ namespace Application.Services
                 Origin = origin.AccountNumber,
                 Beneficiary = "RETIRO",
                 PerformedByUserId = userId
-            });
+            };
 
-            var user = await userAccountService.GetUserById(origin.UserId.ToString());
-            if (user != null)
-            {
-                var formattedAmount = request.Amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = DateTime.Now.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-                var last4 = origin.AccountNumber[^4..];
+            var saved = await transactionRepository.RegisterTransactionAsync(transaction);
+            if (!saved) return null;
 
-                var subject = $"Retiro realizado a su cuenta {last4}";
-                var body = $@"
-                        <div style='font-family:Arial,sans-serif;color:#333'>
-                            <h2 style='color:#C0392B'>Retiro Procesado</h2>
-                            <p>Se ha retirado <strong>{formattedAmount}</strong> de su cuenta <strong>{last4}</strong>.</p>
-                            <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                            <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-                        </div>";
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = subject,
-                    HtmlBody = body
-                });
-            }
-
-            return true;
+            return mapper.Map<TransactionDto>(transaction);
         }
+
 
         private string GetFriendlyDescription(Transaction transaction, string visualType, Guid currentAccountId)
         {
@@ -495,18 +393,17 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model)
+        public async Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model)
         {
             var originAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.OriginAccountNumber);
             var destinationAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.BeneficiaryAccountNumber);
 
             if (originAccount == null || destinationAccount == null)
-                return false;
+                return null;
 
             if (originAccount.Balance < model.Amount)
-                return false;
+                return null;
 
-            // Actualizar balances
             originAccount.Balance -= model.Amount;
             destinationAccount.Balance += model.Amount;
 
@@ -515,7 +412,6 @@ namespace Application.Services
 
             var now = model.Timestamp;
 
-            // ✅ Registro único de la transacción
             var transaction = new Transaction
             {
                 Id = Guid.NewGuid(),
@@ -531,51 +427,11 @@ namespace Application.Services
 
             var saved = await transactionRepository.RegisterTransactionAsync(transaction);
             if (!saved)
-                return false;
+                return null;
 
-            // ✅ Envío de correos
-            var sender = await userAccountService.GetUserById(originAccount.UserId.ToString());
-            var receiver = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
-
-            if (sender != null && receiver != null)
-            {
-                var formattedAmount = model.Amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = now.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-
-                var last4Dest = destinationAccount.AccountNumber[^4..];
-                var last4Origin = originAccount.AccountNumber[^4..];
-
-                // Correo para origen
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = sender.Email,
-                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
-                    HtmlBody = $@"
-                <div style='font-family:Arial,sans-serif;color:#333'>
-                    <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
-                    <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
-                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                    <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
-                </div>"
-                });
-
-                // Correo para destino
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = receiver.Email,
-                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
-                    HtmlBody = $@"
-                <div style='font-family:Arial,sans-serif;color:#333'>
-                    <h2 style='color:#28B463'>Depósito Recibido</h2>
-                    <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
-                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-                </div>"
-                });
-            }
-
-            return true;
+            return mapper.Map<TransactionDto>(transaction); // 👉 devolvemos DTO, no correos
         }
+
 
         // Retorna todas las transacciones registradas en el sistema.
         // Se utiliza en el Dashboard para calcular indicadores globales.
@@ -605,36 +461,21 @@ namespace Application.Services
         //transaciones
         public async Task<int> GetTransactionsByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
-            if (user == null) return 0;
-
             return await transactionRepository.GetTransactionsByCashierAndDateAsync(userId, date);
         }
 
-        //pagos
         public async Task<int> GetPaymentsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
-            if (user == null) return 0;
-
             return await transactionRepository.GetPaymentsCountByCashierAndDateAsync(userId, date);
         }
 
-        //depositos
         public async Task<int> GetDepositsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
-            if (user == null) return 0;
-
             return await transactionRepository.GetDepositsCountByCashierAndDateAsync(userId, date);
         }
 
-        //retiros
         public async Task<int> GetWithdrawalsCountByCashierAndDateAsync(Guid userId, DateTime date)
         {
-            var user = await userAccountService.GetUserById(userId.ToString());
-            if (user == null) return 0;
-
             return await transactionRepository.GetWithdrawalsCountByCashierAndDateAsync(userId, date);
         }
 

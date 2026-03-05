@@ -15,23 +15,18 @@ namespace Application.Services
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
         public LoanPaymentService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository,
-            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IUserAccountServiceForWebApp userAccountService,
-            IEmailService emailService, IMapper mapper)
+            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IMapper mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
             this.savingsAccountRepository = savingsAccountRepository;
             this.transactionRepository = transactionRepository;
-            this.userAccountService = userAccountService;
-            this.emailService = emailService;
             this.mapper = mapper;
         }
-        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid userId)
+        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid performedbyUserId)
         {
             var loan = await loanRepository.GetByNumberAsync(dto.LoanNumber); 
             if (loan == null || loan.Status == LoanStatus.Completed)
@@ -85,7 +80,7 @@ namespace Application.Services
                 Status = TransactionStatus.Approved,
                 Origin = dto.OriginAccountNumber,
                 Beneficiary = loan.LoanNumber,
-                PerformedByUserId = userId,
+                PerformedByUserId = performedbyUserId,
             };
 
             await transactionRepository.AddAsync(transaction);
@@ -96,35 +91,8 @@ namespace Application.Services
                   .Where(i => i.Status == InstallmentStatus.Pending)
                   .Sum(i => i.Amount);
 
-
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-
-            if (user == null)
-            {
-                return null;
-            }
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = $"Pago de préstamo registrado - ****{loan.LoanNumber.Substring(loan.LoanNumber.Length - 4)}",
-                HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>Hemos registrado correctamente su pago al préstamo con los siguientes detalles:</p>
-                    <ul>
-                        <li><b>Número de préstamo:</b> ****{loan.LoanNumber.Substring(loan.LoanNumber.Length - 4)}</li>
-                        <li><b>Monto pagado:</b> {dto.Amount:C}</li>
-                        <li><b>Cuenta origen:</b> ****{dto.OriginAccountNumber.Substring(dto.OriginAccountNumber.Length - 4)}</li>
-                        <li><b>Fecha de pago:</b> {DateTime.UtcNow:dd/MM/yyyy}</li>
-                        <li><b>Saldo pendiente del préstamo:</b> {saldoPendiente:C}</li>
-                    </ul>
-                    <p>Gracias por cumplir con sus obligaciones financieras y confiar en nosotros.</p>"
-            });
-
             return transactionDto;
-
         }
-
-
     }
 }
 

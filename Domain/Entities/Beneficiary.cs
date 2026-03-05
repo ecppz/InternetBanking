@@ -16,7 +16,7 @@
         public Guid BeneficiaryUserId { get; set; }
 
         // Nombre y Apellido del titular de la cuenta Beneficiaria (Se guardan para el listado)
-        public required string Name { get; set; }
-        public required string LastName { get; set; }
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
     }
 }

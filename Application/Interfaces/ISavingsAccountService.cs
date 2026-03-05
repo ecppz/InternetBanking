@@ -11,7 +11,7 @@ namespace Application.Interfaces
         Task<List<SavingsAccountSummaryDto>> GetFilteredAccountsAsync(string? documentNumber, bool? isActive, bool? isPrimary, int page, int pageSize);
         Task<List<SavingsAccountDto>> GetAllByUserIdOrderedAsync(Guid userId);
         Task<bool> CreateSecondaryAccountAsync(CreateSavingsAccountDto dto);
-        Task<bool> CancelSecondaryAccountAsync(Guid accountId);
+        Task<Guid?> CancelSecondaryAccountAsync(Guid accountId);
         Task<SavingsAccountSummaryDto?> GetAccountSummaryAsync(Guid accountId);
         Task<Guid?> GetAccountIdByAccountNumberAsync(string accountNumber);
         Task<List<SavingsAccountDto>> GetActiveAccountsByUserIdAsync(Guid userId);

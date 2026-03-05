@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+﻿using Application.Dtos.Email;
 using Application.Dtos.Loan;
+using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.Loan;
 using Domain.Common.Enums;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using AutoMapper;
 
 namespace InternetBankingApp.Controllers.Admin
 {
@@ -17,19 +19,23 @@ namespace InternetBankingApp.Controllers.Admin
         private readonly ILoanService loanService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanController(ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+        public LoanController(ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, 
+            IEmailService emailService, IMapper mapper)
         {
             this.loanService = loanService;
             this.userAccountService = userAccountService;
             this.userManager = userManager;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
 
         public async Task<IActionResult> Index(string? documentNumber, string? statusFilter)
         {
-            var dtos = await loanService.GetAllDisplayAsync(documentNumber, statusFilter);
+            var allUsers = await userAccountService.GetAllActiveUsers();
+            var dtos = await loanService.GetAllDisplayAsync(allUsers, documentNumber, statusFilter);
 
             ViewBag.CurrentFilter = documentNumber;
             ViewBag.StatusFilter = statusFilter;
@@ -37,8 +43,6 @@ namespace InternetBankingApp.Controllers.Admin
             var vms = mapper.Map<List<LoanDisplayViewModel>>(dtos);
             return View(vms);
         }
-
-
         public IActionResult RiskWarning()
         {
             return View();
@@ -52,26 +56,50 @@ namespace InternetBankingApp.Controllers.Admin
                 return NotFound();
             }
 
+            var loan = await loanService.GetById(id);
+            var user = await userAccountService.GetUserById(loan.UserId.ToString());
+
             var vm = mapper.Map<LoanDetailsViewModel>(dto);
+
+            vm.CustomerFullName = $"{user.Name} {user.LastName}";
+            vm.DocumentNumber = user.DocumentNumber;
+            vm.Email = user.Email;
+
             return View(vm);
         }
 
-        public async Task<IActionResult> EligibleCustomers(string? documentNumber)
+        public async Task<IActionResult> EligibleCustomersForLoan(string? documentNumber)
         {
-            var all = await loanService.GetEligibleCustomersForLoan();
+            var allUsers = await userAccountService.GetAllActiveUsers();
+            var customers = new List<UserDto>();
+
+            foreach (var user in allUsers)
+            {
+                var roles = await userAccountService.GetUserRolesAsync(Guid.Parse(user.Id));
+                if (roles.Contains(Roles.Customer.ToString()) && user.IsActive)
+                {
+                    customers.Add(user);
+                }
+            }
+
+            var eligibleCustomers = await loanService.GetEligibleCustomersForLoan(customers);
 
             if (!string.IsNullOrWhiteSpace(documentNumber))
             {
-                all = all.Where(c => c.DocumentNumber.Contains(documentNumber)).ToList();
+                eligibleCustomers = eligibleCustomers
+                    .Where(c => c.DocumentNumber.Contains(documentNumber))
+                    .ToList();
+
                 ViewData["CurrentFilter"] = documentNumber;
             }
 
-            var avgDebt = await loanService.GetAverageDebtAsync();
+            var avgDebt = await loanService.GetAverageDebtAsync(allUsers);
             ViewData["AverageDebt"] = avgDebt;
 
-            var vms = mapper.Map<List<EligibleCustomerForLoanViewModel>>(all);
+            var vms = mapper.Map<List<EligibleCustomerForLoanViewModel>>(eligibleCustomers);
             return View(vms);
         }
+
 
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -88,34 +116,49 @@ namespace InternetBankingApp.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Edit(EditLoanViewModel vm)
         {
-            UserAccount? userSession = await userManager.GetUserAsync(User);
-
-            if (userSession == null)
-            {
-                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
-
-            var roles = await userManager.GetRolesAsync(userSession);
-
-            if (!roles.Contains(Roles.Admin.ToString()))
-            {
-                return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
+            var userSession = await userManager.GetUserAsync(User);
 
             if (!ModelState.IsValid)
             {
                 return View(vm);
             }
-
-            if (!ModelState.IsValid)
-                return View(vm);
 
             var dto = mapper.Map<EditLoanDto>(vm);
-            await loanService.UpdateInterestRateAsync(dto);
+            var response = await loanService.UpdateInterestRateAsync(dto);
+
+            if (!response.Success)
+            {
+                TempData["Error"] = "No se pudo actualizar la tasa de interés.";
+                return RedirectToAction("Index");
+            }
+
+            var user = await userAccountService.GetUserById(response.UserId.ToString());
+            if (user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Tasa de interés actualizada",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>La tasa de interés de su préstamo ha sido actualizada.</p>
+                <ul>
+                    <li><b>Número de préstamo:</b> {response.LoanNumber}</li>
+                    <li><b>Nueva tasa anual:</b> {response.AnnualInterestRate}%</li>
+                    <li><b>Nueva cuota mensual:</b> {response.NewCuota:C}</li>
+                </ul>
+                <p>Este cambio aplica a las cuotas futuras no vencidas.</p>"
+                });
+            }
+
             return RedirectToAction("Index");
         }
+
+
         public async Task<IActionResult> AssignLoan(Guid userId)
         {
+            var allUsers = await userAccountService.GetAllActiveUsers();
+
             if (userId == Guid.Empty)
             {
                 TempData["Error"] = "debes seleccionar un cliente antes de continuar";
@@ -137,18 +180,20 @@ namespace InternetBankingApp.Controllers.Admin
                 Email = user.Email
             };
 
-            var avgDebt = await loanService.GetAverageDebtAsync();
+            var avgDebt = await loanService.GetAverageDebtAsync(allUsers);
             ViewData["AverageDebt"] = avgDebt;
 
             return View("AssignLoan", vm);
         }
 
-         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> ConfirmLoanAssignment(AssignLoanViewModel vm)
         {
+            var allUsers = await userAccountService.GetAllActiveUsers();
+
             if (!ModelState.IsValid)
             {
-                ViewData["AverageDebt"] = await loanService.GetAverageDebtAsync();
+                ViewData["AverageDebt"] = await loanService.GetAverageDebtAsync(allUsers);
                 return View("AssignLoan", vm);
             }
 
@@ -159,7 +204,7 @@ namespace InternetBankingApp.Controllers.Admin
                 return RedirectToAction("EligibleCustomers");
             }
 
-            var averageDebt = await loanService.GetAverageDebtAsync();
+            var averageDebt = await loanService.GetAverageDebtAsync(allUsers);
             var currentDebt = user.CurrentBalance ?? 0m;
 
             var interest = vm.Amount * (vm.AnnualRate / 100) * (vm.Months / 12m);
@@ -194,10 +239,31 @@ namespace InternetBankingApp.Controllers.Admin
                 AnnualInterestRate = vm.AnnualRate
             };
 
-            await loanService.CreateLoanAsync(dto);
-            return RedirectToAction("Index");
-        }
+            var response = await loanService.CreateLoanAsync(dto);
+            if (!response.Success)
+            {
+                TempData["Error"] = response.Message;
+                return RedirectToAction("EligibleCustomers");
+            }
 
+            await emailService.SendAsync(new EmailRequestDto
+            {
+                To = user.Email,
+                Subject = "Préstamo aprobado",
+                HtmlBody = $@"
+                    <p>Estimado {user.Name},</p>
+                    <p>Su préstamo ha sido aprobado con los siguientes detalles:</p>
+                    <ul>
+                        <li><b>Número de préstamo:</b> {response.Loan.LoanNumber}</li>
+                        <li><b>Monto:</b> {response.Loan.Amount:C}</li>
+                        <li><b>Plazo:</b> {response.Loan.TermMonths} meses</li>
+                        <li><b>Tasa anual:</b> {response.Loan.AnnualInterestRate}%</li>
+                    </ul>
+                    <p>Gracias por confiar en nosotros</p>"
+            });
+
+            return RedirectToAction("Index");
+        }   
 
         [HttpPost]
         public async Task<IActionResult> FinalizeLoanAssignment(string userId, string amount, string months, string annualRate)
@@ -212,7 +278,7 @@ namespace InternetBankingApp.Controllers.Admin
                 AnnualInterestRate = decimal.Parse(annualRate, CultureInfo.InvariantCulture),
             };
 
-            await loanService.CreateLoanAsync(dto);
+            await loanService.CreateLoanAsync(dto); 
             return RedirectToAction("Index");
         }
     }

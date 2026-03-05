@@ -32,13 +32,13 @@ namespace Application.Interfaces
         Task<bool> IsAccountValidAsync(string accountNumber);
 
         // Obtiene el nombre completo del titular de una cuenta
-        Task<string?> GetAccountOwnerFullNameAsync(string accountNumber);
+     //   Task<string?> GetAccountOwnerFullNameAsync(string accountNumber);
 
         // Verifica si una cuenta tiene fondos suficientes
         Task<bool> HasSufficientFundsAsync(string accountNumber, decimal amount);
 
         // Orquesta la transferencia entre cuentas de terceros (ejecuta y registra)
-        Task<bool> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId);
+        Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId);
 
         // Genera el modelo de confirmación visual para la transferencia
         Task<ConfirmThirdPartyTransferViewModel?> PrepareTransferConfirmationAsync(string originAccountNumber, string destinationAccountNumber, decimal amount);
@@ -55,12 +55,12 @@ namespace Application.Interfaces
 
         //Deposito
         Task<DepositConfirmationDto?> ValidateDepositAsync(DepositRequestDto request);
-        Task<bool> ExecuteDepositAsync(DepositRequestDto request, Guid userId);
+        Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId);
 
         //Retiro
 
         Task<WithdrawalConfirmationDto?> ValidateWithdrawalAsync(WithdrawalRequestDto request);
-        Task<bool> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId);
+        Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId);
 
         //Trasaccion para beneficiarios
 
@@ -72,7 +72,7 @@ namespace Application.Interfaces
     Guid ownerUserId
 );
 
-        Task<bool> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
+        Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
 
         //admin:
 

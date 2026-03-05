@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.CreditCardTransaction;
+using Application.Dtos.Email;
 using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction;
 using AutoMapper;
@@ -18,16 +19,18 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public CreditCardPaymentController(ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService, 
-            ISavingsAccountService savingsAccountService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+        public CreditCardPaymentController(ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService, ISavingsAccountService savingsAccountService, 
+               IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IEmailService emailService, IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.creditCardTransactionService = creditCardTransactionService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
             this.userManager = userManager;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
 
@@ -113,8 +116,6 @@ namespace InternetBankingApp.Controllers.Cashier
             return View("Confirm", confirmVm);
         }
 
-
-
         [HttpPost]
         public async Task<IActionResult> Confirm(CreditCardPaymentConfirmationViewModel vm)
         {
@@ -124,7 +125,7 @@ namespace InternetBankingApp.Controllers.Cashier
             }
 
             UserAccount? userSession = await userManager.GetUserAsync(User);
-            var userId = Guid.Parse(userSession.Id);
+            var performedbyUserId = Guid.Parse(userSession.Id);
 
             var transactionDto = new CreditCardTransactionDto
             {
@@ -132,10 +133,11 @@ namespace InternetBankingApp.Controllers.Cashier
                 TransactionOrigin = vm.OriginAccountId,
                 Amount = vm.PaymentAmount,
                 Date = DateTime.UtcNow,
-                Status = TransactionStatus.Approved
+                Status = TransactionStatus.Approved,
+                Type = CreditCardTransactionType.Payment
             };
 
-            var result = await creditCardTransactionService.RegisterPaymentAsync(transactionDto, userId);
+            var result = await creditCardTransactionService.RegisterPaymentAsync(transactionDto, performedbyUserId);
 
             if (result == null)
             {
@@ -143,9 +145,33 @@ namespace InternetBankingApp.Controllers.Cashier
                 return View(vm);
             }
 
+            var card = await creditCardService.GetById(result.CreditCardId);
+            var account = await savingsAccountService.GetById(result.TransactionOrigin);
+            var user = await userAccountService.GetUserById(card.UserId.ToString());
+
+            if (user != null && card != null && account != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Pago realizado a la tarjeta ****{card.CardNumber[^4..]}",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>Se ha realizado un pago a su tarjeta de crédito.</p>
+                <ul>
+                    <li><b>Monto:</b> {result.Amount:C}</li>
+                    <li><b>Cuenta origen:</b> ****{account.AccountNumber[^4..]}</li>
+                    <li><b>Tarjeta destino:</b> ****{card.CardNumber[^4..]}</li>
+                    <li><b>Fecha:</b> {result.Date:dd/MM/yyyy HH:mm}</li>
+                </ul>
+                <p>Gracias por confiar en nosotros.</p>"
+                });
+            }
+
             TempData["SuccessMessage"] = "El pago se ha confirmado correctamente.";
             return RedirectToAction("Index");
         }
+
 
     }
 }

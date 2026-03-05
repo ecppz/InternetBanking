@@ -4,7 +4,9 @@ using Application.ViewModels.HomeCustomerAccounts;
 using Application.ViewModels.Loan;
 using AutoMapper;
 using Domain.Common.Enums;
+using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternetBankingApp.Controllers.Customer
@@ -14,26 +16,29 @@ namespace InternetBankingApp.Controllers.Customer
     {
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionlService;
-        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly ILoanService loanService;
         private readonly ICreditCardService creditCardService;
+        private readonly IUserAccountServiceForWebApp userAccountService;
+        private readonly UserManager<UserAccount> userManager;
         private readonly IMapper mapper;
 
-        public CustomerController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, IUserAccountServiceForWebApp userAccountService, ITransactionService transactionlService,
-            ILoanService loanService, IMapper mapper)
+        public CustomerController(ISavingsAccountService savingsAccountService, ICreditCardService creditCardService, ITransactionService transactionlService,
+            ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.savingsAccountService = savingsAccountService;
-            this.transactionlService = transactionlService;
-            this.loanService = loanService;
             this.creditCardService = creditCardService;
-            this.mapper = mapper;
+            this.loanService = loanService;
+            this.transactionlService = transactionlService;
+            this.userManager = userManager;
             this.userAccountService = userAccountService;
+            this.mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userId = await GetAuthenticatedUserIdAsync();
+            var userSession = await userManager.GetUserAsync(User);
+            var userId = Guid.Parse(userSession.Id);
 
             // cuentas
             var accounts = await savingsAccountService.GetActiveByUserIdAsync(userId);
@@ -48,31 +53,29 @@ namespace InternetBankingApp.Controllers.Customer
                     IsPrimary = a.IsPrimary
                 }).ToList();
 
-            // préstamo activo (solo uno)
-            var loan = (await loanService.GetActiveLoansByUserIdAsync(userId))
-                .Where(l => l.Status != LoanStatus.Completed)
-                .FirstOrDefault();
+            // préstamo activo
+            var loans = await loanService.GetActiveLoansByUserIdAsync(userId);
+            var loan = loans.FirstOrDefault(l => l.Status != LoanStatus.Completed);
 
             LoanSummaryViewModel? loanVm = null;
             if (loan != null)
             {
-                var loanDto = await loanService.GetLoanByNumberAsync(loan.LoanNumber);
+                // 👉 aquí obtienes el usuario dueño del préstamo
+                var user = await userAccountService.GetUserById(userId.ToString());
 
                 loanVm = new LoanSummaryViewModel
                 {
-                    Id = loanDto.LoanId,
-                    LoanNumber = loanDto.LoanNumber,
-                    Amount = loanDto.Amount,
-                    TermMonths = loanDto.TermMonths,
-                    AnnualInterestRate = loanDto.AnnualInterestRate,
-                    TotalInstallments = loanDto.InstallmentsDetails.Count,
-                    PaidInstallments = loanDto.InstallmentsDetails.Count(i => i.Status == InstallmentStatus.Paid),
-                    PendingAmount = loanDto.InstallmentsDetails
-                                        .Where(i => i.Status != InstallmentStatus.Paid)
-                                        .Sum(i => i.Amount),
-                    Status = loanDto.InstallmentsDetails.Any(i => i.Status == InstallmentStatus.Pending && i.DueDate < DateTime.UtcNow)
-                                ? LoanStatus.Overdue
-                                : LoanStatus.Active
+                    Id = loan.Id,
+                    LoanNumber = loan.LoanNumber,
+                    Amount = loan.Amount,
+                    TermMonths = loan.TermMonths,
+                    AnnualInterestRate = loan.AnnualInterestRate,
+                    TotalInstallments = loan.TotalInstallments,
+                    PaidInstallments = loan.PaidInstallments,
+                    PendingAmount = loan.PendingAmount,
+                    Status = loan.Status,
+                    CustomerFullName = $"{user.Name} {user.LastName}",
+                    DocumentNumber = user.DocumentNumber
                 };
             }
 
@@ -94,12 +97,13 @@ namespace InternetBankingApp.Controllers.Customer
             var model = new CustomerHomeViewModel
             {
                 Accounts = orderedAccounts,
-                Loan = loanVm, 
+                Loan = loanVm,
                 CreditCard = cardVm
             };
 
             return View(model);
         }
+
 
         public async Task<IActionResult> AccountDetails(Guid accountId)
         {
@@ -122,7 +126,7 @@ namespace InternetBankingApp.Controllers.Customer
                     Status = tx.Status,
                     Description = tx.Description
                 }).ToList()
-            };
+            };      
 
             return View(model);
         }
@@ -147,26 +151,6 @@ namespace InternetBankingApp.Controllers.Customer
             var cardVm = mapper.Map<CreditCardDetailsViewModel>(cardDto);
 
             return View(cardVm);
-        }
-
-
-
-        private async Task<Guid> GetAuthenticatedUserIdAsync()
-        {
-            var userName = User?.Identity?.Name;
-
-            if (string.IsNullOrWhiteSpace(userName))
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-
-            var user = await userAccountService.GetUserByUserName(userName);
-
-            if (user == null || string.IsNullOrWhiteSpace(user.Id))
-                throw new Exception("No se pudo obtener el usuario autenticado.");
-
-            if (!Guid.TryParse(user.Id, out var userId))
-                throw new Exception("El ID del usuario no tiene un formato válido.");
-
-            return userId;
         }
 
     }

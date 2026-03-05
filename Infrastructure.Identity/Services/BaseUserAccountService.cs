@@ -10,8 +10,7 @@ using System.Text;
 
 namespace Infrastructure.Identity.Services
 {
-    //public abstract class BaseUserAccountService : IBaseUserAccountService
-    public class BaseUserAccountService : IBaseUserAccountService
+    public abstract class BaseUserAccountService : IBaseUserAccountService
     {
         private readonly UserManager<UserAccount> userManager;
         private readonly IEmailService emailService;
