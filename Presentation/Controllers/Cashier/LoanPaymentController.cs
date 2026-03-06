@@ -131,7 +131,7 @@ namespace InternetBankingApp.Controllers.Cashier
             }
 
             UserAccount? userSession = await userManager.GetUserAsync(User);
-            var userId = Guid.Parse(userSession.Id);
+            var performedbyUserId = Guid.Parse(userSession.Id);
 
             var dto = new LoanPaymentDto
             {
@@ -142,7 +142,7 @@ namespace InternetBankingApp.Controllers.Cashier
                 
             };
 
-            var result = await loanPaymentService.RegisterPaymentAsync(dto, userId);
+            var result = await loanPaymentService.RegisterPaymentAsync(dto, performedbyUserId);
 
             if (result == null)
             {

@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+﻿using Application.Dtos.Loan;
+using Application.Dtos.LoanInstallment;
+using Application.Dtos.User;
+using Application.Interfaces;
+using AutoMapper;
 using Domain.Common.Enums;
 using Domain.Entities;
 using Domain.Interfaces;
-using Application.Dtos.Email;
-using Application.Dtos.Loan;
-using Application.Dtos.LoanInstallment;
-using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services
@@ -15,19 +15,14 @@ namespace Application.Services
         private readonly ILoanRepository loanRepository;
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ISavingsAccountService savingsAccountService;
-        private readonly IUserAccountServiceForWebApp userAccountService;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService,
-               IUserAccountServiceForWebApp userAccountService, IEmailService emailService, IMapper mapper)
+        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService, IMapper mapper)
             : base(loanRepository, mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
             this.savingsAccountService = savingsAccountService;
-            this.userAccountService = userAccountService;
-            this.emailService = emailService;
             this.mapper = mapper;
         }
 
@@ -99,30 +94,6 @@ namespace Application.Services
 
             await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
 
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = "Préstamo aprobado",
-                HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>Su préstamo ha sido aprobado con los siguientes detalles:</p>
-                <ul>
-                    <li><b>Número de préstamo:</b> {loan.LoanNumber}</li>
-                    <li><b>Monto:</b> {loan.Amount:C}</li>
-                    <li><b>Plazo:</b> {loan.TermMonths} meses</li>
-                    <li><b>Tasa anual:</b> {loan.AnnualInterestRate}%</li>
-                    <li><b>Cuota mensual:</b> {cuota:C}</li>
-                </ul>
-                <p>Gracias por confiar en nosotros</p>"
-            });
-
             return new LoanResponseDto
             {
                 Success = true,
@@ -130,12 +101,12 @@ namespace Application.Services
             };
         }
 
-        public async Task<string> UpdateInterestRateAsync(EditLoanDto dto)
+        public async Task<UpdateInterestRateResponseDto> UpdateInterestRateAsync(EditLoanDto dto)
         {
             var loan = await loanRepository.GetById(dto.Id);
             if (loan == null)
             {
-                return "Préstamo no encontrado";
+                return new UpdateInterestRateResponseDto { Success = false };
             }
 
             loan.AnnualInterestRate = dto.AnnualInterestRate;
@@ -148,61 +119,36 @@ namespace Application.Services
             double n = loan.TermMonths;
             double P = (double)loan.Amount;
             double cuotaRaw = P * (r * Math.Pow(1 + r, n)) / (Math.Pow(1 + r, n) - 1);
-            decimal nuevaCuota = Math.Round((decimal)cuotaRaw, 2);
+            decimal newCuota = Math.Round((decimal)cuotaRaw, 2);
 
             foreach (var installment in installments)
             {
                 if (installment.DueDate > now && installment.Status == InstallmentStatus.Pending)
                 {
-                    installment.Amount = nuevaCuota;
+                    installment.Amount = newCuota;
                 }
             }
-
 
             await loanInstallmentRepository.UpdateRangeAsync(installments);
 
-            var user = await userAccountService.GetUserById(loan.UserId.ToString());
-            if (user != null)
+            return new UpdateInterestRateResponseDto
             {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = "Tasa de interés actualizada",
-                    HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>La tasa de interés de su préstamo ha sido actualizada.</p>
-                    <ul>
-                        <li><b>Número de préstamo:</b> {loan.LoanNumber}</li>
-                        <li><b>Nueva tasa anual:</b> {loan.AnnualInterestRate}%</li>
-                        <li><b>Nueva cuota mensual:</b> {nuevaCuota:C}</li>
-                    </ul>
-                    <p>Este cambio aplica a las cuotas futuras no vencidas.</p>"
-                });
-            }
-
-            return "Tasa de interés actualizada y cuotas recalculadas correctamente";
+                Success = true,
+                LoanNumber = loan.LoanNumber,
+                AnnualInterestRate = loan.AnnualInterestRate,
+                NewCuota = newCuota,
+                UserId = loan.UserId
+            };
         }
 
-        public async Task<List<EligibleCustomerForLoanDto>> GetEligibleCustomersForLoan()
+        public async Task<List<EligibleCustomerForLoanDto>> GetEligibleCustomersForLoan(List<UserDto> customers)
         {
-            var allUsers = await userAccountService.GetAllActiveUsers();
             var eligible = new List<EligibleCustomerForLoanDto>();
 
-            foreach (var user in allUsers)
+            foreach (var user in customers)
             {
-                var roles = await userAccountService.GetUserRolesAsync(Guid.Parse(user.Id));
-
-
-                if (!roles.Contains(Roles.Customer.ToString()) || !user.IsActive)
-                {
-                    continue;
-                }
-
                 var hasLoan = await loanRepository.HasActiveLoanAsync(Guid.Parse(user.Id));
-                if (hasLoan)
-                {
-                    continue;
-                }
+                if (hasLoan) continue;
 
                 var debt = await loanRepository.GetTotalDebtAsync(Guid.Parse(user.Id));
 
@@ -220,11 +166,10 @@ namespace Application.Services
             return eligible.OrderByDescending(e => e.Name).ToList();
         }
 
-        public async Task<List<LoanDisplayDto>> GetAllDisplayAsync(string? documentNumber, string? statusFilter)
+
+        public async Task<List<LoanDisplayDto>> GetAllDisplayAsync(List<UserDto> users, string? documentNumber, string? statusFilter)
         {
-            var loans = await loanRepository.GetAllQuery().ToListAsync();
-            var userIds = loans.Select(l => l.UserId).Distinct().ToList();
-            var users = await userAccountService.GetUsersByIds(userIds);
+            var loans = await loanRepository.GetAllQuery().ToListAsync();   
 
             if (!string.IsNullOrEmpty(documentNumber))
             {
@@ -309,13 +254,6 @@ namespace Application.Services
 
             foreach (var dto in loanDtos)
             {
-                var user = await userAccountService.GetUserById(userId.ToString());
-                if (user != null)
-                {
-                    dto.CustomerFullName = $"{user.Name} {user.LastName}";
-                    dto.DocumentNumber = user.DocumentNumber;
-                }
-
                 dto.TotalInstallments = dto.TermMonths;
                 dto.PaidInstallments = await loanInstallmentRepository.CountPaidByLoanIdAsync(dto.Id);
                 dto.PendingAmount = await loanInstallmentRepository.GetPendingAmountByLoanIdAsync(dto.Id);
@@ -335,10 +273,9 @@ namespace Application.Services
         }
 
 
-        public async Task<decimal> GetAverageDebtAsync()
+        public async Task<decimal> GetAverageDebtAsync(List<UserDto> users)
         {
-            var allUsers = await userAccountService.GetAllActiveUsers();
-            var activeUsers = allUsers.Where(u => u.IsActive).ToList();
+            var activeUsers = users.Where(u => u.IsActive).ToList();
 
             var totalDebt = 0m;
             var count = 0;
@@ -354,16 +291,10 @@ namespace Application.Services
             return count == 0 ? 0 : totalDebt / count;
         }
 
-        public async Task<LoanDetailsDto> GetLoanDetailsAsync(Guid loanId)
+        public async Task<LoanDetailsDto?> GetLoanDetailsAsync(Guid loanId)
         {
             var loan = await loanRepository.GetById(loanId);
-
-            if (loan == null)
-            {
-                return null;
-            }
-
-            var user = await userAccountService.GetUserById(loan.UserId.ToString());
+            if (loan == null) return null;
 
             var installments = await loanInstallmentRepository.GetAllList();
             var loanInstallments = installments
@@ -375,7 +306,6 @@ namespace Application.Services
             {
                 LoanId = loan.Id,
                 LoanNumber = loan.LoanNumber,
-                CustomerFullName = user != null ? $"{user.Name} {user.LastName}" : "",
                 Amount = loan.Amount,
                 TermMonths = loan.TermMonths,
                 AnnualInterestRate = loan.AnnualInterestRate,
@@ -389,7 +319,7 @@ namespace Application.Services
         }
 
 
-        //private methods
+        #region private methods
         private async Task<string> GenerateUniqueLoanNumberAsync()
         {
             string number;
@@ -411,6 +341,6 @@ namespace Application.Services
         {
             return await loanRepository.GetAverageDebtPerClientAsync();
         }
-
+        #endregion
     }
 }

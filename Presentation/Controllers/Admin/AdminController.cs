@@ -14,17 +14,12 @@ namespace InternetBankingApp.Controllers.Admin
         private readonly ISavingsAccountService savingsAccountService;
         private readonly ITransactionService transactionService;
         private readonly IUserAccountServiceForWebApp userAccountService;
-        private readonly IMapper mapper;
         private readonly ILoanService loanService;
         private readonly ICreditCardService creditCardService;
-        private readonly ICreditCardTransactionService creditCardTransactionService;
-
-        // Constructor: recibe las dependencias necesarias mediante inyección.
+        private readonly IMapper mapper;
         public AdminController(
-            ISavingsAccountService savingsAccountService,
-            IUserAccountServiceForWebApp userAccountService,
-            ITransactionService transactionService,
-            IMapper mapper,ILoanService loanService, ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService)
+            ISavingsAccountService savingsAccountService, IUserAccountServiceForWebApp userAccountService, ITransactionService transactionService,
+            ILoanService loanService, ICreditCardService creditCardService, IMapper mapper)
         {
             this.savingsAccountService = savingsAccountService;
             this.transactionService = transactionService;
@@ -32,7 +27,6 @@ namespace InternetBankingApp.Controllers.Admin
             this.userAccountService = userAccountService;
             this.loanService = loanService;
             this.creditCardService = creditCardService;
-            this.creditCardTransactionService = creditCardTransactionService;
         }
 
         [HttpGet]
@@ -64,7 +58,6 @@ namespace InternetBankingApp.Controllers.Admin
                 AverageDebtPerClient = (await loanService.GetAverageDebtPerClientAsync()).ToString("C")
             };
 
-            // Retorna la vista con el modelo cargado
             return View(model);
         }
 

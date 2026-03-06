@@ -11,13 +11,12 @@ namespace Application.Services
     {
         private readonly IBeneficiaryRepository beneficiaryRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly IMapper mapper;
-        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository, IUserAccountServiceForWebApp userAccountService,ISavingsAccountRepository savingsAccountRepository ,IMapper mapper) : base(beneficiaryRepository, mapper)
+        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository,ISavingsAccountRepository savingsAccountRepository ,IMapper mapper) 
+            : base(beneficiaryRepository, mapper)
         {
             this.beneficiaryRepository = beneficiaryRepository;
             this.savingsAccountRepository = savingsAccountRepository;
-            this.userAccountService = userAccountService;
             this.mapper = mapper;
         }
 
@@ -41,44 +40,35 @@ namespace Application.Services
             return await beneficiaryRepository.ExistsAsync(ownerUserId, beneficiaryAccountNumber);
         }
 
-        public async Task<(bool Success, string? ErrorMessage)> AddAsync(Guid ownerUserId, CreateBeneficiaryDto dto)
+        public async Task<(bool Success, string? ErrorMessage, BeneficiaryDto? Beneficiary)> AddAsync(Guid ownerUserId, CreateBeneficiaryDto dto)
         {
-            // Validación: campo obligatorio
             if (string.IsNullOrWhiteSpace(dto.BeneficiaryAccountNumber))
-                return (false, "Debe ingresar un número de cuenta.");
+                return (false, "Debe ingresar un número de cuenta.", null);
 
-            // Validación: cuenta ya registrada como beneficiario
             if (await beneficiaryRepository.ExistsAsync(ownerUserId, dto.BeneficiaryAccountNumber))
-                return (false, "Este beneficiario ya está registrado en su lista.");
+                return (false, "Este beneficiario ya está registrado en su lista.", null);
 
-            // Validación: cuenta existe y está activa
             var account = await savingsAccountRepository.GetByAccountNumberAsync(dto.BeneficiaryAccountNumber);
             if (account is null || account.Status != SavingsAccountStatus.Activa)
-                return (false, "El número ingresado no corresponde a ninguna cuenta válida.");
+                return (false, "El número ingresado no corresponde a ninguna cuenta válida.", null);
 
-            // Validación: no puede agregarse a sí mismo
             if (account.UserId == ownerUserId)
-                return (false, "No puede agregarse a sí mismo como beneficiario.");
+                return (false, "No puede agregarse a sí mismo como beneficiario.", null);
 
-            // Obtener datos del titular de la cuenta beneficiaria
-            var user = await userAccountService.GetUserById(account.UserId.ToString());
-            if (user is null)
-                return (false, "No se pudo obtener la información del titular de la cuenta.");
-
-            // Crear entidad
             var beneficiary = new Beneficiary
             {
                 Id = Guid.NewGuid(),
                 OwnerUserId = ownerUserId,
                 BeneficiaryAccountNumber = dto.BeneficiaryAccountNumber,
                 BeneficiaryUserId = account.UserId,
-                Name = user.Name,
-                LastName = user.LastName
             };
 
             await beneficiaryRepository.AddAsync(beneficiary);
-            return (true, null);
+            var beneficiaryDto = mapper.Map<BeneficiaryDto>(beneficiary);
+            return (true, null, beneficiaryDto);
         }
+
+
         public async Task<bool> DeleteAsync(Guid beneficiaryId, Guid ownerUserId)
         {
             return await beneficiaryRepository.DeleteByIdAndOwnerAsync(beneficiaryId, ownerUserId);

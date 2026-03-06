@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.CreditCardTransaction.CashAdvance;
-using Application.Dtos.Email;
 using Application.Interfaces;
 using Domain.Common.Enums;
 using Domain.Entities;
@@ -13,19 +12,14 @@ namespace Application.Services
         private readonly ICreditCardTransactionRepository creditCardTransactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
-        private readonly IUserAccountServiceForWebApp userAccountService;
-        private readonly IEmailService emailService;
 
         public CashAdvanceService(ICreditCardRepository creditCardRepository, ICreditCardTransactionRepository creditCardTransactionRepository,
-            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository,
-            IUserAccountServiceForWebApp userAccountService, IEmailService emailService)
+            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository)
         {
             this.creditCardRepository = creditCardRepository;
             this.creditCardTransactionRepository = creditCardTransactionRepository;
             this.savingsAccountRepository = savingsAccountRepository;
             this.transactionRepository = transactionRepository;
-            this.userAccountService = userAccountService;
-            this.emailService = emailService;
         }
 
         public async Task<CashAdvanceDto?> ValidateAsync(CashAdvanceDto dto)
@@ -50,21 +44,13 @@ namespace Application.Services
             return dto;
         }
 
-        public async Task<CashAdvanceDto?>RegisterCashAdvanceAsync(CashAdvanceDto dto)
+        public async Task<CashAdvanceDto?> RegisterCashAdvanceAsync(CashAdvanceDto dto)
         {
             var card = await creditCardRepository.GetById(dto.CreditCardId);
-
-            if (card == null)
-            {
-                return null;
-            }
+            if (card == null) return null;
 
             var account = await savingsAccountRepository.GetByIdAsync(dto.SavingsAccountId);
-
-            if(account == null)
-            {
-                return null;
-            }
+            if (account == null) return null;
 
             var interest = dto.Amount * 0.0625m;
 
@@ -77,7 +63,7 @@ namespace Application.Services
             await transactionRepository.AddAsync(new Transaction
             {
                 OriginAccountId = account.Id,
-                DestinationAccountId = null, 
+                DestinationAccountId = null,
                 Amount = dto.Amount,
                 Date = dto.Date,
                 Type = TransactionType.Deposit,
@@ -94,30 +80,6 @@ namespace Application.Services
                 TransactionOrigin = account.Id,
                 Status = TransactionStatus.Approved,
                 Type = CreditCardTransactionType.CashAdvance
-            });
-
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = $"Avance de efectivo registrado - ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}",
-                HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>Hemos registrado correctamente su avance de efectivo con los siguientes detalles:</p>
-                    <ul>
-                        <li><b>Número de tarjeta:</b> ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}</li>
-                        <li><b>Monto del avance:</b> {dto.Amount:C}</li>
-                        <li><b>Cuenta destino:</b> ****{account.AccountNumber.Substring(account.AccountNumber.Length - 4)}</li>
-                        <li><b>Fecha de transacción:</b> {DateTime.UtcNow:dd/MM/yyyy HH:mm}</li>
-                        <li><b>Interés aplicado:</b> {(dto.Amount * 0.0625m):C}</li>
-                    </ul>
-                    <p>Gracias por confiar en nosotros para sus operaciones financieras.</p>"
             });
 
             return dto;

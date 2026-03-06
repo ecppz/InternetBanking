@@ -15,18 +15,16 @@ namespace Application.Services
     public class CreditCardService : GenericService<CreditCard, CreditCardDto>, ICreditCardService
     {
         private readonly ICreditCardRepository creditCardRepository;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public CreditCardService(ICreditCardRepository creditCardRepository, IEmailService emailService, IMapper mapper)
+        public CreditCardService(ICreditCardRepository creditCardRepository, IMapper mapper)
             : base(creditCardRepository, mapper)
         {
             this.creditCardRepository = creditCardRepository;
-            this.emailService = emailService;
             this.mapper = mapper;
         }
 
-        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto, UserDto user)
+        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto)
         {
             var hasActive = await creditCardRepository.HasActiveCardAsync(dto.UserId);
             if (hasActive)
@@ -40,7 +38,6 @@ namespace Application.Services
 
             var cardNumber = GenerateUniqueCardNumber();
             var cvcHash = GenerateCvcHash();
-
             var expirationDate = DateTime.UtcNow.AddYears(3);
 
             var card = new CreditCard
@@ -59,23 +56,6 @@ namespace Application.Services
 
             await creditCardRepository.AddAsync(card);
 
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = "Asignación de tarjeta de crédito",
-                HtmlBody = $@"
-                        <p>Estimado {user.Name},</p>
-                        <p>Se le ha asignado una nueva tarjeta de crédito.</p>
-                        <ul>
-                            <li><b>Número de tarjeta:</b> terminada en {card.CardNumber[^4..]}</li>
-                            <li><b>Límite aprobado:</b> {card.CreditLimit:C}</li>
-                            <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
-                            <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
-                        </ul>
-                        <p>Gracias por confiar en nosotros.</p>"
-            });
-
-
             return new CreditCardResponseDto
             {
                 Success = true,
@@ -88,7 +68,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto, UserDto user)
+        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto)
         {
             var card = await creditCardRepository.GetById(dto.CardId);
             if (card == null)
@@ -103,17 +83,6 @@ namespace Application.Services
 
             card.Status = CreditCardStatus.Cancelled;
             await creditCardRepository.UpdateAsync(card.Id, card);
-
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = "Cancelación de tarjeta de crédito",
-                HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>Su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido cancelada.</p>
-                    <p>A partir de este momento no podrá realizar consumos ni pagos con dicha tarjeta.</p>
-                    <p>Gracias por confiar en nosotros.</p>"
-            });
 
             return true;
         }
@@ -249,27 +218,10 @@ namespace Application.Services
             }
 
             card.CreditLimit = dto.NewLimit;
-
             await creditCardRepository.UpdateAsync(card.Id, card);
-
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = "Actualización de límite de tarjeta de crédito",
-                HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>El límite de su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido actualizado.</p>
-                    <ul>
-                        <li><b>Nuevo límite aprobado:</b> {card.CreditLimit:C}</li>
-                        <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
-                        <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
-                    </ul>
-                    <p>Gracias por confiar en nosotros.</p>"
-            });
 
             return true;
         }
-
 
         public async Task<decimal> GetAverageDebtAsync()
         {

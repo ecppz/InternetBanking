@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.CreditCardTransaction.CashAdvance;
+using Application.Dtos.Email;
 using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction.CashAdvance;
 using AutoMapper;
@@ -19,16 +20,18 @@ namespace InternetBankingApp.Controllers.Customer
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
         public CashAdvanceController(ICreditCardService creditCardService, ICashAdvanceService cashAdvanceService, ISavingsAccountService savingsAccountService,
-            IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
+            IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IEmailService emailService,  IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.cashAdvanceService = cashAdvanceService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
             this.userManager = userManager;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
         public async Task<IActionResult> Index()
@@ -131,7 +134,6 @@ namespace InternetBankingApp.Controllers.Customer
 
             return View("Confirm", confirmVm);
         }
-   
         [HttpPost]
         public async Task<IActionResult> Confirm(CashAdvanceConfirmationViewModel vm)
         {
@@ -147,7 +149,6 @@ namespace InternetBankingApp.Controllers.Customer
                 Amount = vm.AdvanceAmount,
                 Date = DateTime.UtcNow,
                 UserId = vm.UserId
-
             };
 
             var result = await cashAdvanceService.RegisterCashAdvanceAsync(dto);
@@ -158,8 +159,36 @@ namespace InternetBankingApp.Controllers.Customer
                 return View(vm);
             }
 
+            var card = await creditCardService.GetById(result.CreditCardId);
+            var account = await savingsAccountService.GetById(result.SavingsAccountId);
+
+            var user = await userAccountService.GetUserById(result.UserId.ToString());
+
+            if (user != null && card != null && account != null)
+            {
+                var interest = result.Amount * 0.0625m;
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Avance de efectivo registrado - ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>Hemos registrado correctamente su avance de efectivo con los siguientes detalles:</p>
+                <ul>
+                    <li><b>Número de tarjeta:</b> ****{card.CardNumber.Substring(card.CardNumber.Length - 4)}</li>
+                    <li><b>Monto del avance:</b> {result.Amount:C}</li>
+                    <li><b>Cuenta destino:</b> ****{account.AccountNumber.Substring(account.AccountNumber.Length - 4)}</li>
+                    <li><b>Fecha de transacción:</b> {DateTime.UtcNow:dd/MM/yyyy HH:mm}</li>
+                    <li><b>Interés aplicado:</b> {interest:C}</li>
+                </ul>
+                <p>Gracias por confiar en nosotros para sus operaciones financieras.</p>"
+                });
+            }
+
             TempData["SuccessMessage"] = "El avance de efectivo se ha confirmado correctamente.";
             return RedirectToAction("Index", "CustomerHome");
         }
+
     }
 }

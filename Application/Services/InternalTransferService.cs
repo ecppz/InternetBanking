@@ -13,12 +13,8 @@ namespace Application.Services
         private readonly ITransactionRepository transactionRepository;
         private readonly IMapper mapper;
 
-        public InternalTransferService(
-            ISavingsAccountRepository savingsAccountRepository,
-            ITransactionRepository transactionRepository,
-            IUserAccountServiceForWebApp userAccountService,
-            IMapper mapper
-        ) : base(savingsAccountRepository, mapper)
+        public InternalTransferService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IMapper mapper) 
+            : base(savingsAccountRepository, mapper)
         {
             this.savingsAccountRepository = savingsAccountRepository;
             this.transactionRepository = transactionRepository;

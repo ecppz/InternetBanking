@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Transaction;
+﻿using Application.Dtos.Email;
+using Application.Dtos.Transaction;
 using Application.Interfaces;
 using Application.ViewModels.Transaction;
 using AutoMapper;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace InternetBankingApp.Controllers.Cashier
 {
@@ -18,15 +20,18 @@ namespace InternetBankingApp.Controllers.Cashier
         private readonly ISavingsAccountService savingsAccountService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionController(IMapper mapper, UserManager<UserAccount> userManager, ITransactionService transactionService, ISavingsAccountService savingsAccountService, IUserAccountServiceForWebApp userAccountService)
+        public TransactionController(IMapper mapper, UserManager<UserAccount> userManager, ITransactionService transactionService, ISavingsAccountService savingsAccountService, 
+            IUserAccountServiceForWebApp userAccountService, IEmailService emailService)
         {
             this.mapper = mapper;
             this.userManager = userManager;
             this.transactionService = transactionService;
             this.savingsAccountService = savingsAccountService;
             this.userAccountService = userAccountService;
+            this.emailService = emailService;
         }
 
 
@@ -85,16 +90,11 @@ namespace InternetBankingApp.Controllers.Cashier
             UserAccount? userSession = await userManager.GetUserAsync(User);
 
             if (userSession == null)
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
 
             var roles = await userManager.GetRolesAsync(userSession);
-
             if (!roles.Contains(Roles.Cashier.ToString()))
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
 
             if (!TempData.ContainsKey("TransferData"))
                 return RedirectToAction("TransferToThirdParty");
@@ -102,22 +102,55 @@ namespace InternetBankingApp.Controllers.Cashier
             var model = JsonConvert.DeserializeObject<ThirdPartyTransferViewModel>((string)TempData["TransferData"]!);
             var cashierId = Guid.Parse(userSession.Id);
 
-            var success = await transactionService.ExecuteThirdPartyTransferAsync(
-                model.OriginAccountNumber, 
+            var result = await transactionService.ExecuteThirdPartyTransferAsync(
+                model.OriginAccountNumber,
                 model.DestinationAccountNumber,
-                model.Amount, 
+                model.Amount,
                 cashierId
             );
 
-            if (!success)
+            if (result == null)
             {
                 TempData["ErrorMessage"] = "La transacción fue rechazada por el sistema.";
                 return RedirectToAction("TransferToThirdParty");
             }
 
+            // 👉 Correos
+            var originAccount = await savingsAccountService.GetByAccountNumberAsync(result.Origin);
+            var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(result.Beneficiary);
+
+            var originUser = await userAccountService.GetUserById(originAccount.UserId.ToString());
+            var destinationUser = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
+
+            if (originUser != null && destinationUser != null)
+            {
+                var formattedAmount = result.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = result.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+
+                var last4Dest = destinationAccount.AccountNumber[^4..];
+                var last4Origin = originAccount.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = originUser.Email,
+                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
+                    HtmlBody = $@"<p>Se ha enviado {formattedAmount} a la cuenta destino {last4Dest}.</p>
+                          <p>Fecha y hora: {formattedDate}</p>"
+                });
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = destinationUser.Email,
+                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
+                    HtmlBody = $@"<p>Ha recibido un depósito de {formattedAmount} desde la cuenta {last4Origin}.</p>
+                          <p>Fecha y hora: {formattedDate}</p>"
+                });
+            }
+
             TempData["SuccessMessage"] = "La transacción fue realizada exitosamente.";
             return RedirectToAction("TransferToThirdParty");
         }
+
 
 
         // POST: Cancelación de la operación
@@ -184,15 +217,19 @@ namespace InternetBankingApp.Controllers.Cashier
                 return View(model);
             }
 
+            // 👉 aquí resolvemos el usuario
+            var user = await userAccountService.GetUserById(confirmation.DestinationUserId.ToString());
+
             var viewModel = new DepositConfirmationViewModel
             {
                 DestinationAccountNumber = confirmation.DestinationAccountNumber,
-                DestinationOwnerFullName = confirmation.DestinationOwnerFullName,
+                DestinationOwnerFullName = user != null ? $"{user.Name?.Trim()} {user.LastName?.Trim()}".Trim() : "Desconocido",
                 Amount = confirmation.Amount
             };
 
             return View("ConfirmDeposit", viewModel);
         }
+
 
 
         // POST: /Transaction/ConfirmDeposit
@@ -202,16 +239,11 @@ namespace InternetBankingApp.Controllers.Cashier
             UserAccount? userSession = await userManager.GetUserAsync(User);
 
             if (userSession == null)
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
 
             var roles = await userManager.GetRolesAsync(userSession);
-
             if (!roles.Contains(Roles.Cashier.ToString()))
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
 
             var dto = new DepositRequestDto
             {
@@ -219,19 +251,43 @@ namespace InternetBankingApp.Controllers.Cashier
                 Amount = model.Amount
             };
 
-
             var cashierId = Guid.Parse(userSession.Id);
-            var success = await transactionService.ExecuteDepositAsync(dto, cashierId);
+            var result = await transactionService.ExecuteDepositAsync(dto, cashierId);
 
-            if (!success)
+            if (result == null)
             {
                 TempData["Error"] = "No se pudo completar el depósito.";
                 return RedirectToAction("Deposit");
             }
 
+            // 👉 Aquí resolvemos usuario y enviamos correo
+            var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(dto.DestinationAccountNumber);
+            var user = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
+
+            if (user != null)
+            {
+                var formattedAmount = dto.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = result.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+                var last4 = destinationAccount.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Depósito realizado a su cuenta {last4}",
+                    HtmlBody = $@"
+                    <div style='font-family:Arial,sans-serif;color:#333'>
+                        <h2 style='color:#28B463'>Depósito Recibido</h2>
+                        <p>Se ha depositado <strong>{formattedAmount}</strong> en su cuenta <strong>{last4}</strong>.</p>
+                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                        <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                    </div>"
+                });
+            }
+
             TempData["Success"] = "Depósito realizado exitosamente.";
             return RedirectToAction("Deposit");
         }
+
 
         //Para deposito:
 
@@ -300,35 +356,32 @@ namespace InternetBankingApp.Controllers.Cashier
                 return View(model);
             }
 
+            // 👉 aquí resolvemos el usuario
+            var user = await userAccountService.GetUserById(confirmation.OriginUserId.ToString());
+
             var viewModel = new WithdrawalConfirmationViewModel
             {
                 OriginAccountNumber = confirmation.OriginAccountNumber,
-                OriginOwnerFullName = confirmation.OriginOwnerFullName,
+                OriginOwnerFullName = user != null ? $"{user.Name?.Trim()} {user.LastName?.Trim()}".Trim() : "Desconocido",
                 Amount = confirmation.Amount
             };
 
             return View("ConfirmWithdrawal", viewModel);
         }
 
+
         // POST: /Transaction/ConfirmWithdrawal
         [HttpPost]
         public async Task<IActionResult> ConfirmWithdrawal(WithdrawalConfirmationViewModel model)
         {
-
             UserAccount? userSession = await userManager.GetUserAsync(User);
 
             if (userSession == null)
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
 
             var roles = await userManager.GetRolesAsync(userSession);
-
             if (!roles.Contains(Roles.Cashier.ToString()))
-            {
                 return RedirectToRoute(new { controller = "AccessDenied", action = "Index" });
-            }
-
 
             var dto = new WithdrawalRequestDto
             {
@@ -337,11 +390,36 @@ namespace InternetBankingApp.Controllers.Cashier
             };
 
             var cashierId = Guid.Parse(userSession.Id);
-            var success = await transactionService.ExecuteWithdrawalAsync(dto, cashierId);
-            if (!success)
+            var result = await transactionService.ExecuteWithdrawalAsync(dto, cashierId);
+
+            if (result == null)
             {
                 TempData["Error"] = "No se pudo completar el retiro.";
                 return RedirectToAction("Withdrawal");
+            }
+
+            // 👉 Aquí resolvemos usuario y enviamos correo
+            var originAccount = await savingsAccountService.GetByAccountNumberAsync(dto.OriginAccountNumber);
+            var user = await userAccountService.GetUserById(originAccount.UserId.ToString());
+
+            if (user != null)
+            {
+                var formattedAmount = dto.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = result.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+                var last4 = originAccount.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Retiro realizado a su cuenta {last4}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#C0392B'>Retiro Procesado</h2>
+                    <p>Se ha retirado <strong>{formattedAmount}</strong> de su cuenta <strong>{last4}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                </div>"
+                });
             }
 
             TempData["Success"] = "Retiro realizado exitosamente.";

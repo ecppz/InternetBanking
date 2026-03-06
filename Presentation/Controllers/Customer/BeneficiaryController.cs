@@ -55,7 +55,6 @@ namespace InternetBankingApp.Controllers.Customer
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(BeneficiaryListViewModel model)
         {
             var userId = await GetCurrentUserIdAsync();
@@ -63,7 +62,6 @@ namespace InternetBankingApp.Controllers.Customer
                 return Unauthorized();
 
             var subModel = model.NewBeneficiary;
-
             if (!TryValidateModel(subModel))
             {
                 TempData["Error"] = "Debe ingresar un número de cuenta válido.";
@@ -73,17 +71,29 @@ namespace InternetBankingApp.Controllers.Customer
             var dto = new CreateBeneficiaryDto
             {
                 BeneficiaryAccountNumber = subModel.BeneficiaryAccountNumber
-                // No seteamos Owner ni BeneficiaryUserId aquí: eso lo hace el servicio
             };
 
             var result = await _beneficiaryService.AddAsync(userId.Value, dto);
 
-            TempData[result.Success ? "Success" : "Error"] = result.Success
-                ? "Beneficiario agregado correctamente."
-                : result.ErrorMessage;
+            if (!result.Success)
+            {
+                TempData["Error"] = result.ErrorMessage;
+                return RedirectToAction(nameof(Index));
+            }
+
+            var user = await _userAccountService.GetUserById(result.Beneficiary.BeneficiaryUserId.ToString());
+            if (user != null)
+            {
+                TempData["Success"] = $"Beneficiario {user.Name} {user.LastName} agregado correctamente.";
+            }
+            else
+            {
+                TempData["Success"] = "Beneficiario agregado correctamente.";
+            }
 
             return RedirectToAction(nameof(Index));
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

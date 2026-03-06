@@ -13,13 +13,12 @@ namespace Application.Services
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
         private readonly IMapper mapper;
-        private readonly IUserAccountServiceForWebApp _IUsserAccountService;
-        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IUserAccountServiceForWebApp userAccountService, IMapper mapper) : base(savingsAccountRepository, mapper)
+        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IMapper mapper) 
+            : base(savingsAccountRepository, mapper)
         {
             this.savingsAccountRepository = savingsAccountRepository;
             this.mapper = mapper;
             this.transactionRepository = transactionRepository;
-            _IUsserAccountService = userAccountService;
         }
 
         public async Task<bool> AddBalanceAsync(Guid accountId, decimal amount)
@@ -74,14 +73,10 @@ namespace Application.Services
             return accountNumber;
         }
 
-
         public async Task<SavingsAccountDetailDto?> GetAccountDetailAsync(Guid accountId)
         {
             var account = await savingsAccountRepository.GetById(accountId);
             if (account == null) return null;
-
-            var user = await _IUsserAccountService.GetUserById(account.UserId.ToString());
-            if (user == null) return null;
 
             var transactions = await transactionRepository.GetAllByAccountIdOrderedAsync(accountId);
 
@@ -92,55 +87,41 @@ namespace Application.Services
                 DestinationAccountId = tx.DestinationAccountId,
                 Amount = tx.Amount,
                 Date = tx.Date,
-                Type = tx.Type, // Deposit, Transfer, etc.
+                Type = tx.Type,
                 Status = tx.Status,
                 Origin = string.IsNullOrWhiteSpace(tx.Origin) ? "DEPÓSITO" : tx.Origin,
                 Beneficiary = string.IsNullOrWhiteSpace(tx.Beneficiary) ? "RETIRO" : tx.Beneficiary,
-
                 VisualType = tx.OriginAccountId == accountId ? "DÉBITO" : "CRÉDITO"
             }).ToList();
 
             var dto = mapper.Map<SavingsAccountDetailDto>(account);
-            dto.OwnerFullName = $"{user.Name?.Trim()} {user.LastName?.Trim()}".Trim();
-            dto.DocumentNumber = user.DocumentNumber;
             dto.Transactions = transactionDtos;
 
-            return dto;
+            return dto; 
         }
-        public async Task<List<SavingsAccountSummaryDto>> GetFilteredAccountsAsync(string? documentNumber, bool? isActive, bool? isPrimary, int page, int pageSize)
+        public async Task<List<SavingsAccountSummaryDto>> GetFilteredAccountsAsync(
+    string? documentNumber, bool? isActive, bool? isPrimary, int page, int pageSize)
         {
             Guid? userId = null;
 
             if (!string.IsNullOrWhiteSpace(documentNumber))
             {
                 var normalized = documentNumber.Replace("-", "").Trim().PadLeft(11, '0');
-
-                var user = await _IUsserAccountService.GetAllActiveUsers();
-                var match = user.FirstOrDefault(u =>
-                    u.DocumentNumber.Replace("-", "").Trim().PadLeft(11, '0') == normalized);
-                if (match != null && Guid.TryParse(match.Id, out var parsedId))
-                {
-                    userId = parsedId;
-                }
             }
 
             var accounts = userId.HasValue
                 ? await savingsAccountRepository.GetAllByUserIdOrderedAsync(userId.Value)
                 : await savingsAccountRepository.GetFilteredAsync(isActive, isPrimary, page, pageSize);
 
-            var users = await _IUsserAccountService.GetUsersByIds(accounts.Select(a => a.UserId).Distinct().ToList());
-
             var result = accounts.Select(account =>
             {
-                var user = users.FirstOrDefault(u => u.Id == account.UserId.ToString());
                 var dto = mapper.Map<SavingsAccountSummaryDto>(account);
-                dto.OwnerFullName = user != null ? $"{user.Name} {user.LastName}".Trim() : "Desconocido";
-                dto.DocumentNumber = user?.DocumentNumber ?? "N/D";
                 return dto;
             }).ToList();
 
             return result;
         }
+
 
         public async Task<List<SavingsAccountDto>> GetAllByUserIdOrderedAsync(Guid userId)
         {
@@ -165,20 +146,17 @@ namespace Application.Services
 
             return true;
         }
-
-        public async Task<bool> CancelSecondaryAccountAsync(Guid accountId)
+        public async Task<Guid?> CancelSecondaryAccountAsync(Guid accountId)
         {
             var secondary = await savingsAccountRepository.GetSecondaryByIdAsync(accountId);
-            if (secondary == null) return false;
+            if (secondary == null) return null;
 
-            // Evitar doble cancelación
-            if (secondary.Status != SavingsAccountStatus.Activa) return false;
+            if (secondary.Status != SavingsAccountStatus.Activa) return null;
 
-            //  Transferencia de balance si existe
             if (secondary.Balance > 0)
             {
                 var primary = await savingsAccountRepository.GetPrimaryByUserIdAsync(secondary.UserId);
-                if (primary == null) return false;
+                if (primary == null) return null;
 
                 primary.Balance += secondary.Balance;
                 secondary.Balance = 0;
@@ -186,15 +164,13 @@ namespace Application.Services
                 await savingsAccountRepository.UpdateAsync(primary.Id, primary);
             }
 
-            //  Cancelación lógica
             secondary.Status = SavingsAccountStatus.Cancelada;
             await savingsAccountRepository.UpdateAsync(secondary.Id, secondary);
 
-            //  Mantener usuario activo si tiene cuenta principal
-            await _IUsserAccountService.SetUserActiveStatus(secondary.UserId.ToString(), true);
-
-            return true;
+            return secondary.UserId; // 👉 devolvemos el UserId
         }
+
+
 
         public async Task<SavingsAccountSummaryDto?> GetAccountSummaryAsync(Guid accountId)
         {

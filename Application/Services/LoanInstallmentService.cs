@@ -10,7 +10,6 @@ namespace Application.Services
 {
     public class LoanInstallmentService : GenericService<LoanInstallment, LoanInstallmentDto>, ILoanInstallmentService
     {
-
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ILoanRepository loanRepository;
         private readonly IMapper mapper;
@@ -85,7 +84,7 @@ namespace Application.Services
                 return null;
             }
 
-            installment.Status = InstallmentStatus.Paid; // 👈 marcar como pagada
+            installment.Status = InstallmentStatus.Paid; 
             await loanInstallmentRepository.UpdateAsync(installment.Id, installment);
 
             return mapper.Map<LoanInstallmentDto>(installment);
