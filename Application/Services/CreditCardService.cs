@@ -1,5 +1,5 @@
 ﻿using Application.Dtos.CreditCard;
-using Application.Dtos.Email;
+using Application.Dtos.CreditCardTransaction;
 using Application.Dtos.User;
 using Application.Interfaces;
 using AutoMapper;
@@ -15,12 +15,14 @@ namespace Application.Services
     public class CreditCardService : GenericService<CreditCard, CreditCardDto>, ICreditCardService
     {
         private readonly ICreditCardRepository creditCardRepository;
+        private readonly ICreditCardTransactionRepository creditCardTransactionRepository;
         private readonly IMapper mapper;
 
-        public CreditCardService(ICreditCardRepository creditCardRepository, IMapper mapper)
+        public CreditCardService(ICreditCardRepository creditCardRepository, ICreditCardTransactionRepository creditCardTransactionRepository, IMapper mapper)
             : base(creditCardRepository, mapper)
         {
             this.creditCardRepository = creditCardRepository;
+            this.creditCardTransactionRepository = creditCardTransactionRepository;
             this.mapper = mapper;
         }
 
@@ -184,16 +186,15 @@ namespace Application.Services
                 .ThenByDescending(c => c.CreatedAt)
                 .ToList();
         }
-
-        public async Task<CreditCardDetailsDto> GetCardDetailsAsync(Guid cardId)
+        public async Task<CreditCardDetailsDto?> GetCardDetailsAsync(Guid cardId)
         {
             var card = await creditCardRepository.GetById(cardId);
-            if (card == null)
-            {
-                return null;
-            }
+            if (card == null) return null;
 
+            var transactions = await creditCardTransactionRepository.GetByCardIdAsync(cardId);
             var dto = mapper.Map<CreditCardDetailsDto>(card);
+            dto.Consumptions = mapper.Map<List<CreditCardConsumptionDto>>(transactions);
+
             return dto;
         }
 

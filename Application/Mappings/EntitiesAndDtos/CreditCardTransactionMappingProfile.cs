@@ -1,4 +1,5 @@
-﻿using Application.Dtos.CreditCardTransaction;
+﻿using Application.Dtos.CreditCard;
+using Application.Dtos.CreditCardTransaction;
 using AutoMapper;
 using Domain.Entities;
 namespace Application.Mappings.EntitiesAndDtos
@@ -9,6 +10,7 @@ namespace Application.Mappings.EntitiesAndDtos
         {
 
             CreateMap<CreditCardTransaction, CreditCardTransactionDto>().ReverseMap();
+            CreateMap<CreditCardTransaction, CreditCardConsumptionDto>().ReverseMap();
 
         }
     }

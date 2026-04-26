@@ -65,7 +65,7 @@ namespace Infrastructure.Identity
             #endregion
 
             #region Configurations
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
             #endregion
 
             #region Services
@@ -78,7 +78,7 @@ namespace Infrastructure.Identity
             GeneralConfiguration(services, config);
 
             #region Configurations
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
             services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
             #endregion
 

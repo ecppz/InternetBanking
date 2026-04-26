@@ -13,7 +13,7 @@
 
 <div class="row mt-3">
     <div class="col-md-6">
-        <form asp-controller="CreditCard" asp-action="EligibleCustomers" method="get">
+        <form asp-controller="CreditCard" asp-action="EligibleCustomersForCreditCard" method="get">
             <div class="input-group">
                 <input type="text" name="documentNumber" class="form-control" placeholder="Buscar por cédula..." value="@ViewData["CurrentFilter"]" />
                 <button class="btn btn-outline-secondary" type="submit">

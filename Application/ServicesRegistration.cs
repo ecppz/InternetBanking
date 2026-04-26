@@ -12,7 +12,7 @@ namespace Application
         public static void ApplicationLayerIoc(this IServiceCollection services)
         {
             //configurations
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
 
             services.AddScoped<IBeneficiaryService, BeneficiaryService>();
             services.AddScoped<ICreditCardService, CreditCardService>();

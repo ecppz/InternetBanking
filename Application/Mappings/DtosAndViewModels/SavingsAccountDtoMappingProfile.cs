@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.SavingsAccount;
-using Application.ViewModels.SavingsAccount;
 using AutoMapper;
 using Domain.Entities;
 

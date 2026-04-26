@@ -28,16 +28,9 @@ namespace Infrastructure.Persistence.Repositories
 
         public virtual async Task<Entity?> UpdateAsync(Guid id, Entity entity)
         {
-            var entry = await context.Set<Entity>().FindAsync(id);
-
-            if (entry != null)
-            {
-                context.Entry(entry).CurrentValues.SetValues(entity);
-                await context.SaveChangesAsync();
-                return entry;
-            }
-
-            return null;
+            context.Set<Entity>().Update(entity);
+            await context.SaveChangesAsync();
+            return entity;
         }
         public virtual async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities)
         {
