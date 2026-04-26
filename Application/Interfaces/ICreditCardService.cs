@@ -15,7 +15,7 @@ namespace Application.Interfaces
         Task<List<CreditCardDisplayDto>> GetAllDisplayAsync(List<UserDto> users, string? documentNumber, string? statusFilter);
         Task<decimal> GetAverageDebtAsync();
         Task<List<CreditCardDto>> GetCancelledCardsAsync();
-        Task<CreditCardDetailsDto> GetCardDetailsAsync(Guid cardId);
+        Task<CreditCardDetailsDto?> GetCardDetailsAsync(Guid cardId);
         Task<Guid?> GetCardIdByNumberAsync(string cardNumber);
         Task<List<EligibleCustomerForCreditCardDto>> GetEligibleCustomersForCreditCard(List<UserDto> customers);
         Task<bool> UpdateCreditLimitAsync(EditCreditCardDto dto, UserDto user);

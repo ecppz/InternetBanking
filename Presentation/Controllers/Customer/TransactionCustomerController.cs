@@ -509,8 +509,6 @@ namespace Presentation.Controllers
             UserAccount? userSession = await userManager.GetUserAsync(User);
             var performedbyUserId = Guid.Parse(userSession.Id);
 
-            var user = await userAccountService.GetUserById(vm.UserId.ToString());
-
             if (!ModelState.IsValid)
             {
                 var cards = await creditCardService.GetActiveCardsByUserIdAsync(performedbyUserId);

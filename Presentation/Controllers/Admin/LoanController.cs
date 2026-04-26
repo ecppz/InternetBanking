@@ -61,7 +61,7 @@ namespace InternetBankingApp.Controllers.Admin
 
             var vm = mapper.Map<LoanDetailsViewModel>(dto);
 
-            vm.CustomerFullName = $"{user.Name} {user.LastName}";
+            vm.CustomerFullName = $"{user.Name} {user.LastName}" ?? "";
             vm.DocumentNumber = user.DocumentNumber;
             vm.Email = user.Email;
 
