@@ -1,6 +1,9 @@
 ﻿
+using Application.Behaviors;
 using Application.Interfaces;
 using Application.Services;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -13,6 +16,11 @@ namespace Application
         {
             //configurations
             services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
+            services.AddMediatR(opt => opt.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            //services ioc
 
             services.AddScoped<IBeneficiaryService, BeneficiaryService>();
             services.AddScoped<ICreditCardService, CreditCardService>();

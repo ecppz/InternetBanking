@@ -43,6 +43,8 @@ namespace InternetBankingApp.Controllers.Admin
             var vms = mapper.Map<List<LoanDisplayViewModel>>(dtos);
             return View(vms);
         }
+
+
         public IActionResult RiskWarning()
         {
             return View();

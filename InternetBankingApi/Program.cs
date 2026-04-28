@@ -3,6 +3,7 @@ using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Infrastructure.Shared;
 using InternetBankingApi.Extensions;
+using InternetBankingApi.Handlers;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
@@ -35,7 +36,7 @@ builder.Services.AppiVersioningExtension();
 builder.Services.SwaggerExtension();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
-//    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();       
 
 var app = builder.Build();
