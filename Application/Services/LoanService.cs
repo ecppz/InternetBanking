@@ -1,4 +1,5 @@
-﻿using Application.Dtos.Loan;
+﻿using Application.Dtos.Email;
+using Application.Dtos.Loan;
 using Application.Dtos.LoanInstallment;
 using Application.Dtos.User;
 using Application.Interfaces;
@@ -15,18 +16,21 @@ namespace Application.Services
         private readonly ILoanRepository loanRepository;
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ISavingsAccountService savingsAccountService;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService, IMapper mapper)
+        public LoanService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository, ISavingsAccountService savingsAccountService,
+            IEmailService emailService, IMapper mapper)
             : base(loanRepository, mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
             this.savingsAccountService = savingsAccountService;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
 
-        public async Task<LoanResponseDto> CreateLoanAsync(CreateLoanDto dto)
+        public async Task<LoanResponseDto> CreateLoanAsync(CreateLoanDto dto, UserDto user)
         {
             var alreadyHasLoan = await loanRepository.HasActiveLoanAsync(dto.UserId);
             if (alreadyHasLoan)
@@ -94,6 +98,25 @@ namespace Application.Services
 
             await savingsAccountService.AddBalanceAsync(primaryAccount.Id, dto.Amount);
 
+            if(user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Préstamo aprobado",
+                    HtmlBody = $@"
+                        <p>Estimado {user.Name},</p>
+                        <p>Su préstamo ha sido aprobado con los siguientes detalles:</p>
+                        <ul>
+                            <li><b>Número de préstamo:</b> {loan.LoanNumber}</li>
+                            <li><b>Monto:</b> {loan.Amount:C}</li>
+                            <li><b>Plazo:</b> {loan.TermMonths} meses</li>
+                            <li><b>Tasa anual:</b> {loan.AnnualInterestRate}%</li>
+                        </ul>
+                        <p>Gracias por confiar en nosotros</p>"
+                });
+            }
+
             return new LoanResponseDto
             {
                 Success = true,
@@ -101,7 +124,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<UpdateInterestRateResponseDto> UpdateInterestRateAsync(EditLoanDto dto)
+        public async Task<UpdateInterestRateResponseDto> UpdateInterestRateAsync(EditLoanDto dto, UserDto user)
         {
             var loan = await loanRepository.GetById(dto.Id);
             if (loan == null)
@@ -130,6 +153,25 @@ namespace Application.Services
             }
 
             await loanInstallmentRepository.UpdateRangeAsync(installments);
+
+
+            if (user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Tasa de interés actualizada",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>La tasa de interés de su préstamo ha sido actualizada.</p>
+                <ul>
+                    <li><b>Número de préstamo:</b> {loan.LoanNumber}</li>
+                    <li><b>Nueva tasa anual:</b> {loan.AnnualInterestRate}%</li>
+                    <li><b>Nueva cuota mensual:</b> {newCuota:C}</li>
+                </ul>
+                <p>Este cambio aplica a las cuotas futuras no vencidas.</p>"
+                });
+            }
 
             return new UpdateInterestRateResponseDto
             {
@@ -165,7 +207,6 @@ namespace Application.Services
 
             return eligible.OrderByDescending(e => e.Name).ToList();
         }
-
 
         public async Task<List<LoanDisplayDto>> GetAllDisplayAsync(List<UserDto> users, string? documentNumber, string? statusFilter)
         {

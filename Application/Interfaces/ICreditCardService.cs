@@ -6,8 +6,8 @@ namespace Application.Interfaces
 {
     public interface ICreditCardService : IGenericService<CreditCardDto>
     {
-        Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto);
-        Task<bool> CancelCardAsync(CancelCreditCardDto dto);
+        Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto, UserDto user);
+        Task<bool> CancelCardAsync(CancelCreditCardDto dto, UserDto user);
         Task<int> ExpireCardsAsync();
         Task<List<CreditCardDto>> GetActiveCardsAsync();
         Task<List<CreditCardDto>> GetActiveCardsByUserIdAsync(Guid userId);

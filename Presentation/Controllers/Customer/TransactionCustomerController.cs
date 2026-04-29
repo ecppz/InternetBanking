@@ -33,11 +33,10 @@ namespace Presentation.Controllers
         private readonly ILoanService loanService;
         private readonly ICreditCardTransactionService creditCardTransactionService;
         private readonly ILoanPaymentService loanPaymentService;
-        private readonly IEmailService emailService;
         public TransactionCustomerController(IMapper mapper, ITransactionService transactionService, ISavingsAccountService savingsAccountService,
                IUserAccountServiceForWebApp userAccountService, IBeneficiaryService beneficiaryService, UserManager<UserAccount> userManager,
                ICreditCardService creditCardService, ICreditCardTransactionService creditCardTransactionService, ILoanService loanService,
-               ILoanPaymentService loanPaymentService, IEmailService emailService)
+               ILoanPaymentService loanPaymentService)
         {
             this.mapper = mapper;
             this.transactionService = transactionService;
@@ -49,7 +48,6 @@ namespace Presentation.Controllers
             this.creditCardTransactionService = creditCardTransactionService;
             this.loanService = loanService;
             this.loanPaymentService = loanPaymentService;
-            this.emailService = emailService;
         }
 
         [HttpGet]
@@ -171,11 +169,19 @@ namespace Presentation.Controllers
 
             var model = JsonConvert.DeserializeObject<ConfirmThirdPartyTransferCustomerViewModel>(json);
 
+            var originAccount = await savingsAccountService.GetByAccountNumberAsync(model.OriginAccountNumber);
+            var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(model.DestinationAccountNumber);
+
+            var originUser = await userAccountService.GetUserById(originAccount.UserId.ToString());
+            var destinationUser = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
+
             var result = await transactionService.ExecuteThirdPartyTransferAsync(
                 model.OriginAccountNumber,
                 model.DestinationAccountNumber,
                 model.Amount,
-                userId
+                userId,
+                originUser,
+                destinationUser
             );
 
             if (result == null)
@@ -192,37 +198,6 @@ namespace Presentation.Controllers
                 return RedirectToAction("Express");
             }
 
-            // 👉 Correos
-            var originAccount = await savingsAccountService.GetByAccountNumberAsync(result.Origin);
-            var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(result.Beneficiary);
-
-            var originUser = await userAccountService.GetUserById(originAccount.UserId.ToString());
-            var destinationUser = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
-
-            if (originUser != null && destinationUser != null)
-            {
-                var formattedAmount = result.Amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = result.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-
-                var last4Dest = destinationAccount.AccountNumber[^4..];
-                var last4Origin = originAccount.AccountNumber[^4..];
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = originUser.Email,
-                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
-                    HtmlBody = $@"<p>Se ha enviado {formattedAmount} a la cuenta destino {last4Dest}.</p>
-                          <p>Fecha y hora: {formattedDate}</p>"
-                });
-
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = destinationUser.Email,
-                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
-                    HtmlBody = $@"<p>Ha recibido un depósito de {formattedAmount} desde la cuenta {last4Origin}.</p>
-                          <p>Fecha y hora: {formattedDate}</p>"
-                });
-            }
 
             TempData["SuccessMessage"] = "La transacción fue realizada exitosamente.";
             return RedirectToAction("Express");
@@ -345,13 +320,6 @@ namespace Presentation.Controllers
                 Timestamp = confirmation.Timestamp
             };
 
-            var result = await transactionService.ExecuteBeneficiaryTransferAsync(dto);
-            if (result == null)
-            {
-                ModelState.AddModelError("", "Ocurrió un error al procesar la transacción.");
-                return View("ConfirmBeneficiaryTransfer", confirmation);
-            }
-
             // 👉 Aquí resolvemos usuarios y enviamos correos
             var originAccount = await savingsAccountService.GetByAccountNumberAsync(dto.OriginAccountNumber);
             var destinationAccount = await savingsAccountService.GetByAccountNumberAsync(dto.BeneficiaryAccountNumber);
@@ -359,41 +327,12 @@ namespace Presentation.Controllers
             var sender = await userAccountService.GetUserById(originAccount.UserId.ToString());
             var receiver = await userAccountService.GetUserById(destinationAccount.UserId.ToString());
 
-            if (sender != null && receiver != null)
+            var result = await transactionService.ExecuteBeneficiaryTransferAsync(dto, sender, receiver);
+
+            if (result == null)
             {
-                var formattedAmount = dto.Amount.ToString("C", new CultureInfo("es-DO"));
-                var formattedDate = dto.Timestamp.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
-
-                var last4Dest = destinationAccount.AccountNumber[^4..];
-                var last4Origin = originAccount.AccountNumber[^4..];
-
-                // Correo para origen
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = sender.Email,
-                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
-                    HtmlBody = $@"
-                <div style='font-family:Arial,sans-serif;color:#333'>
-                    <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
-                    <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
-                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                    <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
-                </div>"
-                });
-
-                // Correo para destino
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = receiver.Email,
-                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
-                    HtmlBody = $@"
-                <div style='font-family:Arial,sans-serif;color:#333'>
-                    <h2 style='color:#28B463'>Depósito Recibido</h2>
-                    <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
-                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
-                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
-                </div>"
-                });
+                ModelState.AddModelError("", "Ocurrió un error al procesar la transacción.");
+                return View("ConfirmBeneficiaryTransfer", confirmation);
             }
 
             return RedirectToAction("CustomerHome", "CustomerHome");
@@ -691,37 +630,14 @@ namespace Presentation.Controllers
                 LoanNumber = loan.LoanNumber!
             };
 
-            var result = await loanPaymentService.RegisterPaymentAsync(dto, performedbyUserId);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+
+            var result = await loanPaymentService.RegisterPaymentAsync(dto, performedbyUserId, user);
 
             if (result == null)
             {
                 TempData["ErrorMessage"] = "No se pudo procesar el pago al préstamo.";
                 return View(vm);
-            }
-
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-            var saldoPendiente = loan.InstallmentsDetails
-                .Where(i => i.Status == InstallmentStatus.Pending)
-                .Sum(i => i.Amount);
-
-            if (user != null)
-            {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = $"Pago de préstamo registrado - ****{loan.LoanNumber[^4..]}",
-                    HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>Hemos registrado correctamente su pago al préstamo con los siguientes detalles:</p>
-                <ul>
-                    <li><b>Número de préstamo:</b> ****{loan.LoanNumber[^4..]}</li>
-                    <li><b>Monto pagado:</b> {dto.Amount:C}</li>
-                    <li><b>Cuenta origen:</b> ****{dto.OriginAccountNumber[^4..]}</li>
-                    <li><b>Fecha de pago:</b> {DateTime.UtcNow:dd/MM/yyyy}</li>
-                    <li><b>Saldo pendiente del préstamo:</b> {saldoPendiente:C}</li>
-                </ul>
-                <p>Gracias por cumplir con sus obligaciones financieras y confiar en nosotros.</p>"
-                });
             }
 
             TempData["SuccessMessage"] = "El pago al préstamo se ha realizado correctamente.";

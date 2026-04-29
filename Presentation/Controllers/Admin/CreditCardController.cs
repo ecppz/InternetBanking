@@ -18,16 +18,14 @@ namespace InternetBankingApp.Controllers.Admin
         private readonly ICreditCardService creditCardService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
         public CreditCardController(ICreditCardService creditCardService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager,
-             IEmailService emailService, IMapper mapper)
+             IMapper mapper)
         {
             this.creditCardService = creditCardService;
             this.userAccountService = userAccountService;
             this.userManager = userManager;
-            this.emailService = emailService;
             this.mapper = mapper;
         }
         public async Task<IActionResult> Index(string? documentNumber, string? statusFilter)
@@ -73,7 +71,7 @@ namespace InternetBankingApp.Controllers.Admin
             if (!string.IsNullOrWhiteSpace(documentNumber))
             {
                 eligibleCustomers = eligibleCustomers
-                    .Where(c => c.DocumentNumber.Contains(documentNumber))
+                    .Where(c => c.DocumentNumber!.Contains(documentNumber))
                     .ToList();
 
                 ViewData["CurrentFilter"] = documentNumber;
@@ -108,26 +106,6 @@ namespace InternetBankingApp.Controllers.Admin
             {
                 ViewBag.ErrorMessage = "El nuevo límite no puede ser inferior a la deuda actual.";
                 return View(vm);
-            }
-
-            var card = await creditCardService.GetById(dto.CardId);
-
-            if (user != null && card != null)
-            {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = "Actualización de límite de tarjeta de crédito",
-                    HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>El límite de su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido actualizado.</p>
-                <ul>
-                    <li><b>Nuevo límite aprobado:</b> {card.CreditLimit:C}</li>
-                    <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
-                    <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
-                </ul>
-                <p>Gracias por confiar en nosotros.</p>"
-                });
             }
 
             return RedirectToAction("Index");
@@ -177,32 +155,13 @@ namespace InternetBankingApp.Controllers.Admin
             }
 
             var dto = mapper.Map<AssignCreditCardDto>(vm);
-            var response = await creditCardService.AssignCardAsync(dto);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+            var response = await creditCardService.AssignCardAsync(dto, user);
 
             if (!response.Success)
             {
                 ViewBag.ErrorMessage = response.Message;
                 return View(vm);
-            }
-
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-            if (user != null)
-            {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = "Asignación de tarjeta de crédito",
-                    HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>Se le ha asignado una nueva tarjeta de crédito.</p>
-                <ul>
-                    <li><b>Número de tarjeta:</b> terminada en {response.CardNumber}</li>
-                    <li><b>Límite aprobado:</b> {response.CreditLimit:C}</li>
-                    <li><b>Deuda actual:</b> {response.CurrentDebt:C}</li>
-                    <li><b>Fecha de expiración:</b> {response.ExpirationDate:MM/yy}</li>
-                </ul>
-                <p>Gracias por confiar en nosotros.</p>"
-                });
             }
 
             return RedirectToAction("Index");
@@ -253,7 +212,8 @@ namespace InternetBankingApp.Controllers.Admin
             }
 
             var dto = mapper.Map<CancelCreditCardDto>(vm);
-            var result = await creditCardService.CancelCardAsync(dto);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+            var result = await creditCardService.CancelCardAsync(dto, user);
 
             if (!result)
             {
@@ -262,21 +222,6 @@ namespace InternetBankingApp.Controllers.Admin
             }
 
             var card = await creditCardService.GetById(dto.CardId);
-            var user = await userAccountService.GetUserById(dto.UserId.ToString());
-
-            if (user != null && card != null)
-            {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = "Cancelación de tarjeta de crédito",
-                    HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>Su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido cancelada.</p>
-                <p>A partir de este momento no podrá realizar consumos ni pagos con dicha tarjeta.</p>
-                <p>Gracias por confiar en nosotros.</p>"
-                });
-            }
 
             TempData["SuccessMessage"] = $"La tarjeta terminada en {vm.CardLastDigits} ha sido cancelada correctamente.";
             return RedirectToAction("Index");

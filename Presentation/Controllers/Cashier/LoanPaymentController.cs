@@ -142,7 +142,8 @@ namespace InternetBankingApp.Controllers.Cashier
                 
             };
 
-            var result = await loanPaymentService.RegisterPaymentAsync(dto, performedbyUserId);
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+            var result = await loanPaymentService.RegisterPaymentAsync(dto, performedbyUserId, user);
 
             if (result == null)
             {
