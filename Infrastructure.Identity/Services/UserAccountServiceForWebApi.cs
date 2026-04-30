@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Settings;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -127,5 +128,11 @@ namespace Infrastructure.Identity.Services
         }
 
         #endregion
+
+        public async Task<bool> ExistsByCommerceIdAsync(int commerceId)
+        {
+            // Usamos el UserManager para consultar directamente la base de datos de Identity
+            return await userManager.Users.AnyAsync(u => u.CommerceId == commerceId);
+        }
     }
 }

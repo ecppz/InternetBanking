@@ -4,8 +4,8 @@ namespace Application.Interfaces
 {
     public interface ILoanService : IGenericService<LoanDto>
     {
-        Task<LoanResponseDto> CreateLoanAsync(CreateLoanDto dto);
-        Task<UpdateInterestRateResponseDto> UpdateInterestRateAsync(EditLoanDto dto);
+        Task<LoanResponseDto> CreateLoanAsync(CreateLoanDto dto, UserDto user);
+        Task<UpdateInterestRateResponseDto> UpdateInterestRateAsync(EditLoanDto dto, UserDto user);
         Task<List<EligibleCustomerForLoanDto>> GetEligibleCustomersForLoan(List<UserDto> customers);
         Task<List<LoanDisplayDto>> GetAllDisplayAsync(List<UserDto> users, string? documentNumber, string? statusFilter);
         Task<LoanDetailsDto?> GetLoanByNumberAsync(string loanNumber);

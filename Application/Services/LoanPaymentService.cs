@@ -1,6 +1,7 @@
 ﻿using Application.Dtos.Email;
 using Application.Dtos.Loan;
 using Application.Dtos.Transaction;
+using Application.Dtos.User;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Common.Enums;
@@ -15,18 +16,20 @@ namespace Application.Services
         private readonly ILoanInstallmentRepository loanInstallmentRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly ITransactionRepository transactionRepository;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
         public LoanPaymentService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository,
-            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IMapper mapper)
+            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IEmailService emailService, IMapper mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
             this.savingsAccountRepository = savingsAccountRepository;
             this.transactionRepository = transactionRepository;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
-        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid performedbyUserId)
+        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid performedbyUserId, UserDto user)
         {
             var loan = await loanRepository.GetByNumberAsync(dto.LoanNumber); 
             if (loan == null || loan.Status == LoanStatus.Completed)
@@ -90,6 +93,26 @@ namespace Application.Services
             var saldoPendiente = installments
                   .Where(i => i.Status == InstallmentStatus.Pending)
                   .Sum(i => i.Amount);
+
+            if (user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Pago de préstamo registrado - ****{loan.LoanNumber[^4..]}",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>Hemos registrado correctamente su pago al préstamo con los siguientes detalles:</p>
+                <ul>
+                    <li><b>Número de préstamo:</b> ****{loan.LoanNumber[^4..]}</li>
+                    <li><b>Monto pagado:</b> {dto.Amount:C}</li>
+                    <li><b>Cuenta origen:</b> ****{dto.OriginAccountNumber[^4..]}</li>
+                    <li><b>Fecha de pago:</b> {DateTime.UtcNow:dd/MM/yyyy}</li>
+                    <li><b>Saldo pendiente del préstamo:</b> {saldoPendiente:C}</li>
+                </ul>
+                <p>Gracias por cumplir con sus obligaciones financieras y confiar en nosotros.</p>"
+                });
+            }
 
             return transactionDto;
         }

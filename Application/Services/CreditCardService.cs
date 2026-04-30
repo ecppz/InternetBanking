@@ -1,5 +1,5 @@
 ﻿using Application.Dtos.CreditCard;
-using Application.Dtos.CreditCardTransaction;
+using Application.Dtos.Email;
 using Application.Dtos.User;
 using Application.Interfaces;
 using AutoMapper;
@@ -16,17 +16,20 @@ namespace Application.Services
     {
         private readonly ICreditCardRepository creditCardRepository;
         private readonly ICreditCardTransactionRepository creditCardTransactionRepository;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public CreditCardService(ICreditCardRepository creditCardRepository, ICreditCardTransactionRepository creditCardTransactionRepository, IMapper mapper)
+        public CreditCardService(ICreditCardRepository creditCardRepository, ICreditCardTransactionRepository creditCardTransactionRepository,
+            IEmailService emailService, IMapper mapper)
             : base(creditCardRepository, mapper)
         {
             this.creditCardRepository = creditCardRepository;
             this.creditCardTransactionRepository = creditCardTransactionRepository;
+            this.emailService = emailService;
             this.mapper = mapper;
         }
 
-        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto)
+        public async Task<CreditCardResponseDto> AssignCardAsync(AssignCreditCardDto dto, UserDto user)
         {
             var hasActive = await creditCardRepository.HasActiveCardAsync(dto.UserId);
             if (hasActive)
@@ -58,6 +61,26 @@ namespace Application.Services
 
             await creditCardRepository.AddAsync(card);
 
+
+            if (user != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Asignación de tarjeta de crédito",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>Se le ha asignado una nueva tarjeta de crédito.</p>
+                <ul>
+                    <li><b>Número de tarjeta:</b> terminada en {card.CardNumber}</li>
+                    <li><b>Límite aprobado:</b> {card.CreditLimit:C}</li>
+                    <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
+                    <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
+                </ul>
+                <p>Gracias por confiar en nosotros.</p>"
+                });
+            }
+
             return new CreditCardResponseDto
             {
                 Success = true,
@@ -70,7 +93,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto)
+        public async Task<bool> CancelCardAsync(CancelCreditCardDto dto, UserDto user)
         {
             var card = await creditCardRepository.GetById(dto.CardId);
             if (card == null)
@@ -85,6 +108,21 @@ namespace Application.Services
 
             card.Status = CreditCardStatus.Cancelled;
             await creditCardRepository.UpdateAsync(card.Id, card);
+
+
+            if (user != null && card != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Cancelación de tarjeta de crédito",
+                    HtmlBody = $@"
+                    <p>Estimado {user.Name},</p>
+                    <p>Su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido cancelada.</p>
+                    <p>A partir de este momento no podrá realizar consumos ni pagos con dicha tarjeta.</p>
+                    <p>Gracias por confiar en nosotros.</p>"
+                });
+            }
 
             return true;
         }
@@ -212,7 +250,6 @@ namespace Application.Services
                 return false;
             }
 
-
             if (dto.NewLimit < card.CurrentDebt)
             {
                 return false;
@@ -220,6 +257,24 @@ namespace Application.Services
 
             card.CreditLimit = dto.NewLimit;
             await creditCardRepository.UpdateAsync(card.Id, card);
+
+            if (user != null && card != null)
+            {
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = "Actualización de límite de tarjeta de crédito",
+                    HtmlBody = $@"
+                <p>Estimado {user.Name},</p>
+                <p>El límite de su tarjeta de crédito terminada en <b>{card.CardNumber[^4..]}</b> ha sido actualizado.</p>
+                <ul>
+                    <li><b>Nuevo límite aprobado:</b> {card.CreditLimit:C}</li>
+                    <li><b>Deuda actual:</b> {card.CurrentDebt:C}</li>
+                    <li><b>Fecha de expiración:</b> {card.ExpirationDate:MM/yy}</li>
+                </ul>
+                <p>Gracias por confiar en nosotros.</p>"
+                });
+            }
 
             return true;
         }

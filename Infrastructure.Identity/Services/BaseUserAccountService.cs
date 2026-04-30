@@ -456,11 +456,13 @@ namespace Infrastructure.Identity.Services
                 Name = "",
                 UserName = "",
                 HasError = false,
-                Errors = []
+                Errors = new List<string>(),
+                Roles = new List<string>()
             };
+
             try
             {
-                // Inicializar usuario
+                // 1. Inicializar usuario
                 var user = new UserAccount
                 {
                     Name = dto.Name,
@@ -471,9 +473,11 @@ namespace Infrastructure.Identity.Services
                     PhoneNumberConfirmed = false,
                     TwoFactorEnabled = false,
                     LockoutEnabled = true,
-                    IsActive = false,
+                    IsActive = false, // Se crea inactivo hasta que confirme
+                    CommerceId = dto.CommerceId,
                 };
 
+                // Configuración de EmailConfirmed según el rol
                 if (dto.Role == Roles.Admin.ToString() || dto.Role == Roles.Cashier.ToString())
                 {
                     user.EmailConfirmed = true;
@@ -483,7 +487,7 @@ namespace Infrastructure.Identity.Services
                     user.EmailConfirmed = false;
                 }
 
-
+                // 2. Crear usuario en Identity
                 var result = await userManager.CreateAsync(user, dto.Password);
                 if (!result.Succeeded)
                 {
@@ -492,7 +496,7 @@ namespace Infrastructure.Identity.Services
                     return response;
                 }
 
-                // Asignar rol
+                // 3. Asignar rol
                 var roleResult = await userManager.AddToRoleAsync(user, dto.Role);
                 if (!roleResult.Succeeded)
                 {
@@ -501,59 +505,62 @@ namespace Infrastructure.Identity.Services
                     return response;
                 }
 
-                // Solo clientes reciben correo de confirmación
+                // 4. Lógica de Notificación (Solo para Clientes)
                 if (dto.Role == Roles.Customer.ToString())
                 {
-                    // 1. Generar el token base de Identity
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    string subject = "Activa tu cuenta de Artemis Banking";
-                    string body = "";
-
-                    // 2. Lógica condicionada por el parámetro isApi
                     if (isApi == true)
                     {
-                        // PARA LA API: Enviamos el token limpio (sin codificar para URL ni enlaces)
-                        body = $"""
-            Hola {user.Name},<br><br>
-            Gracias por registrarte en Artemis Banking.<br>
-            Tu código de activación es: <b>{token}</b><br><br>
-            Copia este código y úsalo en la aplicación para activar tu cuenta.
-            """;
+                        // LÓGICA API: Enviar token en texto plano
+                        var subject = "Tu código de activación - Artemis Banking";
+                        var body = $@"
+                    <h3>Bienvenido a Artemis Banking</h3>
+                    <p>Hola {user.Name},</p>
+                    <p>Para activar tu cuenta en la aplicación, utiliza el siguiente código de confirmación:</p>
+                    <h2 style='color: #2c3e50;'>{token}</h2>
+                    <p>Introduce este código en la sección de activación de la API/App.</p>";
+
+                        await emailService.SendAsync(new EmailRequestDto
+                        {
+                            To = user.Email,
+                            Subject = subject,
+                            HtmlBody = body
+                        });
                     }
                     else
                     {
-                        // PARA LA WEB APP: Lógica original del enlace
+                        // LÓGICA WEB APP: Validar origin y enviar enlace
                         if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
                         {
+                            // Nota: Si llegamos aquí, el usuario ya se creó. 
+                            // Podrías considerar borrarlo o simplemente informar el error de correo.
                             response.HasError = true;
-                            response.Errors.Add("El parámetro 'origin' no es una URI válida.");
+                            response.Errors.Add("El parámetro 'origin' no es una URI válida para el envío del correo.");
                             return response;
                         }
 
-                        // Codificar el token solo para el enlace
                         var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                         var confirmUrl = new Uri(baseUri, "Login/ConfirmEmail");
                         var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
                         verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", encodedToken);
 
-                        body = $"""
-            Hola {user.Name},<br><br>
-            Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
-            <a href='{verificationUri}'>Confirmar cuenta</a>
-            """;
-                    }
+                        var subject = "Confirma tu cuenta";
+                        var body = $@"
+                    <p>Hola {user.Name},</p>
+                    <p>Por favor confirma tu cuenta haciendo clic en el siguiente enlace:</p>
+                    <a href='{verificationUri}'>Confirmar cuenta</a>";
 
-                    // 3. Envío del correo (común para ambos)
-                    await emailService.SendAsync(new EmailRequestDto
-                    {
-                        To = user.Email,
-                        Subject = subject,
-                        HtmlBody = body
-                    });
+                        await emailService.SendAsync(new EmailRequestDto
+                        {
+                            To = user.Email,
+                            Subject = subject,
+                            HtmlBody = body
+                        });
+                    }
                 }
 
-                // Respuesta
+                // 5. Mapear respuesta exitosa
                 response.HasError = false;
                 response.Id = user.Id;
                 response.Email = user.Email;

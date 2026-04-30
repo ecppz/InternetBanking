@@ -1,5 +1,6 @@
 ﻿using Application.Dtos.Email;
 using Application.Dtos.Transaction;
+using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.Transaction;
 using Application.ViewModels.TransactionBeneficiaryTransfer;
@@ -8,6 +9,7 @@ using Domain.Common.Enums;
 using Domain.Common.Enums.Extensions;
 using Domain.Entities;
 using Domain.Interfaces;
+using System.Globalization;
 
 namespace Application.Services
 {
@@ -16,13 +18,16 @@ namespace Application.Services
         private readonly ITransactionRepository transactionRepository;
         private readonly ISavingsAccountRepository savingsAccountRepository;
         private readonly IBeneficiaryRepository beneficiaryRepository;
+        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository, ISavingsAccountRepository savingsAccountRepository, IMapper mapper) 
+        public TransactionService(ITransactionRepository transactionRepository, IBeneficiaryRepository beneficiaryRepository,
+            ISavingsAccountRepository savingsAccountRepository, IEmailService emailService, IMapper mapper) 
                : base(transactionRepository, mapper)
         {
             this.transactionRepository = transactionRepository;
             this.mapper = mapper;
+            this.emailService = emailService;
             this.savingsAccountRepository = savingsAccountRepository;
             this.beneficiaryRepository = beneficiaryRepository;
         }
@@ -150,7 +155,8 @@ namespace Application.Services
             };
         }
 
-        public async Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId)
+        public async Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, 
+                                                                         decimal amount, Guid userId, UserDto originUser, UserDto destinationUser)
         {
             if (!await IsOriginAccountValidAsync(originAccountNumber))
             {
@@ -197,6 +203,31 @@ namespace Application.Services
 
             var saved = await transactionRepository.RegisterTransactionAsync(transaction);
             if (!saved) return null;
+
+            if (originUser != null && destinationUser != null)
+            {
+                var formattedAmount = transaction.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = transaction.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+
+                var last4Dest = destination.AccountNumber[^4..];
+                var last4Origin = origin.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = originUser.Email,
+                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
+                    HtmlBody = $@"<p>Se ha enviado {formattedAmount} a la cuenta destino {last4Dest}.</p>
+                          <p>Fecha y hora: {formattedDate}</p>"
+                });
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = destinationUser.Email,
+                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
+                    HtmlBody = $@"<p>Ha recibido un depósito de {formattedAmount} desde la cuenta {last4Origin}.</p>
+                          <p>Fecha y hora: {formattedDate}</p>"
+                });
+            }
 
             return mapper.Map<TransactionDto>(transaction); // devolvemos DTO
         }
@@ -259,7 +290,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId)
+        public async Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId, UserDto user)
         {
             var destination = await savingsAccountRepository.GetByAccountNumberAsync(request.DestinationAccountNumber);
             if (destination == null || destination.Status != SavingsAccountStatus.Activa)
@@ -287,6 +318,26 @@ namespace Application.Services
             var saved = await transactionRepository.RegisterTransactionAsync(transaction);
             if (!saved) return null;
 
+            if (user != null)
+            {
+                var formattedAmount = request.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = now.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+                var last4 = destination.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Depósito realizado a su cuenta {last4}",
+                    HtmlBody = $@"
+                    <div style='font-family:Arial,sans-serif;color:#333'>
+                        <h2 style='color:#28B463'>Depósito Recibido</h2>
+                        <p>Se ha depositado <strong>{formattedAmount}</strong> en su cuenta <strong>{last4}</strong>.</p>
+                        <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                        <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                    </div>"
+                });
+            }
+
             return mapper.Map<TransactionDto>(transaction); // 👉 devolvemos DTO, no correos
         }
 
@@ -308,7 +359,7 @@ namespace Application.Services
         }
 
 
-        public async Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId)
+        public async Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId, UserDto user)
         {
             var origin = await savingsAccountRepository.GetByAccountNumberAsync(request.OriginAccountNumber);
             if (origin == null || origin.Status != SavingsAccountStatus.Activa || origin.Balance < request.Amount)
@@ -335,6 +386,26 @@ namespace Application.Services
 
             var saved = await transactionRepository.RegisterTransactionAsync(transaction);
             if (!saved) return null;
+
+            if (user != null)
+            {
+                var formattedAmount = request.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = now.Date.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+                var last4 = origin.AccountNumber[^4..];
+
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = user.Email,
+                    Subject = $"Retiro realizado a su cuenta {last4}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#C0392B'>Retiro Procesado</h2>
+                    <p>Se ha retirado <strong>{formattedAmount}</strong> de su cuenta <strong>{last4}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                </div>"
+                });
+            }
 
             return mapper.Map<TransactionDto>(transaction);
         }
@@ -393,7 +464,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model)
+        public async Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model, UserDto sender, UserDto receiver)
         {
             var originAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.OriginAccountNumber);
             var destinationAccount = await savingsAccountRepository.GetByAccountNumberAsync(model.BeneficiaryAccountNumber);
@@ -429,7 +500,45 @@ namespace Application.Services
             if (!saved)
                 return null;
 
-            return mapper.Map<TransactionDto>(transaction); // 👉 devolvemos DTO, no correos
+
+            if (sender != null && receiver != null)
+            {
+                var formattedAmount = model.Amount.ToString("C", new CultureInfo("es-DO"));
+                var formattedDate = model.Timestamp.ToString("dd/MM/yyyy h:mm tt", new CultureInfo("es-DO"));
+
+                var last4Dest = destinationAccount.AccountNumber[^4..];
+                var last4Origin = originAccount.AccountNumber[^4..];
+
+                // Correo para origen
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = sender.Email,
+                    Subject = $"Transacción realizada a la cuenta {last4Dest}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#2E86C1'>Transferencia Exitosa</h2>
+                    <p>Se ha enviado <strong>{formattedAmount}</strong> a la cuenta destino <strong>{last4Dest}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por usar nuestro servicio.</p>
+                </div>"
+                });
+
+                // Correo para destino
+                await emailService.SendAsync(new EmailRequestDto
+                {
+                    To = receiver.Email,
+                    Subject = $"Transacción enviada desde la cuenta {last4Origin}",
+                    HtmlBody = $@"
+                <div style='font-family:Arial,sans-serif;color:#333'>
+                    <h2 style='color:#28B463'>Depósito Recibido</h2>
+                    <p>Ha recibido un depósito de <strong>{formattedAmount}</strong> desde la cuenta <strong>{last4Origin}</strong>.</p>
+                    <p>Fecha y hora: <strong>{formattedDate}</strong></p>
+                    <p style='margin-top:20px'>Gracias por confiar en nosotros.</p>
+                </div>"
+                });
+            }
+
+            return mapper.Map<TransactionDto>(transaction);
         }
 
 

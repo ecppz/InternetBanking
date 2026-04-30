@@ -1,15 +1,14 @@
-﻿using Application.Dtos.Email;
-using Application.Dtos.Loan;
+﻿using Application.Dtos.Loan;
 using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.Loan;
+using AutoMapper;
 using Domain.Common.Enums;
 using Infrastructure.Identity.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
-using AutoMapper;
 
 namespace InternetBankingApp.Controllers.Admin
 {
@@ -19,16 +18,13 @@ namespace InternetBankingApp.Controllers.Admin
         private readonly ILoanService loanService;
         private readonly IUserAccountServiceForWebApp userAccountService;
         private readonly UserManager<UserAccount> userManager;
-        private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanController(ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, 
-            IEmailService emailService, IMapper mapper)
+        public LoanController(ILoanService loanService, IUserAccountServiceForWebApp userAccountService, UserManager<UserAccount> userManager, IMapper mapper)
         {
             this.loanService = loanService;
             this.userAccountService = userAccountService;
             this.userManager = userManager;
-            this.emailService = emailService;
             this.mapper = mapper;
         }
 
@@ -43,6 +39,8 @@ namespace InternetBankingApp.Controllers.Admin
             var vms = mapper.Map<List<LoanDisplayViewModel>>(dtos);
             return View(vms);
         }
+
+
         public IActionResult RiskWarning()
         {
             return View();
@@ -116,39 +114,21 @@ namespace InternetBankingApp.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> Edit(EditLoanViewModel vm)
         {
-            var userSession = await userManager.GetUserAsync(User);
-
             if (!ModelState.IsValid)
             {
                 return View(vm);
             }
 
             var dto = mapper.Map<EditLoanDto>(vm);
-            var response = await loanService.UpdateInterestRateAsync(dto);
+            
+            var user = await userAccountService.GetUserById(dto.UserId.ToString());
+
+            var response = await loanService.UpdateInterestRateAsync(dto, user);
 
             if (!response.Success)
             {
                 TempData["Error"] = "No se pudo actualizar la tasa de interés.";
                 return RedirectToAction("Index");
-            }
-
-            var user = await userAccountService.GetUserById(response.UserId.ToString());
-            if (user != null)
-            {
-                await emailService.SendAsync(new EmailRequestDto
-                {
-                    To = user.Email,
-                    Subject = "Tasa de interés actualizada",
-                    HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>La tasa de interés de su préstamo ha sido actualizada.</p>
-                <ul>
-                    <li><b>Número de préstamo:</b> {response.LoanNumber}</li>
-                    <li><b>Nueva tasa anual:</b> {response.AnnualInterestRate}%</li>
-                    <li><b>Nueva cuota mensual:</b> {response.NewCuota:C}</li>
-                </ul>
-                <p>Este cambio aplica a las cuotas futuras no vencidas.</p>"
-                });
             }
 
             return RedirectToAction("Index");
@@ -239,28 +219,12 @@ namespace InternetBankingApp.Controllers.Admin
                 AnnualInterestRate = vm.AnnualRate
             };
 
-            var response = await loanService.CreateLoanAsync(dto);
+            var response = await loanService.CreateLoanAsync(dto, user);
             if (!response.Success)
             {
                 TempData["Error"] = response.Message;
                 return RedirectToAction("EligibleCustomers");
             }
-
-            await emailService.SendAsync(new EmailRequestDto
-            {
-                To = user.Email,
-                Subject = "Préstamo aprobado",
-                HtmlBody = $@"
-                    <p>Estimado {user.Name},</p>
-                    <p>Su préstamo ha sido aprobado con los siguientes detalles:</p>
-                    <ul>
-                        <li><b>Número de préstamo:</b> {response.Loan.LoanNumber}</li>
-                        <li><b>Monto:</b> {response.Loan.Amount:C}</li>
-                        <li><b>Plazo:</b> {response.Loan.TermMonths} meses</li>
-                        <li><b>Tasa anual:</b> {response.Loan.AnnualInterestRate}%</li>
-                    </ul>
-                    <p>Gracias por confiar en nosotros</p>"
-            });
 
             return RedirectToAction("Index");
         }   
@@ -269,6 +233,7 @@ namespace InternetBankingApp.Controllers.Admin
         public async Task<IActionResult> FinalizeLoanAssignment(string userId, string amount, string months, string annualRate)
         {
             var admin = await userManager.GetUserAsync(User);
+            var user = await userAccountService.GetUserById(userId.ToString());
 
             var dto = new CreateLoanDto
             {
@@ -278,7 +243,14 @@ namespace InternetBankingApp.Controllers.Admin
                 AnnualInterestRate = decimal.Parse(annualRate, CultureInfo.InvariantCulture),
             };
 
-            await loanService.CreateLoanAsync(dto); 
+            var response = await loanService.CreateLoanAsync(dto, user);
+
+            if (!response.Success)
+            {
+                TempData["Error"] = response.Message;
+                return RedirectToAction("EligibleCustomers");
+            }
+
             return RedirectToAction("Index");
         }
     }

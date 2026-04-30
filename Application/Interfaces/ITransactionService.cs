@@ -1,4 +1,6 @@
-﻿using Application.Dtos.Transaction;
+﻿using Application.Dtos.SavingsAccount;
+using Application.Dtos.Transaction;
+using Application.Dtos.User;
 using Application.ViewModels.Transaction;
 using Application.ViewModels.TransactionBeneficiaryTransfer;
 
@@ -38,7 +40,8 @@ namespace Application.Interfaces
         Task<bool> HasSufficientFundsAsync(string accountNumber, decimal amount);
 
         // Orquesta la transferencia entre cuentas de terceros (ejecuta y registra)
-        Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, decimal amount, Guid userId);
+        Task<TransactionDto?> ExecuteThirdPartyTransferAsync(string originAccountNumber, string destinationAccountNumber, 
+                                                            decimal amount, Guid userId, UserDto originUser, UserDto destinationUser);
 
         // Genera el modelo de confirmación visual para la transferencia
         Task<ConfirmThirdPartyTransferViewModel?> PrepareTransferConfirmationAsync(string originAccountNumber, string destinationAccountNumber, decimal amount);
@@ -55,24 +58,20 @@ namespace Application.Interfaces
 
         //Deposito
         Task<DepositConfirmationDto?> ValidateDepositAsync(DepositRequestDto request);
-        Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId);
+        Task<TransactionDto?> ExecuteDepositAsync(DepositRequestDto request, Guid userId, UserDto user);
 
         //Retiro
 
         Task<WithdrawalConfirmationDto?> ValidateWithdrawalAsync(WithdrawalRequestDto request);
-        Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId);
+        Task<TransactionDto?> ExecuteWithdrawalAsync(WithdrawalRequestDto request, Guid userId, UserDto user);
 
         //Trasaccion para beneficiarios
 
 
-        Task<ConfirmBeneficiaryTransferViewModel> PrepareBeneficiaryTransferConfirmationAsync(
-    string originAccountNumber,
-    string beneficiaryAccountNumber,
-    decimal amount,
-    Guid ownerUserId
-);
+        Task<ConfirmBeneficiaryTransferViewModel> PrepareBeneficiaryTransferConfirmationAsync(string originAccountNumber, string beneficiaryAccountNumber,
+                                                                                               decimal amount, Guid ownerUserId);
 
-        Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model);
+        Task<TransactionDto?> ExecuteBeneficiaryTransferAsync(ExecuteBeneficiaryTransferDto model, UserDto sender, UserDto receiver);
 
         //admin:
 

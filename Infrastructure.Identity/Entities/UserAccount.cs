@@ -9,6 +9,9 @@ namespace Infrastructure.Identity.Entities
         public required string DocumentNumber { get; set; }
         public required bool IsActive { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public int? CommerceId { get; set; }
+
     }
 
 }
