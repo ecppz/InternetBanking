@@ -504,27 +504,47 @@ namespace Infrastructure.Identity.Services
                 // Solo clientes reciben correo de confirmación
                 if (dto.Role == Roles.Customer.ToString())
                 {
-                    if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
+                    // 1. Generar el token base de Identity
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    string subject = "Activa tu cuenta de Artemis Banking";
+                    string body = "";
+
+                    // 2. Lógica condicionada por el parámetro isApi
+                    if (isApi == true)
                     {
-                        response.HasError = true;
-                        response.Errors.Add("El parámetro 'origin' no es una URI válida.");
-                        return response;
+                        // PARA LA API: Enviamos el token limpio (sin codificar para URL ni enlaces)
+                        body = $"""
+            Hola {user.Name},<br><br>
+            Gracias por registrarte en Artemis Banking.<br>
+            Tu código de activación es: <b>{token}</b><br><br>
+            Copia este código y úsalo en la aplicación para activar tu cuenta.
+            """;
+                    }
+                    else
+                    {
+                        // PARA LA WEB APP: Lógica original del enlace
+                        if (!Uri.TryCreate(origin, UriKind.Absolute, out var baseUri))
+                        {
+                            response.HasError = true;
+                            response.Errors.Add("El parámetro 'origin' no es una URI válida.");
+                            return response;
+                        }
+
+                        // Codificar el token solo para el enlace
+                        var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                        var confirmUrl = new Uri(baseUri, "Login/ConfirmEmail");
+                        var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
+                        verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", encodedToken);
+
+                        body = $"""
+            Hola {user.Name},<br><br>
+            Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
+            <a href='{verificationUri}'>Confirmar cuenta</a>
+            """;
                     }
 
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                    token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-                    var confirmUrl = new Uri(baseUri, "Login/ConfirmEmail");
-                    var verificationUri = QueryHelpers.AddQueryString(confirmUrl.ToString(), "userId", user.Id);
-                    verificationUri = QueryHelpers.AddQueryString(verificationUri, "token", token);
-
-                    var subject = "Confirma tu cuenta";
-                    var body = $"""
-                        Hola {user.Name},<br><br>
-                        Por favor confirma tu cuenta haciendo clic en el siguiente enlace:<br>
-                        <a href='{verificationUri}'>Confirmar cuenta</a>
-                     """;
-
+                    // 3. Envío del correo (común para ambos)
                     await emailService.SendAsync(new EmailRequestDto
                     {
                         To = user.Email,

@@ -13,7 +13,5 @@ namespace Domain.Entities
         // Nuevo campo para control de estado
         public SavingsAccountStatus Status { get; set; }
 
-
-
     }
 }
