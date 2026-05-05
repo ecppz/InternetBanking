@@ -369,11 +369,6 @@ namespace Infrastructure.Identity.Services
                 var roleList = await userManager.GetRolesAsync(item);
                 var role = roleList.FirstOrDefault() ?? "";
 
-                if (role == Roles.Commerce.ToString())
-                {
-                    continue;
-                }
-
                 listUsersDtos.Add(new UserDto
                 {
                     Id = item.Id,
@@ -384,7 +379,8 @@ namespace Infrastructure.Identity.Services
                     DocumentNumber = item.DocumentNumber,
                     isVerified = item.EmailConfirmed,
                     Role = role,
-                    IsActive = item.IsActive
+                    IsActive = item.IsActive,
+                    CommerceId = item.CommerceId
                 });
             }
 

@@ -16,7 +16,7 @@ using System.Security.Claims;
 namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Commerce")]
     [SwaggerTag("Gestión de Usuarios del sistema")]
     public class UserController : BaseApiController
     {
@@ -35,7 +35,7 @@ namespace InternetBankingApi.Controllers.v1
 
         //
 
-        [HttpGet("commerce")]
+        [HttpGet("Commerce")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCommerceUsersResponse))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -79,18 +79,21 @@ namespace InternetBankingApi.Controllers.v1
 
         //
 
+        [Authorize(Roles = "Admin")] 
         [HttpPost("commerce/{commerceId}")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [SwaggerOperation(Summary = "Crear nuevo usuario de comercio", Description = "Asocia un único usuario a un comercio específico.")]
-        public async Task<IActionResult> PostCommerce(int commerceId, [FromBody] CreateCommerceUserCommand command)
+        public async Task<IActionResult> CreateCommerce(int commerceId, [FromBody] CreateCommerceUserCommand command)
         {
+            // El mandato exige que el ID venga de la URL
             command.CommerceId = commerceId;
+
             var result = await Mediator.Send(command);
 
-            if (result.HasError) return BadRequest(result.Errors);
+            if (result.HasError)
+            {
+                return BadRequest(result);
+            }
 
-            return StatusCode(StatusCodes.Status201Created, result);
+            return CreatedAtAction(nameof(CreateCommerce), new { id = result.Id }, result);
         }
 
         //
