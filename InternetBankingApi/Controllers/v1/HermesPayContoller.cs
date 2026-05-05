@@ -2,6 +2,7 @@
 using Application.Features.Payments.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternetBankingApi.Controllers.v1
 {
@@ -20,19 +21,22 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(typeof(CommerceTransactionsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Obten datos de las trasacciones con el id del comercio"
+            )]
         public async Task<IActionResult> GetTransactions(
             int commerceId,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20)
         {
-            // Lógica de seguridad: Si el rol es Comercio, extraemos el ID del token
+
             int? finalCommerceId = commerceId;
 
             if (User.IsInRole("Commerce"))
             {
                 var commerceClaim = User.FindFirst("CommerceId")?.Value;
                 if (string.IsNullOrEmpty(commerceClaim))
-                    return Forbid(); // El usuario es comercio pero no tiene el Claim configurado
+                    return Forbid(); 
 
                 finalCommerceId = int.Parse(commerceClaim);
             }
@@ -56,9 +60,12 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [SwaggerOperation(
+            Summary = "Haz una trasaccion con una tarjeta de credito de un tercero existente en el sistema"
+            )]
         public async Task<IActionResult> ProcessPayment(int commerceId, [FromBody] ProcessPaymentCommand command)
         {
-            // Lógica de seguridad: Validar procedencia del CommerceId
+
             if (User.IsInRole("Commerce"))
             {
                 var commerceClaim = User.FindFirst("CommerceId")?.Value;
@@ -76,7 +83,6 @@ namespace InternetBankingApi.Controllers.v1
                 return BadRequest(new { message = result.Message });
             }
 
-            // Según el mandato, la respuesta exitosa es 204 No Content
             return NoContent();
         }
     }

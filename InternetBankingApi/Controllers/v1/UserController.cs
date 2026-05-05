@@ -59,12 +59,12 @@ namespace InternetBankingApi.Controllers.v1
         )]
         public async Task<IActionResult> Post([FromBody] CreateUserCommand command)
         {
-            // Ejecutamos el comando a través de Mediator
+
             var result = await Mediator.Send(command);
 
             if (result.HasError)
             {
-                // Mantenemos tu lógica de Conflict para duplicados
+
                 if (result.Errors!.Any(e => e.Contains("ya existe") || e.ToLower().Contains("duplicate") || e.Contains("taken")))
                 {
                     return Conflict(new { message = result.Errors });
@@ -73,17 +73,23 @@ namespace InternetBankingApi.Controllers.v1
                 return BadRequest(new { message = result.Errors });
             }
 
-            // Usamos el código 201 Created para ser semánticamente correctos
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
         //
 
-        [Authorize(Roles = "Admin")] 
+        [Authorize(Roles = "Admin")]
         [HttpPost("commerce/{commerceId}")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SaveUserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SaveUserResponseDto))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Crear un nuevo commercio,",
+            Description = "Crea un usuario con rol commercio se genera automáticamente su cuenta de ahorro principal con el monto inicial proporcionado."
+        )]
         public async Task<IActionResult> CreateCommerce(int commerceId, [FromBody] CreateCommerceUserCommand command)
         {
-            // El mandato exige que el ID venga de la URL
+
             command.CommerceId = commerceId;
 
             var result = await Mediator.Send(command);
@@ -93,7 +99,7 @@ namespace InternetBankingApi.Controllers.v1
                 return BadRequest(result);
             }
 
-            return CreatedAtAction(nameof(CreateCommerce), new { id = result.Id }, result);
+            return CreatedAtAction(null, new { id = result.Id }, result);
         }
 
         //
@@ -103,9 +109,12 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [SwaggerOperation(
+            Summary = "Actualizar un usuario existente"
+            )]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateUserCommand command)
         {
-            // Inyectamos el ID de la URL al comando
+
             command.Id = id;
 
             var result = await Mediator.Send(command);
@@ -127,6 +136,9 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerOperation(
+            Summary = "Activa o desactiva un usuario existente"
+            )]
         public async Task<IActionResult> ChangeStatus(string id, [FromBody] UpdateStatusRequest body)
         {
      
@@ -152,7 +164,7 @@ namespace InternetBankingApi.Controllers.v1
                 return BadRequest(result);
             }
 
-            return NoContent(); // 204 Success
+            return NoContent(); 
         }
 
         public class UpdateStatusRequest
@@ -161,6 +173,9 @@ namespace InternetBankingApi.Controllers.v1
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Busca usuarios por id"
+            )]
         public async Task<IActionResult> GetDetails(string id)
         {
             var result = await Mediator.Send(new GetUserDetailsQuery { Id = id });

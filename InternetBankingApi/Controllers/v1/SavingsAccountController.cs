@@ -3,6 +3,7 @@ using Application.Features.SavingsAccounts.Queries.GetAccountTrasactions;
 using Application.Features.SavingsAccounts.Queries.GetAll;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace InternetBankingApi.Controllers.v1
 {
@@ -23,6 +24,9 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(typeof(SavingsAccountListResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Obtener todos las cuentas de ahorro"
+            )]
         public async Task<IActionResult> GetList(
             [FromQuery] string? documentNumber,
             [FromQuery] string? status,
@@ -48,6 +52,9 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [SwaggerOperation(
+            Summary = "Asignar cuenta de ahorro secundaria a cliente"
+            )]
         public async Task<IActionResult> CreateSecondary([FromBody] CreateSecondaryAccountCommand command)
         {
             var result = await Mediator.Send(command);
@@ -70,6 +77,9 @@ namespace InternetBankingApi.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Obtener detalles de transacciones por cuenta"
+            )]
         public async Task<IActionResult> GetTransactions(string accountNumber)
         {
             var result = await Mediator.Send(new GetAccountTransactionsQuery { AccountNumber = accountNumber });

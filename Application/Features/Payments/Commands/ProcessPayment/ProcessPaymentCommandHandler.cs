@@ -63,24 +63,24 @@ namespace Application.Features.Payments.Commands.ProcessPayment
             if (commerceUser == null)
                 return new ProcessPaymentResponse { Success = false, Message = "Comercio no válido." };
 
-            // 2. Validar Tarjeta de Crédito (Número, Expiración y CVC)
+
             var card = await _creditCardRepository.GetByNumberAsync(request.CardNumber);
 
             if (card == null || card.Status != CreditCardStatus.Active)
                 return new ProcessPaymentResponse { Success = false, Message = "Tarjeta no encontrada o inactiva." };
 
-            // Validar fecha de expiración y CVC (Asumiendo que CvcHash coincide con request.CVC)
+
             string expirationRequested = $"{request.MonthExpirationCard}/{request.YearExpirationCard}";
             if (card.ExpirationDate.ToString("MM/yyyy") != expirationRequested || card.CvcHash != request.CVC)
                 return new ProcessPaymentResponse { Success = false, Message = "Datos de tarjeta incorrectos." };
 
-            // 3. Validar Límite de Crédito
+    
             if ((card.CurrentDebt + request.TransactionAmount) > card.CreditLimit)
                 return new ProcessPaymentResponse { Success = false, Message = "Límite de crédito insuficiente." };
 
-            // 4. PROCESO FINANCIERO (Transaccional)
 
-            // A. Acreditar a la cuenta principal del Comercio
+
+     
             var commerceAccount = await _savingsAccountRepository.GetPrimaryByUserIdAsync(Guid.Parse(commerceUser.Id));
             if (commerceAccount == null)
                 return new ProcessPaymentResponse { Success = false, Message = "El comercio no posee cuenta principal." };
@@ -88,7 +88,7 @@ namespace Application.Features.Payments.Commands.ProcessPayment
             commerceAccount.Balance += request.TransactionAmount;
             await _savingsAccountRepository.UpdateAsync(commerceAccount.Id, commerceAccount);
 
-            // B. Registrar la transacción en el historial de la cuenta de ahorro
+
             await _transactionRepository.AddAsync(new Transaction
             {
                 Id = Guid.NewGuid(),
@@ -102,23 +102,23 @@ namespace Application.Features.Payments.Commands.ProcessPayment
                 Reason = $"Pago recibido en {commerceUser.Name}"
             });
 
-            // C. Cargar consumo a la Tarjeta de Crédito
+
             card.CurrentDebt += request.TransactionAmount;
             await _creditCardRepository.UpdateAsync(card.Id, card);
 
-            // D. Registrar la transacción de la tarjeta
+
             await _cardTransactionRepository.AddAsync(new CreditCardTransaction
             {
                 Id = Guid.NewGuid(),
                 CreditCardId = card.Id,
-                TransactionOrigin = Guid.Parse(commerceUser.Id), // ID del comercio
+                TransactionOrigin = Guid.Parse(commerceUser.Id), 
                 Date = DateTime.Now,
                 Amount = request.TransactionAmount,
                 Status = TransactionStatus.Approved,
                 Type = CreditCardTransactionType.Purchase
             });
 
-            // 5. NOTIFICACIONES POR CORREO
+
             var clientUser = await _userService.GetUserById(card.UserId.ToString());
             string last4 = request.CardNumber.Substring(request.CardNumber.Length - 4);
 
@@ -130,7 +130,6 @@ namespace Application.Features.Payments.Commands.ProcessPayment
                 HtmlBody = $"Se ha realizado un pago de {request.TransactionAmount} en {commerceUser.Name} el {DateTime.Now}."
             });
 
-            // Correo al Comercio
             await _emailService.SendAsync(new EmailRequestDto
             {
                 To = commerceUser.Email,

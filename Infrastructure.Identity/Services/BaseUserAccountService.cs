@@ -422,25 +422,42 @@ namespace Infrastructure.Identity.Services
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                response.Message = "There is no acccount registered with this user";
+                response.Message = "There is no account registered with this user";
                 response.HasError = true;
                 return response;
             }
 
-            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            // INTENTA CONFIRMAR DIRECTAMENTE
             var result = await userManager.ConfirmEmailAsync(user, token);
+
+            // SI FALLA, intenta decodificar 
+            if (!result.Succeeded)
+            {
+                try
+                {
+                    var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+                    result = await userManager.ConfirmEmailAsync(user, decodedToken);
+                }
+                catch
+                {
+      
+                }
+            }
+
             if (result.Succeeded)
             {
+              // Si confirmo el correo, activa al usuario
+                user.IsActive = true;
+                await userManager.UpdateAsync(user);
+
                 response.Message = $"Account confirmed for {user.Email}. You can now use the app";
                 response.HasError = false;
                 return response;
             }
-            else
-            {
-                response.Message = $"An error occurred while confirming this email {user.Email}";
-                response.HasError = true;
-                return response;
-            }
+
+            response.Message = $"An error occurred while confirming this email {user.Email}";
+            response.HasError = true;
+            return response;
         }
         public virtual async Task<RegisterResponseDto> RegisterUserAsync(SaveUserDto dto, string? origin, bool? isApi = false)
         {
@@ -502,7 +519,7 @@ namespace Infrastructure.Identity.Services
                 }
 
                 // 4. Lógica de Notificación (Solo para Clientes)
-                if (dto.Role == Roles.Customer.ToString())
+                if (dto.Role == Roles.Customer.ToString() || dto.Role == Roles.Commerce.ToString())
                 {
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 

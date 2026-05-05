@@ -10,6 +10,7 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
 {
     public class CreateCommerceUserCommand : IRequest<SaveUserResponseDto>
     {
+        [JsonIgnore]
         public int CommerceId { get; set; }
         public required string Nombre { get; set; }
         public required string Apellido { get; set; }
@@ -36,20 +37,20 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
 
         public async Task<SaveUserResponseDto> Handle(CreateCommerceUserCommand request, CancellationToken cancellationToken)
         {
-            // 1. Validar que las contraseñas coincidan
+  
             if (request.Contrasena != request.ConfirmarContrasena)
-            {
                 return CreateErrorResponse(request, "Las contraseñas no coinciden.");
-            }
 
-            // 2. Validar unicidad del comercio (Solo un usuario por ID de comercio)
-            var commerceExists = await _userService.ExistsByCommerceIdAsync(request.CommerceId);
-            if (commerceExists)
-            {
-                return CreateErrorResponse(request, $"El comercio con ID {request.CommerceId} ya tiene un usuario asociado.");
-            }
+            if (await _userService.ExistsByCommerceIdAsync(request.CommerceId))
+                return CreateErrorResponse(request, $"El comercio {request.CommerceId} ya tiene un usuario.");
 
-            // 3. Registrar en Identity (Pasando isApi: true para que el correo envíe el TOKEN, no un link)
+            if (await _userService.GetUserByUserName(request.Usuario) != null)
+                return CreateErrorResponse(request, "El nombre de usuario ya existe.");
+
+            if (await _userService.GetUserByEmail(request.Correo) != null)
+                return CreateErrorResponse(request, "El correo electrónico ya existe.");
+
+
             var saveDto = new SaveUserDto
             {
                 Name = request.Nombre,
@@ -62,26 +63,25 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
                 CommerceId = request.CommerceId
             };
 
-            // Aquí el servicio de Identity debe generar el token y ponerlo en el cuerpo del correo
-            var response = await _userService.RegisterUserAsync(saveDto, origin: null, isApi: true);
+            var registerResponse = await _userService.RegisterUserAsync(saveDto, origin: null, isApi: true);
 
-            if (response.HasError)
+            if (registerResponse.HasError)
             {
                 return new SaveUserResponseDto
                 {
-                    Id = response.Id ?? string.Empty,
-                    Errors = response.Errors ?? new List<string> { "Error al registrar en Identity." },
-                    HasError = true,
+                    Id = string.Empty, 
                     Name = request.Nombre,
                     LastName = request.Apellido,
                     UserName = request.Usuario,
                     Email = request.Correo,
                     DocumentNumber = request.Cedula,
+                    HasError = true,
+                    Errors = registerResponse.Errors ?? new List<string> { "Error desconocido" },
                     IsVerified = false
                 };
             }
 
-            // 4. Crear Cuenta de Ahorro Principal para el Comercio
+            // 3. Crear Cuenta de Ahorro
             try
             {
                 string accountNumber = await GenerateUniqueAccountNumber();
@@ -89,10 +89,10 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
                 var newAccount = new SavingsAccount
                 {
                     Id = Guid.NewGuid(),
-                    UserId = Guid.Parse(response.Id),
+                    UserId = Guid.Parse(registerResponse.Id),
                     AccountNumber = accountNumber,
                     Balance = request.MontoInicial,
-                    IsPrimary = true, // Requisito: Marcada como principal
+                    IsPrimary = true,
                     Status = SavingsAccountStatus.Activa
                 };
 
@@ -102,30 +102,30 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
             {
                 return new SaveUserResponseDto
                 {
-                    Id = response.Id,
-                    Errors = new List<string> { $"Usuario creado y correo enviado, pero falló la cuenta bancaria: {ex.Message}" },
-                    HasError = true,
+                    Id = registerResponse.Id,
                     Name = request.Nombre,
                     LastName = request.Apellido,
                     UserName = request.Usuario,
                     Email = request.Correo,
                     DocumentNumber = request.Cedula,
+                    HasError = true,
+                    Errors = new List<string> { $"Error al crear cuenta: {ex.Message}" },
                     IsVerified = false
                 };
             }
 
-            // 5. Éxito (201 Created)
+   
             return new SaveUserResponseDto
             {
-                Id = response.Id,
-                Errors = new List<string>(),
-                HasError = false,
+                Id = registerResponse.Id,
                 Name = request.Nombre,
                 LastName = request.Apellido,
                 UserName = request.Usuario,
                 Email = request.Correo,
                 DocumentNumber = request.Cedula,
-                IsVerified = true
+                HasError = false,
+                Errors = new List<string>(),
+                IsVerified = false 
             };
         }
 
@@ -136,7 +136,6 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
             bool exists;
             do
             {
-                // Generar número de 9 dígitos
                 number = random.Next(100000000, 1000000000).ToString();
                 exists = await _savingsAccountRepository.ExistsAccountNumberAsync(number);
             } while (exists);
@@ -147,14 +146,14 @@ namespace Application.Features.Users.Commands.CreateCommerceUser
         {
             return new SaveUserResponseDto
             {
-                Id = string.Empty,
-                Errors = new List<string> { error },
-                HasError = true,
+                Id = string.Empty, 
                 Name = request.Nombre,
                 LastName = request.Apellido,
                 UserName = request.Usuario,
                 Email = request.Correo,
                 DocumentNumber = request.Cedula,
+                HasError = true,
+                Errors = new List<string> { error },
                 IsVerified = false
             };
         }
