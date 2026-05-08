@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InternetBankingApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4061ac88c6be4e4c785b9d6cf439378f67f9d36b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cec6ece62566445211ca5f3bf420a7720167a17e")]
 [assembly: System.Reflection.AssemblyProductAttribute("InternetBankingApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InternetBankingApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
