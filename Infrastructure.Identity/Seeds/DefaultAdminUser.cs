@@ -11,8 +11,8 @@ namespace Infrastructure.Identity.Seeds
         {
             UserAccount user = new()
             {
-                Name = "Kabra",
-                LastName = "Kabra",
+                Name = "admin",
+                LastName = "admin",
                 Email = "admin@email.com",
                 EmailConfirmed = true,
                 IsActive = true,

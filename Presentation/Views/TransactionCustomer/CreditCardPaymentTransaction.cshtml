@@ -1,0 +1,83 @@
+﻿@model CreditCardPaymentViewModel
+
+@{
+    ViewData["Title"] = "Pago a Tarjeta de Crédito";
+    Layout = "_LayoutCustomer";
+}
+
+<h2 class="mb-4 d-flex align-items-center">
+    <i class="bi bi-credit-card text-primary me-2 fs-3"></i>
+    Pago a Tarjeta de Crédito
+</h2>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="CreditCardPaymentTransaction" method="post">
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-credit-card-2-front me-1 text-secondary"></i>
+            Tarjeta de crédito destino
+        </label>
+        @{
+            var creditCards = ViewBag.CreditCards as SelectList;
+        }
+
+        @if (creditCards == null || !creditCards.Any())
+        {
+            <p class="text-danger">No tienes tarjetas de crédito asignadas.</p>
+        }
+        else
+        {
+            <select asp-for="CreditCardNumber" asp-items="creditCards" class="form-select"></select>
+        }
+
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-bank2 me-1 text-secondary"></i>
+            Cuenta de ahorro origen
+        </label>
+        @if (ViewBag.SavingsAccounts == null || !((IEnumerable<SelectListItem>)ViewBag.SavingsAccounts).Any())
+        {
+            <p class="text-danger">No tienes cuentas de ahorro activas.</p>
+        }
+        else
+        {
+            <select asp-for="AccountNumber" asp-items="ViewBag.SavingsAccounts" class="form-select"></select>
+        }
+
+
+    </div>
+
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-cash-coin me-1 text-secondary"></i>
+            Monto a pagar
+        </label>
+        <input asp-for="Amount" class="form-control" type="number" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-check-circle"></i> Confirmar Pago
+    </button>
+    <a asp-controller="TransactionCustomer" asp-action="Transaction" class="btn btn-secondary ms-2">
+        <i class="bi bi-arrow-left"></i> Volver atrás
+    </a>
+
+</form>

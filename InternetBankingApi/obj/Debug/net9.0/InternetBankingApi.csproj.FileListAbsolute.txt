@@ -203,3 +203,8 @@ C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\obj\Debug\net9.0\ref\InternetBankingApi.dll
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\FluentValidation.dll
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\InternetBankingApp.deps.json
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\InternetBankingApp.runtimeconfig.json
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\InternetBankingApp.staticwebassets.endpoints.json
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\bin\Debug\net9.0\InternetBankingApp.staticwebassets.runtime.json
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\InternetBankingApi\obj\Debug\net9.0\InternetBankingApi.MvcApplicationPartsAssemblyInfo.cs

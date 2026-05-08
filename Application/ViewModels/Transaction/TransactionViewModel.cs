@@ -11,5 +11,15 @@ namespace Application.ViewModels.Transaction
         public required decimal Amount { get; set; }
         public required DateTime Date { get; set; }
         public TransactionType Type { get; set; }
+
+        // Nuevos campos trazables
+        public TransactionStatus Status { get; set; }
+
+        public string Origin { get; set; } = string.Empty;
+
+        public string Beneficiary { get; set; } = string.Empty;
+
+        public string VisualType { get; set; } = string.Empty;
+        public string? Reason { get; set; }
     }
 }

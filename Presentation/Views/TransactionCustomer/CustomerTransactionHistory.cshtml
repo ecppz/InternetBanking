@@ -1,0 +1,78 @@
+﻿@using Domain.Common.Enums
+@model CustomerTransactionHistoryViewModel
+
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Historial de Transacciones";
+}
+
+<h2 class="mb-4 d-flex align-items-center">
+    <i class="bi bi-clock-history text-primary me-2 fs-3" title="Historial de Transacciones"></i>
+    Historial de Transacciones
+</h2>
+
+<form method="get" asp-action="CustomerTransactionHistory" class="mb-4">
+    <div class="form-group">
+        <label for="accountId" class="form-label">
+            <i class="bi bi-bank2 me-1 text-secondary" title="Cuenta de ahorro"></i>
+            Selecciona una cuenta de ahorro:
+        </label>
+        <select id="accountId" name="accountId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Selecciona una cuenta --</option>
+            @foreach (var account in Model.UserAccounts)
+            {
+                <option value="@account.Id" selected="@(account.Id == Model.SelectedAccountId)">
+                    @account.AccountNumber @(account.IsPrimary ? "(Principal)" : "")
+                </option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-info d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>
+        @Model.Message
+    </div>
+}
+else if (Model.Transactions.Any())
+{
+    <h5 class="mb-3 d-flex align-items-center">
+        <i class="bi bi-journal-text text-success me-2 fs-5" title="Movimientos de cuenta"></i>
+        Movimientos de la cuenta <strong>@Model.SelectedAccountNumber</strong>
+    </h5>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-calendar-event me-1" title="Fecha y hora"></i> Fecha y Hora</th>
+                <th><i class="bi bi-cash-coin me-1" title="Monto"></i> Monto</th>
+                <th><i class="bi bi-arrow-left-right me-1" title="Tipo de transacción"></i> Tipo</th>
+                <th><i class="bi bi-shield-check me-1" title="Estado"></i> Estado</th>
+                <th><i class="bi bi-chat-left-text me-1" title="Descripción"></i> Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tx in Model.Transactions)
+            {
+                <tr>
+                    <td>@tx.Date.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="@(tx.VisualType == "CRÉDITO" ? "text-success" : "text-danger")">
+                        <i class="bi @(tx.VisualType == "CRÉDITO" ? "bi-arrow-down-circle" : "bi-arrow-up-circle") me-1"></i>
+                        @(tx.VisualType == "CRÉDITO" ? "+" : "-")@tx.Amount.ToString("C")
+                    </td>
+                    <td>@tx.VisualType</td>
+                    <td>
+                        <i class="bi @(tx.Status == TransactionStatus.Approved
+                                                           ? "bi-check-circle-fill text-success"
+                                                           : "bi-x-circle-fill text-danger") me-1"></i>
+                @tx.Status.ToString()
+            </td>
+            <td>@tx.Description</td>
+        </tr>
+                }
+
+        </tbody>
+    </table>
+}

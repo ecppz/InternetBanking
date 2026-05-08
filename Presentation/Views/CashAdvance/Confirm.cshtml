@@ -1,0 +1,59 @@
+﻿@model CashAdvanceConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Confirmar avance de efectivo";
+    Layout = "_LayoutCustomer";
+}
+
+<h2>Confirmar avance de efectivo</h2>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+<div class="alert alert-info">
+    <p><strong>Titular:</strong> @Model.HolderName @Model.HolderLastName</p>
+
+    <p>
+        <strong>Tarjeta de crédito:</strong>
+        ****@(
+        !string.IsNullOrEmpty(Model.CreditCardNumber) && Model.CreditCardNumber.Length >= 4
+        ? Model.CreditCardNumber.Substring(Model.CreditCardNumber.Length - 4)
+        : Model.CreditCardNumber
+                )
+    </p>
+
+    <p>
+        <strong>Cuenta de ahorro destino:</strong>
+        ****@(
+                !string.IsNullOrEmpty(Model.SavingsAccountNumber) && Model.SavingsAccountNumber.Length >= 4
+                ? Model.SavingsAccountNumber.Substring(Model.SavingsAccountNumber.Length - 4)
+                : Model.SavingsAccountNumber
+                )
+    </p>
+
+    <p><strong>Monto del avance:</strong> @Model.AdvanceAmount.ToString("C")</p>
+    <p><strong>Interés aplicado (6.25%):</strong> @Model.InterestApplied.ToString("C")</p>
+    <p><strong>Fecha de transacción:</strong> @Model.TransactionDate.ToString("dd/MM/yyyy HH:mm")</p>
+
+</div>
+
+<form asp-action="Confirm" method="post">
+    <input type="hidden" asp-for="CreditCardId" />
+    <input type="hidden" asp-for="SavingsAccountId" />
+    <input type="hidden" asp-for="AdvanceAmount" />
+    <input type="hidden" asp-for="TransactionDate" />
+    <input type="hidden" asp-for="UserId" />
+    <button type="submit" class="btn btn-success">Confirmar avance</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

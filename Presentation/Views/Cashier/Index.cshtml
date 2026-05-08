@@ -1,0 +1,91 @@
+﻿@model CashierHomeViewModel
+@{
+    Layout = "_LayoutCashier";
+    ViewData["Title"] = "Panel de Control";
+}
+<link rel="stylesheet" href="~/styles/views/cashier-home.css" asp-append-version="true" />
+
+<div class="dashboard-container">
+    <!-- Encabezado de Bienvenida -->
+    <header class="dashboard-header mb-4">
+        <div class="header-info">
+            <h1 class="fw-bold">Panel de Operaciones</h1>
+            <p class="text-muted">Resumen de actividad para la jornada de hoy</p>
+        </div>
+        <div class="header-date">
+            <i class="ph-bold ph-calendar-blank me-2"></i>
+            <span>@DateTime.Now.ToString("dd MMM, yyyy")</span>
+        </div>
+    </header>
+
+    <!-- Bento Grid de Estadísticas -->
+    <div class="cashier-grid">
+        
+        <!-- Total Transacciones -->
+        <div class="stat-card">
+            <div class="stat-icon icon-info">
+                <i class="ph-bold ph-arrows-left-right"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Transacciones Hoy</span>
+                <h2 class="stat-number">@Model.TodayTransactions</h2>
+            </div>
+        </div>
+
+        <!-- Pagos Recibidos -->
+        <div class="stat-card">
+            <div class="stat-icon icon-success">
+                <i class="ph-bold ph-receipt"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Pagos Procesados</span>
+                <h2 class="stat-number">@Model.TodayPayments</h2>
+            </div>
+        </div>
+
+        <!-- Depósitos -->
+        <div class="stat-card">
+            <div class="stat-icon icon-primary">
+                <i class="ph-bold ph-hand-deposit"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Depósitos Realizados</span>
+                <h2 class="stat-number">@Model.TodayDeposits</h2>
+            </div>
+        </div>
+
+        <!-- Retiros -->
+        <div class="stat-card">
+            <div class="stat-icon icon-danger">
+                <i class="ph-bold ph-hand-withdraw"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Retiros Efectuados</span>
+                <h2 class="stat-number">@Model.TodayWithdrawals</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Acceso Rápido -->
+    <section class="quick-actions mt-5">
+        <div class="section-title">
+            <i class="ph-bold ph-lightning"></i>
+            <h2>Acciones Rápidas</h2>
+        </div>
+        
+        <div class="action-buttons">
+            <a asp-controller="Transaction" asp-action="Deposit" class="action-card">
+                <i class="ph-bold ph-plus-circle"></i>
+                <span>Nuevo Depósito</span>
+            </a>
+            <a asp-controller="Transaction" asp-action="Withdrawal" class="action-card">
+                <i class="ph-bold ph-minus-circle"></i>
+                <span>Nuevo Retiro</span>
+            </a>
+            <a asp-controller="LoanPayment" asp-action="Index" class="action-card">
+                <i class="ph-bold ph-bank"></i>
+                <span>Pago Préstamo</span>
+            </a>
+        </div>
+    </section>
+</div>

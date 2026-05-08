@@ -1,0 +1,167 @@
+﻿:root {
+    --primary: #001e40;
+    --secondary: #775a19;
+    --sec-container: #fed488;
+    --surface: #ffffff;
+    --outline: #e0e3e5;
+    --text-variant: #43474f;
+    --error: #ba1a1a;
+}
+
+body {
+    background: #f7fafc;
+    font-family: 'Inter', sans-serif;
+    color: #181c1e;
+}
+
+/* --- TITULOS CENTRADOS --- */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--outline);
+    padding-bottom: 10px;
+}
+
+    .section-title i {
+        color: var(--primary);
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1;
+    }
+
+/* --- BADGES (PRINCIPAL/SECUNDARIA) --- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    padding: 0 12px !important;
+    font-size: 10px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* --- BOTONES --- */
+.btn-bank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--secondary);
+    border-radius: 6px;
+    color: var(--secondary);
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+    .btn-bank:hover {
+        background: var(--sec-container);
+        color: #5d4201;
+    }
+
+    .btn-bank.light {
+        border-color: white;
+        color: white;
+    }
+
+        .btn-bank.light:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+/* --- CARDS & GRID --- */
+.dashboard-container {
+    max-width: 1280px;
+    margin: auto;
+    padding: 32px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+}
+
+@media (min-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(12, 1fr);
+    }
+
+    .col-left {
+        grid-column: span 8;
+    }
+
+    .col-right {
+        grid-column: span 4;
+    }
+
+    .col-full {
+        grid-column: span 12;
+    }
+}
+
+.bank-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0px 4px 12px rgba(0, 51, 102, 0.05);
+}
+
+    .bank-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+    }
+
+.card-dark {
+    background: var(--primary);
+    color: white;
+    min-height: 200px;
+}
+
+.card-value h3 {
+    font-size: 28px;
+    font-weight: 700; /* Bold en los balances */
+    color: var(--primary);
+    margin: 4px 0 16px 0;
+}
+
+.progress-container {
+    width: 100%;
+    background: #e5e9eb;
+    height: 8px;
+    border-radius: 10px;
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--primary);
+    height: 100%;
+}
+
+.label-caps {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-variant);
+    letter-spacing: 0.05em;
+}

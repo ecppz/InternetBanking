@@ -4,24 +4,24 @@
     ViewData["Title"] = "Access denied";
     Layout = "_LayoutAnonymous";
 
-    string Role = "Home";
+    string Role = "";
 
     if (!string.IsNullOrWhiteSpace(ViewBag.CurrentRol))
     {
-        if (ViewBag.CurrentRol == Roles.Customer.ToString())
+        if (ViewBag.CurrentRol == Roles.Admin.ToString())
         {
-            Layout = "_LayoutCustomer";
-            Role = "CustomerHome";
+            Layout = "_LayoutAdmin";
+            Role = "Admin";
         }
         else if (ViewBag.CurrentRol == Roles.Cashier.ToString())
         {
             Layout = "_LayoutCashier";
-            Role = "CashierHome";
+            Role = "Cashier";
         }
-        else if (ViewBag.CurrentRol == Roles.Admin.ToString())
+        else if (ViewBag.CurrentRol == Roles.Customer.ToString())
         {
-            Layout = "_LayoutAdmin";
-            Role = "Home";
+            Layout = "_LayoutCustomer";
+            Role = "Customer";
         }
     }
 }

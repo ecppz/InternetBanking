@@ -1,6 +1,8 @@
 ﻿using Application.Dtos.SavingsAccount;
+using Application.Dtos.Transaction;
 using Application.Interfaces;
 using AutoMapper;
+using Domain.Common.Enums;
 using Domain.Entities;
 using Domain.Interfaces;
 
@@ -9,11 +11,14 @@ namespace Application.Services
     public class SavingsAccountService : GenericService<SavingsAccount, SavingsAccountDto>, ISavingsAccountService
     {
         private readonly ISavingsAccountRepository savingsAccountRepository;
+        private readonly ITransactionRepository transactionRepository;
         private readonly IMapper mapper;
-        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, IMapper mapper) : base(savingsAccountRepository, mapper)
+        public SavingsAccountService(ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IMapper mapper) 
+            : base(savingsAccountRepository, mapper)
         {
             this.savingsAccountRepository = savingsAccountRepository;
             this.mapper = mapper;
+            this.transactionRepository = transactionRepository;
         }
 
         public async Task<bool> AddBalanceAsync(Guid accountId, decimal amount)
@@ -28,6 +33,26 @@ namespace Application.Services
             await savingsAccountRepository.UpdateAsync(account.Id, account);
             return true;
         }
+
+        public async Task<Guid?> GetAccountIdByAccountNumberAsync(string accountNumber)
+        {
+            var account = await savingsAccountRepository.GetByAccountNumberAsync(accountNumber);
+            return account?.Id;
+        }
+
+        public async Task<List<SavingsAccountDto>> GetActiveAccountsByUserIdAsync(Guid userId)
+        {
+            var accounts = await savingsAccountRepository.GetActiveAccountsByUserIdAsync(userId);
+            return mapper.Map<List<SavingsAccountDto>>(accounts);
+        }
+
+
+        public async Task<List<SavingsAccountSummaryDto>> GetActiveAccountSummariesByUserIdAsync(Guid userId)
+        {
+            var accounts = await savingsAccountRepository.GetActiveAccountsByUserIdAsync(userId);
+            return mapper.Map<List<SavingsAccountSummaryDto>>(accounts);
+        }
+
 
         public async Task<bool> ExistsAccountNumberAsync(string accountNumber)
         {
@@ -47,5 +72,172 @@ namespace Application.Services
 
             return accountNumber;
         }
+
+        public async Task<SavingsAccountDetailDto?> GetAccountDetailAsync(Guid accountId)
+        {
+            var account = await savingsAccountRepository.GetById(accountId);
+            if (account == null) return null;
+
+            var transactions = await transactionRepository.GetAllByAccountIdOrderedAsync(accountId);
+
+            var transactionDtos = transactions.Select(tx => new TransactionDto
+            {
+                Id = tx.Id,
+                OriginAccountId = tx.OriginAccountId,
+                DestinationAccountId = tx.DestinationAccountId,
+                Amount = tx.Amount,
+                Date = tx.Date,
+                Type = tx.Type,
+                Status = tx.Status,
+                Origin = string.IsNullOrWhiteSpace(tx.Origin) ? "DEPÓSITO" : tx.Origin,
+                Beneficiary = string.IsNullOrWhiteSpace(tx.Beneficiary) ? "RETIRO" : tx.Beneficiary,
+                VisualType = tx.OriginAccountId == accountId ? "DÉBITO" : "CRÉDITO"
+            }).ToList();
+
+            var dto = mapper.Map<SavingsAccountDetailDto>(account);
+            dto.Transactions = transactionDtos;
+
+            return dto; 
+        }
+        public async Task<List<SavingsAccountSummaryDto>> GetFilteredAccountsAsync(
+    string? documentNumber, bool? isActive, bool? isPrimary, int page, int pageSize)
+        {
+            Guid? userId = null;
+
+            if (!string.IsNullOrWhiteSpace(documentNumber))
+            {
+                var normalized = documentNumber.Replace("-", "").Trim().PadLeft(11, '0');
+            }
+
+            var accounts = userId.HasValue
+                ? await savingsAccountRepository.GetAllByUserIdOrderedAsync(userId.Value)
+                : await savingsAccountRepository.GetFilteredAsync(isActive, isPrimary, page, pageSize);
+
+            var result = accounts.Select(account =>
+            {
+                var dto = mapper.Map<SavingsAccountSummaryDto>(account);
+                return dto;
+            }).ToList();
+
+            return result;
+        }
+
+
+        public async Task<List<SavingsAccountDto>> GetAllByUserIdOrderedAsync(Guid userId)
+        {
+            var accounts = await savingsAccountRepository.GetAllByUserIdOrderedAsync(userId);
+            return mapper.Map<List<SavingsAccountDto>>(accounts);
+        }
+
+        public async Task<bool> CreateSecondaryAccountAsync(CreateSavingsAccountDto dto)
+        {
+            var account = new SavingsAccount
+            {
+                Id = Guid.NewGuid(),
+                UserId = dto.UserId,
+                AccountNumber = await GenerateUniqueAccountNumberAsync(),
+                Balance = dto.InitialBalance,
+                IsPrimary = false,
+                Status = SavingsAccountStatus.Activa
+            };
+
+            var accountDto = mapper.Map<SavingsAccountDto>(account);
+            await AddAsync(accountDto);
+
+            return true;
+        }
+        public async Task<Guid?> CancelSecondaryAccountAsync(Guid accountId)
+        {
+            var secondary = await savingsAccountRepository.GetSecondaryByIdAsync(accountId);
+            if (secondary == null) return null;
+
+            if (secondary.Status != SavingsAccountStatus.Activa) return null;
+
+            if (secondary.Balance > 0)
+            {
+                var primary = await savingsAccountRepository.GetPrimaryByUserIdAsync(secondary.UserId);
+                if (primary == null) return null;
+
+                primary.Balance += secondary.Balance;
+                secondary.Balance = 0;
+
+                await savingsAccountRepository.UpdateAsync(primary.Id, primary);
+            }
+
+            secondary.Status = SavingsAccountStatus.Cancelada;
+            await savingsAccountRepository.UpdateAsync(secondary.Id, secondary);
+
+            return secondary.UserId; // 👉 devolvemos el UserId
+        }
+
+
+
+        public async Task<SavingsAccountSummaryDto?> GetAccountSummaryAsync(Guid accountId)
+        {
+            var account = await savingsAccountRepository.GetByIdAsync(accountId);
+            if (account == null) return null;
+
+            return mapper.Map<SavingsAccountSummaryDto>(account);
+        }
+
+
+        public async Task<List<SavingsAccountDto>> GetActiveByUserIdAsync(Guid userId)
+        {
+            var all = await GetAllByUserIdOrderedAsync(userId);
+            return all
+                .Where(a => a.Status == SavingsAccountStatus.Activa)
+                .ToList();
+        }
+
+        public async Task<SavingsAccountDto?> GetByAccountNumberAsync(string accountNumber)
+        {
+            var entity = await savingsAccountRepository.GetByAccountNumberAsync(accountNumber);
+            return entity == null ? null : mapper.Map<SavingsAccountDto>(entity);
+        }
+
+        // Retorna todas las cuentas de ahorro registradas en el sistema.
+        // Se utiliza en el Dashboard para calcular el total global.
+        public async Task<List<SavingsAccountDto>> GetAllSavingsAccountsAsync()
+        {
+            // Consulta al repositorio para obtener todas las cuentas
+            var accounts = await savingsAccountRepository.GetAllSavingsAccountsAsync();
+
+            // Convierte las entidades SavingsAccount a DTOs
+            return mapper.Map<List<SavingsAccountDto>>(accounts);
+        }
+
+
+        public async Task<bool> ActivatePrimaryAccountAsync(Guid userId)
+        {
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(userId);
+            if (account == null)
+                return false;
+
+            account.Status = SavingsAccountStatus.Activa;
+            await savingsAccountRepository.UpdateAsync(account.Id, account);
+            return true;
+        }
+
+        public async Task<bool> DeactivatePrimaryAccountAsync(Guid userId)
+        {
+            var account = await savingsAccountRepository.GetPrimaryByUserIdAsync(userId);
+            if (account == null)
+                return false;
+
+            account.Status = SavingsAccountStatus.Cancelada; // o Suspendida, según tu lógica
+            await savingsAccountRepository.UpdateAsync(account.Id, account);
+            return true;
+        }
+
+        public async Task<bool> AddBalanceToPrimaryAccountAsync(Guid userId, decimal amount)
+        {
+            if (amount <= 0)
+                return false; // no aceptamos montos negativos o cero
+
+            return await savingsAccountRepository.AddBalanceToPrimaryAccountAsync(userId, amount);
+        }
+
+
+
     }
 }

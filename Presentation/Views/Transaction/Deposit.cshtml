@@ -1,0 +1,66 @@
+﻿@using System.Text.Json
+@model DepositFormViewModel
+@{
+    Layout = "_LayoutCashier";
+    ViewData["Title"] = "Depósito";
+}
+
+
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Depósito realizado',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Success"])),
+            confirmButtonColor: '#198754'
+        });
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en depósito',
+            text: @Html.Raw(JsonSerializer.Serialize(TempData["Error"])),
+            confirmButtonColor: '#d33'
+        });
+    </script>
+}
+<div class="container mt-5">
+    <h2 class="text-success mb-4"><i class="bi bi-wallet2 text-success"></i> Realizar Depósito</h2>
+
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-action="Deposit" method="post" class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <label asp-for="DestinationAccountNumber" class="form-label">Número de cuenta destino</label>
+            <input asp-for="DestinationAccountNumber" class="form-control" />
+            <span asp-validation-for="DestinationAccountNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Amount" class="form-label">Monto a depositar</label>
+            <input asp-for="Amount" class="form-control" />
+            <span asp-validation-for="Amount" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-arrow-right-circle"></i> Continuar
+        </button>
+    </form>
+</div>
+

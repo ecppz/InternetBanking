@@ -1,0 +1,76 @@
+﻿@model BeneficiaryTransferFormViewModel
+
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Transferencia a Beneficiario";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+            <i class="bi bi-arrow-left-right me-2 fs-4"></i>
+            <h5 class="mb-0">Transferencia a Beneficiario</h5>
+        </div>
+        <div class="card-body">
+            @if (ViewData.ModelState != null && !ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    @Html.ValidationSummary()
+                </div>
+            }
+
+            <form asp-action="BeneficiaryTransfer" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="OriginAccountId" class="form-label">
+                        <i class="bi bi-wallet2 me-1"></i> Cuenta de origen
+                    </label>
+                    <select asp-for="OriginAccountId" class="form-select" asp-items="@(new SelectList(Model.OriginAccounts, "Id", "AccountNumber"))">
+                        <option value="">Seleccione una cuenta</option>
+                    </select>
+                    <span asp-validation-for="OriginAccountId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BeneficiaryAccountNumber" class="form-label">
+                        <i class="bi bi-person-circle me-1"></i> Cuenta del beneficiario
+                    </label>
+                    <select asp-for="BeneficiaryAccountNumber" class="form-select" asp-items="Model.Beneficiaries">
+                        <option value="">Seleccione un beneficiario</option>
+                    </select>
+                    <span asp-validation-for="BeneficiaryAccountNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Amount" class="form-label">
+                        <i class="bi bi-cash-coin me-1"></i> Monto a transferir
+                    </label>
+                    <input asp-for="Amount" class="form-control" placeholder="Ej. 1500.00" />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-controller="TransactionCustomer" asp-action="Transaction" class="btn btn-outline-secondary">
+                        <i class="bi bi-house-door me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Continuar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById("submitBtn").addEventListener("click", function () {
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+        });
+    </script>
+}

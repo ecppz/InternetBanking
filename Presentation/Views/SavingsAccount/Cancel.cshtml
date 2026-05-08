@@ -1,0 +1,27 @@
+﻿@model CancelSavingsAccountViewModel
+
+@{
+    Layout = "_LayoutAdmin";
+}
+
+<h2><i class="fas fa-exclamation-triangle text-warning"></i> Confirmar Cancelación</h2>
+
+<div class="alert alert-danger">
+    <strong>¿Está seguro que desea cancelar la cuenta <u>@Model.AccountNumber</u>?</strong><br />
+    Esta acción transferirá automáticamente los fondos a la cuenta principal si el balance es mayor a cero.
+</div>
+
+<div>
+    <p><strong>Balance actual:</strong> @Model.Balance.ToString("C")</p>
+    <p><strong>Estado actual:</strong> @Model.EstadoVisual</p>
+</div>
+
+<form asp-action="ConfirmCancel" method="post">
+    <input type="hidden" asp-for="AccountId" />
+    <button type="submit" class="btn btn-danger">
+        <i class="fas fa-trash-alt"></i> Confirmar Cancelación
+    </button>
+    <a asp-action="List" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al listado
+    </a>
+</form>

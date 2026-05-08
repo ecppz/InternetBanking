@@ -4,56 +4,90 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Internet Banking</title>
-    <script type="importmap"></script>
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Presentation.styles.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@@phosphor-icons/web@2.1.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link rel="stylesheet" href="~/styles/components/layout-cashier.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ITLA Internet Banking</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+
+    <div class="app-wrapper">
+        <!-- SIDEBAR VERTICAL DEL CAJERO -->
+        <aside class="sidebar shadow-sm">
+            <div class="sidebar-header">
+                <a class="brand-name" asp-controller="Cashier" asp-action="Index">PANEL CAJERO
+                </a>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <small class="nav-label">General</small>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Cashier" asp-action="Index">
+                            <i class="ph-bold ph-house"></i> Home
+                        </a>
+                    </li>
+
+                    <small class="nav-label">Operaciones de Caja</small>
+                    <li>
+                        <a class="nav-link-custom text-success-hover" asp-controller="Transaction" asp-action="Deposit">
+                            <i class="ph-bold ph-hand-deposit"></i> Depósito
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom text-danger-hover" asp-controller="Transaction" asp-action="Withdrawal">
+                            <i class="ph-bold ph-hand-withdraw"></i> Retiro
+                        </a>
+                    </li>
+
+                    <small class="nav-label">Pagos y Otros</small>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="CreditCardPayment" asp-action="Index">
+                            <i class="ph-bold ph-credit-card"></i> Pago Tarjeta
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="LoanPayment" asp-action="Index">
+                            <i class="ph-bold ph-bank"></i> Pago Préstamo
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Transaction" asp-action="TransferToThirdParty">
+                            <i class="ph-bold ph-arrows-left-right"></i> Transf. Terceros
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info px-3 mb-2">
+                    <i class="ph-bold ph-user-circle me-1"></i> @User.Identity?.Name
+                </div>
+                <a class="logout-link" asp-controller="Login" asp-action="Logout">
+                    <i class="ph-bold ph-sign-out me-2"></i> Cerrar sesión
+                </a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <div class="container-fluid">
+                @RenderBody()
+                @await Html.PartialAsync("_Alerts")
+            </div>
+            
+            <footer class="mt-5 text-muted small py-3 border-top text-center">
+                &copy; @DateTime.Now.Year - Eric Pineda | Yohansel Mieses - ITLA Internet Banking
+            </footer>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - Eric Pineda | Yohansel Mieses - Internet Banking itla
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

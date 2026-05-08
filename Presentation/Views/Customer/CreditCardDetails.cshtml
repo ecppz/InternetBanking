@@ -1,0 +1,64 @@
+﻿@using Domain.Common.Enums
+@model CreditCardDetailsViewModel
+@{
+    ViewData["Title"] = "Detalles de tarjeta de crédito";
+    Layout = "_LayoutCustomer";
+}
+
+<h3>Detalles de la tarjeta ****@Model.CardNumber.Substring(Model.CardNumber.Length - 4)</h3>
+    
+<div class="mb-3">
+    <p><strong>Fecha de expiración:</strong> @Model.ExpirationDate.ToString("MM/yy")</p>
+    <p><strong>Deuda actual:</strong> @Model.CurrentDebt.ToString("C")</p>
+    <p>
+        <strong>Estado:</strong>
+        @{
+            var statusText = Model.Status switch
+            {
+                CreditCardStatus.Active => "Activa",
+                CreditCardStatus.Cancelled => "Cancelada",
+                CreditCardStatus.Expired => "Expirada",
+                _ => Model.Status.ToString()
+            };
+        }
+        <span class="badge
+            @(Model.Status == CreditCardStatus.Cancelled ? "bg-secondary" :
+                            Model.Status == CreditCardStatus.Expired ? "bg-danger" : "bg-success")">
+            @statusText
+        </span>
+    </p>
+</div>
+
+<h4>Consumos registrados</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Comercio</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Consumptions == null || !Model.Consumptions.Any())
+        {
+            <tr>
+                <td colspan="4" class="text-center">No hay consumos registrados</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var c in Model.Consumptions.OrderByDescending(x => x.Date))
+            {
+                <tr>
+                    <td>@c.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@c.Amount.ToString("C")</td>
+                    <td>@(string.IsNullOrEmpty(c.Merchant) ? "AVANCE" : c.Merchant)</td>
+                    <td>@(c.Status == TransactionStatus.Approved ? "APROBADO" : "RECHAZADO")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

@@ -1,0 +1,132 @@
+﻿@model CustomerHomeViewModel
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Home del Cliente";
+}
+<link rel="stylesheet" href="~/styles/views/customer-home.css" asp-append-version="true" />
+
+<div class="dashboard-container">
+    <div class="dashboard-grid">
+
+        <!-- ================= CUENTAS (Izquierda) ================= -->
+        <div class="col-left">
+            <section class="card-section">
+                <div class="section-title">
+                    <i class="ph-bold ph-wallet"></i>
+                    <h2>Mis Cuentas de Ahorro</h2>
+                </div>
+
+                <div class="card-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    @foreach (var account in Model.Accounts)
+                    {
+                        <div class="bank-card">
+                            <div class="card-top" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div>
+                                    <span class="label-caps">Cuenta @account.AccountNumber</span>
+                                    <h5 style="margin:0; font-weight:700">@(account.IsPrimary ? "Principal" : "Ahorro Flexible")</h5>
+                                </div>
+                                <span class="badge @(account.IsPrimary ? "bg-primary" : "bg-light text-dark border") rounded-pill shadow-sm">
+                                    @(account.IsPrimary ? "PRINCIPAL" : "SECUNDARIA")
+                                </span>
+                            </div>
+
+                            <div class="card-value">
+                                <small class="label-caps" style="opacity: 0.7;">Balance Disponible</small>
+                                <h3>@account.Balance.ToString("C")</h3>
+                            </div>
+
+                            <a asp-action="AccountDetails" asp-route-accountId="@account.Id" class="btn-bank">
+                                <i class="ph-bold ph-magnifying-glass"></i>
+                                <span>Ver detalles</span>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= TARJETA (Derecha) ================= -->
+        <div class="col-right">
+            <section class="card-section">
+                <div class="section-title">
+                    <i class="ph-bold ph-credit-card"></i>
+                    <h2>Mis Tarjetas</h2>
+                </div>
+
+                @if (Model.CreditCard != null)
+                {
+                    <div class="bank-card card-dark shadow-lg">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <span class="label-caps" style="color: #a7c8ff;">Visa Infinite Gold</span>
+                                <h4 style="letter-spacing: 2px; margin-top: 5px;">**** @Model.CreditCard.CardNumber[^4..]</h4>
+                            </div>
+                            <i class="ph-fill ph-contactless-payment fs-2" style="color: rgba(255,255,255,0.4)"></i>
+                        </div>
+
+                        <div class="card-value" style="margin-top: 30px;">
+                            <small class="label-caps" style="color: #a7c8ff; opacity: 0.6;">Límite de Crédito</small>
+                            <h3 style="margin-bottom: 15px; color: white;">@Model.CreditCard.CreditLimit.ToString("C")</h3>
+                        </div>
+
+                        <a asp-action="CreditCardDetails" asp-route-cardId="@Model.CreditCard.Id" class="btn-bank light">
+                            <i class="ph-bold ph-sliders-horizontal"></i>
+                            <span>Ver detalles</span>
+                        </a>
+                    </div>
+                }
+            </section>
+        </div>
+
+        <div class="col-full" style="margin-top: 20px;">
+            <section class="card-section">
+                <div class="section-title">
+                    <i class="ph-bold ph-money"></i>
+                    <h2>Mi Préstamo Activo</h2>
+                </div>
+
+                @if (Model.Loan != null)
+                {
+                    <div class="bank-card" style="padding: 30px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; align-items: center;">
+                            <div>
+                                <span class="label-caps">Nº de Préstamo</span>
+                                <h5 class="fw-bold mb-0" style="color: #181c1e !important;">@Model.Loan.LoanNumber</h5>
+                                <div style="margin-top:10px; display:inline-block; background: #ffdea5; color: #785a1a; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold;">
+                                    <i class="ph-fill ph-check-circle me-1"></i> ACTIVO
+                                </div>
+                            </div>
+
+                            <div style="grid-column: span 2;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="label-caps">Progreso de Pago</span>
+                                    <span class="fw-bold">@Model.Loan.PaidInstallments / @Model.Loan.TotalInstallments Cuotas</span>
+                                </div>
+                                <div class="progress-container">
+                                    @{
+                                        var perc = (Model.Loan.PaidInstallments * 100) / Model.Loan.TotalInstallments;
+                                    }
+                                    <div class="progress-bar" style="width: @perc%"></div>
+                                </div>
+                                <div style="display: flex; gap: 40px; margin-top: 15px;">
+                                    <div>
+                                        <small class="label-caps">Saldo Pendiente</small>
+                                        <p class="fw-bold mb-0" style="font-size: 1.1rem; color: #181c1e !important;">@Model.Loan.PendingAmount.ToString("C")</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: right;">
+                                <a asp-action="LoanDetails" asp-route-loanId="@Model.Loan.Id" class="btn-bank" style="padding: 12px 24px;">
+                                    <i class="ph-bold ph-receipt"></i>
+                                    <span>Ver detalles</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </section>
+        </div>
+
+    </div>
+</div>

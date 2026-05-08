@@ -1,0 +1,64 @@
+﻿@model ConfirmBeneficiaryTransferViewModel
+
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Confirmar Transferencia";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<div class="container mt-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+            <i class="bi bi-shield-check me-2 fs-4" title="Confirmación segura"></i>
+            <h5 class="mb-0">Confirmar Transferencia a Beneficiario</h5>
+        </div>
+        <div class="card-body">
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    @Html.ValidationSummary()
+                </div>
+            }
+
+            <dl class="row">
+                <dt class="col-sm-4"><i class="bi bi-person-circle me-1" title="Nombre del beneficiario"></i> Beneficiario</dt>
+                <dd class="col-sm-8">@Model.BeneficiaryFullName</dd>
+
+                <dt class="col-sm-4"><i class="bi bi-bank me-1" title="Cuenta destino"></i> Cuenta de Beneficiario</dt>
+                <dd class="col-sm-8">@Model.BeneficiaryAccountNumber</dd>
+
+                <dt class="col-sm-4"><i class="bi bi-wallet2 me-1" title="Cuenta origen"></i> Cuenta de Origen</dt>
+                <dd class="col-sm-8">@Model.OriginAccountNumber</dd>
+
+                <dt class="col-sm-4"><i class="bi bi-cash-coin me-1" title="Monto a transferir"></i> Monto</dt>
+                <dd class="col-sm-8 text-success fw-bold">@Model.Amount.ToString("C")</dd>
+
+                <dt class="col-sm-4"><i class="bi bi-calendar-check me-1" title="Fecha de operación"></i> Fecha</dt>
+                <dd class="col-sm-8">@Model.Timestamp.ToString("dd/MM/yyyy HH:mm:ss")</dd>
+            </dl>
+
+            <form asp-action="ConfirmBeneficiaryTransfer" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="BeneficiaryTransfer" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success" id="confirmBtn">
+                        <i class="bi bi-check-circle me-1"></i> Confirmar Transferencia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("confirmBtn").addEventListener("click", function () {
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Procesando...';
+        });
+    </script>
+}

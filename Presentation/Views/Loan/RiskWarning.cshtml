@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "Advertencia de riesgo";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-warning text-center">
+        <strong>Advertencia:</strong> @TempData["RiskMessage"]
+    </div>
+
+    <table class="table table-bordered mt-4">
+        <tr>
+            <th>Monto solicitado</th>
+            <td>@TempData["Amount"]</td>
+        </tr>
+        <tr>
+            <th>Plazo (meses)</th>
+            <td>@TempData["Months"]</td>
+        </tr>
+        <tr>
+            <th>Tasa anual (%)</th>
+            <td>@TempData["AnnualRate"]</td>
+        </tr>
+    </table>
+
+    <form asp-action="FinalizeLoanAssignment" method="post" class="mt-4">
+        <input type="hidden" name="UserId" value="@TempData["UserId"]" />
+        <input type="hidden" name="Amount" value="@TempData["Amount"]" />
+        <input type="hidden" name="Months" value="@TempData["Months"]" />
+        <input type="hidden" name="AnnualRate" value="@TempData["AnnualRate"]" />
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Confirmar asignación
+            </button>
+            <a asp-action="EligibleCustomers" class="btn btn-secondary ms-2">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>

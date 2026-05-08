@@ -1,4 +1,6 @@
 ﻿
+using Domain.Common.Enums;
+
 namespace Application.Dtos.SavingsAccount
 {
     public class SavingsAccountDto
@@ -8,6 +10,10 @@ namespace Application.Dtos.SavingsAccount
         public required string AccountNumber { get; set; }
         public decimal Balance { get; set; }
         public bool IsPrimary { get; set; }
+
+        public bool IsActive { get; set; }
+        public SavingsAccountStatus Status { get; set; }
+
 
     }
 }

@@ -1,0 +1,144 @@
+﻿@model BeneficiaryListViewModel
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Mis Beneficiarios";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-people-fill me-2"></i>Mis Beneficiarios</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Listado de beneficiarios</h5>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="bi bi-person-plus-fill me-1"></i>Agregar
+        </button>
+    </div>
+
+    @if (Model.Beneficiaries.Any())
+    {
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th><i class="bi bi-person-badge me-1"></i> Nombre</th>
+                    <th><i class="bi bi-hash me-1"></i> Número de Cuenta</th>
+                    <th class="text-center"><i class="bi bi-gear-fill"></i> Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Beneficiaries)
+                {
+                    <tr>
+                        <td>@b.Name @b.LastName</td>
+                        <td>@b.BeneficiaryAccountNumber</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmDeleteModal"
+                                    data-id="@b.Id"
+                                    data-name="@b.Name @b.LastName">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>No tienes beneficiarios registrados.
+        </div>
+    }
+</div>
+
+<!-- Modal Agregar -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Add" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">
+                        <i class="bi bi-person-plus-fill me-2"></i>Agregar Beneficiario
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="NewBeneficiary.BeneficiaryAccountNumber" class="form-label"></label>
+                        <input asp-for="NewBeneficiary.BeneficiaryAccountNumber" class="form-control" />
+                        <span asp-validation-for="NewBeneficiary.BeneficiaryAccountNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmar Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteForm" asp-action="Delete" method="post">
+                <input type="hidden" name="id" id="deleteId" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteLabel">
+                        <i class="bi bi-trash-fill me-2 text-danger"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro que deseas eliminar al beneficiario <strong id="deleteName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+        confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteName').textContent = name;
+        });
+    </script>
+}
+

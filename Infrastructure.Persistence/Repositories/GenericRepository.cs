@@ -2,7 +2,7 @@
 using Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Persistence.Repositories
+namespace Infrastructure.Persistence.Repositories
 {
     public class GenericRepository<Entity> : IGenericRepository<Entity>
         where Entity : class        
@@ -19,18 +19,23 @@ namespace Persistence.Repositories
             await context.SaveChangesAsync();
             return entity;
         }
+
+        public virtual async Task<int> AddRangeAsync(IEnumerable<Entity> entities)
+        {
+            await context.Set<Entity>().AddRangeAsync(entities);
+            return await context.SaveChangesAsync();
+        }
+
         public virtual async Task<Entity?> UpdateAsync(Guid id, Entity entity)
         {
-            var entry = await context.Set<Entity>().FindAsync(id);
-
-            if (entry != null)
-            {
-                context.Entry(entry).CurrentValues.SetValues(entity);
-                await context.SaveChangesAsync();
-                return entry;
-            }
-
-            return null;
+            context.Set<Entity>().Update(entity);
+            await context.SaveChangesAsync();
+            return entity;
+        }
+        public virtual async Task<int> UpdateRangeAsync(IEnumerable<Entity> entities)
+        {
+            context.Set<Entity>().UpdateRange(entities);
+            return await context.SaveChangesAsync();
         }
         public virtual async Task DeleteAsync(Guid id)
         {

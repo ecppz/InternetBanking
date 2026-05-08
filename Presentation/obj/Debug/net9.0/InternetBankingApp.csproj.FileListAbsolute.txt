@@ -592,3 +592,4 @@ C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\Presentation\obj\De
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\Presentation\obj\Debug\net9.0\compressed\cjqtfei6to-{0}-ymwfxt0lit-ymwfxt0lit.gz
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\Presentation\obj\Debug\net9.0\compressed\s58fq3icyc-{0}-hxwg1qkq01-hxwg1qkq01.gz
 C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\Presentation\obj\Debug\net9.0\compressed\jhbk2a8egd-{0}-gw52kasgo8-gw52kasgo8.gz
+C:\Users\admin\Desktop\itla\p3\miniproyectos\InternetBanking\Presentation\obj\Debug\net9.0\InternetBankingApp.MvcApplicationPartsAssemblyInfo.cs

@@ -4,59 +4,75 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Internet Banking</title>
-    <script type="importmap"></script>
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Presentation.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/styles/components/layout-admin.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@@phosphor-icons/web@2.1.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="AdminHome" asp-action="Index">ITLA Internet Banking</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="MaintenanceUser" asp-action="Index">Gestion de usuarios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AdminHome" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">Log out(@User.Identity?.Name)</a>
-                        </li>
-                    </ul>
-                </div>
+
+    <div class="app-wrapper">
+        <aside class="sidebar shadow-sm">
+            <div class="sidebar-header">
+                <a class="brand-name" asp-controller="Admin" asp-action="Index">PANEL ADMIN
+                </a>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <small class="nav-label">Monitoreo</small>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Admin" asp-action="Index">
+                            <i class="ph-bold ph-chart-pie-slice"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <small class="nav-label">Mantenimientos</small>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="MaintenanceUser" asp-action="Index">
+                            <i class="ph-bold ph-users-four"></i> Usuarios
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="SavingsAccount" asp-action="List">
+                            <i class="ph-bold ph-wallet"></i> Cuentas de Ahorro
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Loan" asp-action="Index">
+                            <i class="ph-bold ph-hand-coins"></i> Préstamos
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="CreditCard" asp-action="Index">
+                            <i class="ph-bold ph-credit-card"></i> Tarjetas de Crédito
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info px-3 mb-2">
+                    <i class="ph-bold ph-user-circle me-1"></i> @User.Identity?.Name
+                </div>
+                <a class="logout-link" asp-controller="Login" asp-action="Logout">
+                    <i class="ph-bold ph-power me-2"></i> Cerrar Sesión
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - Eric Pineda | Yohansel Mieses - Internet Banking itla
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

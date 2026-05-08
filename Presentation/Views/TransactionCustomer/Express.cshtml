@@ -1,0 +1,72 @@
+﻿@model ExpressTransactionFormViewModel
+
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Transacción Express";
+}
+
+<h2>Transacción Express</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<form asp-action="Express" method="post">
+    <div class="form-group">
+        <label asp-for="DestinationAccountNumber"></label>
+        <input asp-for="DestinationAccountNumber" class="form-control" />
+        <span asp-validation-for="DestinationAccountNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Amount"></label>
+        <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        @if (Model.ShowAccountWarning)
+        {
+            <div class="alert alert-warning">
+                No tienes cuentas activas disponibles para realizar una transacción.
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                <label asp-for="OriginAccountNumber"></label>
+                <select asp-for="OriginAccountNumber" class="form-control"
+                        asp-items="@(new SelectList(Model.OriginAccounts, "AccountNumber", "AccountNumber"))">
+                    <option value="">-- Seleccione una cuenta --</option>
+                </select>
+                <span asp-validation-for="OriginAccountNumber" class="text-danger"></span>
+            </div>
+        }
+        <span asp-validation-for="OriginAccountNumber" class="text-danger"></span>
+
+
+        <div class="d-flex justify-content-between mt-4">
+    <a asp-controller="TransactionCustomer" asp-action="Transaction" class="btn btn-outline-secondary">
+        <i class="bi bi-house-door me-1"></i> Cancelar
+    </a>
+    <button type="submit" class="btn btn-primary">
+        Continuar
+    </button>
+</div>
+
+
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

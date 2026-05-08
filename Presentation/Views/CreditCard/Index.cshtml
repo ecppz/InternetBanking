@@ -1,0 +1,135 @@
+﻿@using Domain.Common.Enums
+@model List<CreditCardDisplayViewModel>
+
+@{
+    ViewData["Title"] = "Tarjetas de crédito";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="row">
+    <div class="text-center">
+        <h1 class="display-4">Gestión de Tarjetas de Crédito</h1>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 col-md-3">
+        <a class="btn btn-outline-primary" asp-controller="CreditCard" asp-action="EligibleCustomersForCreditCard">
+            <i class="bi bi-plus-circle"></i> Asignar tarjeta de crédito
+        </a>
+    </div>
+</div>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-warning">@ViewBag.ErrorMessage</div>
+}
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <form asp-controller="CreditCard" asp-action="Index" method="get">
+            <div class="input-group">
+                <input type="text" name="documentNumber" class="form-control"
+                       placeholder="Buscar por cédula..." value="@ViewBag.CurrentFilter" />
+                <select name="statusFilter" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Activas</option>
+                    <option value="Cancelled" selected="@(ViewBag.StatusFilter == "Cancelled")">Canceladas</option>
+                    <option value="Expired" selected="@(ViewBag.StatusFilter == "Expired")">Expiradas</option>
+                </select>
+
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4">
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="text-center">
+            <h5 class="display-5">No hay tarjetas registradas</h5>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Número de tarjeta</th>
+                        <th>Cliente</th>
+                        <th>Cédula</th>
+                        <th>Límite</th>
+                        <th>Expiración</th>
+                        <th>Deuda actual</th>
+                        <th>Estado</th>
+                        <th style="width: 220px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.CardNumber</td>
+                            <td>@item.CustomerFullName</td>
+                            <td>@item.DocumentNumber</td>
+                            <td>@item.CreditLimit.ToString("C")</td>
+                            <td>@item.ExpirationDate.ToString("MM/yy")</td>
+                            <td>@item.CurrentDebt.ToString("C")</td>
+                            <td class="text-center">
+                                @{
+                                    var statusText = item.Status switch
+                                    {
+                                        CreditCardStatus.Active => "Activa",
+                                        CreditCardStatus.Cancelled => "Cancelada",
+                                        CreditCardStatus.Expired => "Expirada",
+                                        _ => item.Status.ToString()
+                                    };
+                                }
+                            <span class="badge
+                                        @(item.Status == CreditCardStatus.Cancelled ? "bg-secondary" :
+                                        item.Status == CreditCardStatus.Expired ? "bg-danger" : "bg-success")">
+                            @statusText
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        @if (item.Status == CreditCardStatus.Active)
+                                {
+                                    <a class="btn btn-outline-warning btn-sm me-1"
+                                       asp-controller="CreditCard" asp-action="Edit" asp-route-id="@item.Id">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a class="btn btn-outline-primary btn-sm me-1"
+                                       asp-controller="CreditCard" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bi bi-eye"></i> Detalles
+                                    </a>
+                                    <a class="btn btn-outline-danger btn-sm"
+                                       asp-controller="CreditCard" asp-action="CancelCreditCard" asp-route-id="@item.Id">
+                                        <i class="bi bi-x-circle"></i> Cancelar
+                                    </a>
+                                }
+                                else if (item.Status == CreditCardStatus.Cancelled)
+                                {
+                                    <a class="btn btn-outline-primary btn-sm"
+                                       asp-controller="CreditCard" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bi bi-eye"></i> Detalles
+                                    </a>
+                                }
+                                else if (item.Status == CreditCardStatus.Expired)
+                                {
+                                    <a class="btn btn-outline-primary btn-sm"
+                                       asp-controller="CreditCard" asp-action="Details" asp-route-id="@item.Id">
+                                        <i class="bi bi-eye"></i> Detalles
+                                    </a>
+                                }
+                            </td>
+                    </tr>
+                                }
+                </tbody>
+            </table>
+        </div>
+    }
+    </div>

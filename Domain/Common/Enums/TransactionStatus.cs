@@ -3,6 +3,7 @@
     public enum TransactionStatus
     {
         Approved = 1,
+        Pending,
         Rejected
     }
 

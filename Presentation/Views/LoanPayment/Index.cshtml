@@ -1,0 +1,70 @@
+﻿@model LoanPaymentViewModel
+
+@{
+    ViewData["Title"] = "Registrar Pago de Préstamo";
+    Layout = "_LayoutCashier";
+}
+
+<h2 class="text-success mb-4">
+    <i class="bi bi-cash-coin text-success"></i> Pago de Préstamo
+</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-success text-white">
+        <i class="bi bi-pencil-square"></i> Ingrese los datos del pago
+    </div>
+
+    <div class="card-body">
+
+        <form asp-action="Index" method="post">
+
+            <div class="form-group mb-3">
+                <label asp-for="LoanNumber">
+                    <i class="bi bi-receipt"></i> Número de Préstamo
+                </label>
+                <input asp-for="LoanNumber" class="form-control" />
+                <span asp-validation-for="LoanNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="OriginAccountNumber">
+                    <i class="bi bi-bank"></i> Cuenta Origen
+                </label>
+                <input asp-for="OriginAccountNumber" class="form-control" />
+                <span asp-validation-for="OriginAccountNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Amount">
+                    <i class="bi bi-currency-dollar"></i> Monto a Pagar
+                </label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-arrow-right-circle"></i> Continuar
+            </button>
+
+        </form>
+
+    </div>
+</div>

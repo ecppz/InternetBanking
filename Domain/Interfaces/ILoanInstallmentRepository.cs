@@ -3,6 +3,10 @@
 namespace Domain.Interfaces
 {
     public interface ILoanInstallmentRepository : IGenericRepository<LoanInstallment>
-    { 
+    {
+        Task<List<LoanInstallment>> GetByLoanIdAsync(Guid loanId);
+        Task<List<LoanInstallment>> GetPendingByLoanIdAsync(Guid loanId);
+        Task<int> CountPaidByLoanIdAsync(Guid loanId);
+        Task<decimal> GetPendingAmountByLoanIdAsync(Guid loanId);
     }
 }

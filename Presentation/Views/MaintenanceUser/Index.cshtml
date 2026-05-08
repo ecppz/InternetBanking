@@ -5,6 +5,16 @@
     Layout = "_LayoutAdmin";
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
 <div class="row">
     <div class="text-center">
         <h1 class="display-4">Crear Usuarios</h1>
@@ -62,15 +72,13 @@
                             </td>
                             <td class="text-center">
                                 <a class="btn btn-outline-warning btn-sm me-1"
-                                   asp-controller="MaintenanceUser"
-                                   asp-action="Edit"
-                                   asp-route-id="@item.Id">
+                                   asp-controller="MaintenanceUser" asp-action="Edit" asp-route-id="@item.Id">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
 
                                 @if (item.IsActive)
                                 {
-                                    <form asp-controller="MaintenanceUser" asp-action="Deactivate" method="post" class="d-inline">
+                                    <form asp-controller="MaintenanceUser" asp-action="Deactivate" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas desactivar este usuario?');">
                                         <input type="hidden" name="id" value="@item.Id" />
                                         <button type="submit" class="btn btn-outline-secondary btn-sm me-1">
                                             <i class="bi bi-x-circle"></i> Desactivar
@@ -79,13 +87,14 @@
                                 }
                                 else
                                 {
-                                    <form asp-controller="MaintenanceUser" asp-action="Activate" method="post" class="d-inline">
+                                    <form asp-controller="MaintenanceUser" asp-action="Activate" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas activar este usuario?');">
                                         <input type="hidden" name="id" value="@item.Id" />
                                         <button type="submit" class="btn btn-outline-success btn-sm me-1">
                                             <i class="bi bi-check-circle"></i> Activar
                                         </button>
                                     </form>
                                 }
+
                             </td>
                         </tr>
                     }

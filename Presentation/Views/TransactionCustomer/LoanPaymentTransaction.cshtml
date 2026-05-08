@@ -1,0 +1,82 @@
+﻿@model LoanPaymentViewModel
+
+@{
+    Layout = "_LayoutCustomer";
+    ViewData["Title"] = "Pago a Préstamo";
+}
+
+<h2 class="mb-4 d-flex align-items-center">
+    <i class="bi bi-bank text-primary me-2 fs-3"></i>
+    Pago a Préstamo
+</h2>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="LoanPaymentTransaction" method="post">
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-journal-text me-1 text-secondary"></i>
+            Número de Préstamo a pagar
+        </label>
+        @if (ViewBag.Loans == null || ((SelectList)ViewBag.Loans).Count() == 0)
+        {
+            <p class="text-danger">No tienes préstamos activos.</p>
+        }
+        else
+        {
+            <select asp-for="LoanNumber" asp-items="ViewBag.Loans" class="form-select"></select>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-bank2 me-1 text-secondary"></i>
+            Cuenta de ahorro origen
+        </label>
+        @{
+            var accounts = ViewBag.SavingsAccounts as SelectList;
+        }
+
+        @if (accounts == null || !accounts.Any())
+        {
+            <p class="text-danger">No tienes cuentas de ahorro activas.</p>
+        }
+        else
+        {
+            <select asp-for="OriginAccountNumber" asp-items="accounts" class="form-select"></select>
+        }
+
+    </div>
+
+
+    <div class="mb-3">
+        <label class="form-label">
+            <i class="bi bi-cash-coin me-1 text-secondary"></i>
+            Monto a pagar
+        </label>
+        <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="bi bi-check-circle"></i> Confirmar Pago
+    </button>
+    <a asp-controller="TransactionCustomer" asp-action="Transaction" class="btn btn-secondary ms-2">
+        <i class="bi bi-arrow-left"></i> Volver atrás
+    </a>
+
+</form>
