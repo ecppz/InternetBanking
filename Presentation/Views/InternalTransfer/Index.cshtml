@@ -71,7 +71,7 @@
                 document.forms[0].submit();
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 //Redirigir al CustomerHomeController → Index
-                window.location.href = '@Url.Action("CustomerHome", "CustomerHome")';
+                window.location.href = '@Url.Action("Index", "Customer")';
             }
         });
     });

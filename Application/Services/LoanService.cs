@@ -230,11 +230,7 @@ namespace Application.Services
                 var user = users.FirstOrDefault(u => Guid.Parse(u.Id) == loan.UserId);
                 var loanInstallments = installments.Where(i => i.LoanId == loan.Id).ToList();
 
-                var status = loanInstallments.All(i => i.Status == InstallmentStatus.Paid)
-                    ? LoanStatus.Completed
-                    : loanInstallments.Any(i => i.Status == InstallmentStatus.Late)
-                        ? LoanStatus.Overdue
-                        : LoanStatus.Active;
+                var status = loan.Status;
 
 
                 if (!string.IsNullOrEmpty(statusFilter) && status.ToString() != statusFilter)

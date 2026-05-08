@@ -1,47 +1,67 @@
 ﻿@model LoginViewModel
-
 @{
     ViewData["Title"] = "Inicio de sesión";
     Layout = "_LayoutAnonymous";
 }
+<link rel="stylesheet" href="~/styles/views/login.css" asp-append-version="true" />
+<!-- Phosphor Icons para el Login -->
+<script src="https://unpkg.com/@@phosphor-icons/web@2.1.1"></script>
 
-<div class="d-flex justify-content-center mt-5">
-    <div class="col-12 col-md-5">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h5><i class="bi bi-person-circle"></i> Iniciar sesión</h5>
-            </div>
-            <div class="card-body">
-                @if (TempData["Error"] != null)
-                {
-                    <div class="alert alert-danger text-center">
-                        @TempData["Error"]
-                    </div>
-                }
+<!-- Background -->
+<div class="login-bg">
+    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuADXuQmOOKnpaIQSKruQpdngOxTKxS7lDviRFp4i9Q4bwf5D16cTVQm2QTkTEtjQ3lAGW_mkdk7wF0F7uVMAUsKeyX7GQwcNEZlFWyrCXSNfTMddiHiJx8RTjJ5a2qoWRf0lN4enmVvzcR9d31Ky_xNoqPonhETdY3OrxaDryDgmaUSwfXDNMI_kwGwcjjf3vdqx5Iexz4g46UrJXEUir610SegSjABfXyt0kW4atC2_6uO-4w7wU1tfLk2ljt7K5JyRD-EXOdk1LY"
+         alt="Background" />
+    <div class="login-overlay"></div>
+</div>
 
-                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
-
-                <form asp-controller="Login" asp-action="Index" method="post">
-                    <div class="mb-3">
-                        <label asp-for="UserName" class="form-label">Usuario</label>
-                        <input asp-for="UserName" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">Contraseña</label>
-                        <input asp-for="Password" class="form-control" type="password" />
-                    </div>
-
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-outline-success me-2">
-                            <i class="bi bi-door-open"></i> Entrar
-                        </button>
-
-                        <a asp-action="ForgotPassword" class="btn btn-outline-warning">
-                            <i class="bi bi-question-circle"></i> ¿Olvidaste tu clave?
-                        </a>
-                    </div>
-                </form>
-            </div>
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Bienvenido</h1>
+            <p>Accede de forma segura a tu internet banking</p>
         </div>
+
+        <div class="login-body">
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert-error-mini">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    <span>@TempData["Error"]</span>
+                </div>
+            }
+
+            <form asp-controller="Login" asp-action="Index" method="post" class="mt-4">
+                
+
+                <div class="input-group-wrapper">
+                    <label asp-for="UserName" class="custom-label">Usuario</label>
+                    <div class="input-with-icon">
+                        <i class="ph-bold ph-user"></i>
+                        <input asp-for="UserName" class="custom-input" placeholder="Nombre de usuario" />
+                    </div>
+                    <span asp-validation-for="UserName" class="text-danger small"></span>
+                </div>
+
+                <div class="input-group-wrapper mt-3">
+                    <label asp-for="Password" class="custom-label">Contraseña</label>
+                    <div class="input-with-icon">
+                        <i class="ph-bold ph-lock-key"></i>
+                        <input asp-for="Password" type="password" class="custom-input" placeholder="••••••••" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-end mt-2">
+                    <a asp-action="ForgotPassword" class="forgot-link">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-login mt-4">
+                    <span>Iniciar Sesión</span>
+                </button>
+            </form>
+        </div>
+        
     </div>
 </div>

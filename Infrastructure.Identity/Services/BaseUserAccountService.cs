@@ -456,7 +456,8 @@ namespace Infrastructure.Identity.Services
                 Name = "",
                 UserName = "",
                 HasError = false,
-                Errors = []
+                Errors = [],
+                Roles = new List<string>()
             };
             try
             {

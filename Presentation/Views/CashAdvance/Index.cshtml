@@ -1,11 +1,9 @@
 ﻿@model CashAdvanceViewModel
-
 @{
     ViewData["Title"] = "Avance de efectivo";
     Layout = "_LayoutCustomer";
 }
-
-<h2>Avance de efectivo</h2>
+<link rel="stylesheet" href="~/styles/views/cashadvance-index.css" asp-append-version="true" />
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -23,43 +21,94 @@
     </div>
 }
 
-<div asp-validation-summary="All" class="text-danger mb-3"></div>
-<form asp-action="Index" method="post">
-    <div class="form-group">
-        <label for="CreditCardId">Tarjeta de crédito origen</label>
-        @if (ViewBag.CreditCards == null || !((SelectList)ViewBag.CreditCards).Any())
-        {
-            <p class="text-warning">No tiene tarjetas de crédito asignadas.</p>
-        }
-        else
-        {
-            <select asp-for="CreditCardId" class="form-control" asp-items="ViewBag.CreditCards">
-                <option value="">Seleccione una tarjeta</option>
-            </select>
-            <span asp-validation-for="CreditCardId" class="text-danger"></span>
-        }
-    </div>
+<div class="transaction-container">
+    <div class="transaction-card shadow-lg">
+        
+        <!-- Encabezado de la transacción -->
+        <div class="transaction-header">
+            <div class="header-icon">
+                <i class="ph-bold ph-hand-coins"></i>
+            </div>
+            <div class="header-text">
+                <h2 class="fw-bold m-0">Avance de Efectivo</h2>
+                <p class="text-muted small m-0">Transfiere dinero de tu tarjeta a tu cuenta al instante</p>
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label for="SavingsAccountId">Cuenta de ahorro destino</label>
-        @if (ViewBag.SavingsAccounts == null || !((SelectList)ViewBag.SavingsAccounts).Any())
-        {
-            <p class="text-warning">No tiene cuentas de ahorro creadas.</p>
-        }
-        else
-        {
-            <select asp-for="SavingsAccountId" class="form-control" asp-items="ViewBag.SavingsAccounts">
-                <option value="">-Seleccione una cuenta</option>
-            </select>
-            <span asp-validation-for="SavingsAccountId" class="text-danger"></span>
-        }
-    </div>
+        <form asp-action="Index" method="post" class="transaction-form">
+            
+            <!-- Tarjeta Origen -->
+            <div class="form-section">
+                <label class="section-label">
+                    <i class="ph-bold ph-credit-card me-1"></i> Tarjeta de crédito origen
+                </label>
+                @if (ViewBag.CreditCards == null || !((SelectList)ViewBag.CreditCards).Any())
+                {
+                    <div class="empty-state">
+                        <i class="ph-bold ph-warning-circle"></i>
+                        <p>No tienes tarjetas de crédito asignadas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="input-group-custom">
+                        <select asp-for="CreditCardId" class="form-select-custom" asp-items="ViewBag.CreditCards">
+                            <option value="" disabled selected>Selecciona la tarjeta a debitar</option>
+                        </select>
+                        <span asp-validation-for="CreditCardId" class="text-error"></span>
+                    </div>
+                }
+            </div>
 
-    <div class="form-group">
-        <label for="Amount">Monto del avance</label>
-        <input asp-for="Amount" class="form-control" />
-        <span asp-validation-for="Amount" class="text-danger"></span>
-    </div>
+            <!-- Divisor Visual -->
+            <div class="transfer-divider">
+                <i class="ph-bold ph-arrow-down"></i>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Continuar</button>
-</form>
+            <!-- Cuenta Destino -->
+            <div class="form-section">
+                <label class="section-label">
+                    <i class="ph-bold ph-bank me-1"></i> Cuenta de ahorro destino
+                </label>
+                @if (ViewBag.SavingsAccounts == null || !((SelectList)ViewBag.SavingsAccounts).Any())
+                {
+                    <div class="empty-state">
+                        <i class="ph-bold ph-warning-circle"></i>
+                        <p>No tienes cuentas de ahorro creadas.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="input-group-custom">
+                        <select asp-for="SavingsAccountId" class="form-select-custom" asp-items="ViewBag.SavingsAccounts">
+                            <option value="" disabled selected>Selecciona la cuenta de destino</option>
+                        </select>
+                        <span asp-validation-for="SavingsAccountId" class="text-error"></span>
+                    </div>
+                }
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Monto -->
+            <div class="form-section">
+                <label class="section-label">Monto del avance</label>
+                <div class="amount-input-wrapper">
+                    <span class="currency-prefix">RD$</span>
+                    <input asp-for="Amount" class="form-control-amount" placeholder="0.00" />
+                </div>
+                <span asp-validation-for="Amount" class="text-error"></span>
+            </div>
+
+            <div class="alert-info-mini">
+                <i class="ph-bold ph-info"></i>
+                <small>Esta operación puede generar cargos por financiamiento.</small>
+            </div>
+
+            <button type="submit" class="btn-transaction-submit">
+                <span>Confirmar Avance</span>
+                <i class="ph-bold ph-caret-right"></i>
+            </button>
+        </form>
+    </div>
+</div>

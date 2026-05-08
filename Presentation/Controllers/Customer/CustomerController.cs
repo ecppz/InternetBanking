@@ -137,7 +137,13 @@ namespace InternetBankingApp.Controllers.Customer
             if (loanDto == null)
                 return NotFound();
 
+            var loan = await loanService.GetById(loanId);
+            var user = await userAccountService.GetUserById(loan.UserId.ToString());
+
             var loanVm = mapper.Map<LoanDetailsViewModel>(loanDto);
+
+            loanVm.HolderName = user.Name;
+            loanVm.HolderLastName = user.LastName;
 
             return View(loanVm);
         }

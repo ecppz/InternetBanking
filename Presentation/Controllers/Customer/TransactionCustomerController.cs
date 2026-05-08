@@ -161,7 +161,7 @@ namespace Presentation.Controllers
             var userId = Guid.Parse(userSession.Id);
 
             if (action == "cancelar")
-                return RedirectToAction("CustomerHome", "CustomerHome");
+                return RedirectToAction("Index", "Customer");
 
             var json = TempData["TransferData"] as string;
             if (string.IsNullOrEmpty(json))
@@ -335,7 +335,7 @@ namespace Presentation.Controllers
                 return View("ConfirmBeneficiaryTransfer", confirmation);
             }
 
-            return RedirectToAction("CustomerHome", "CustomerHome");
+            return RedirectToAction("Index", "Customer");
         }
 
 
@@ -526,7 +526,8 @@ namespace Presentation.Controllers
                 Type = CreditCardTransactionType.Payment
             };
 
-            var result = await creditCardTransactionService.RegisterPaymentAsync(dto, performedbyUserId);
+            var user = await userAccountService.GetUserById(vm.UserId.ToString());
+            var result = await creditCardTransactionService.RegisterPaymentAsync(dto, performedbyUserId, user);
 
             if (result == null)
             {

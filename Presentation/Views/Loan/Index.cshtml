@@ -84,27 +84,21 @@
                             <td>@item.PaidInstallments</td>
                             <td>@item.PendingAmount.ToString("C")</td>
                             <td class="text-center">
-                                @{
-                                    var statusText = item.Status switch
-                                    {
-                                        LoanStatus.Active => "Activo",
-                                        LoanStatus.Completed => "Completado",
-                                        LoanStatus.Overdue => "Mora",
-                                        _ => item.Status.ToString()
-                                    };
-                                }
                                 <span class="badge @(item.Status == LoanStatus.Overdue ? "bg-danger" : "bg-success")">
                                     @item.Status
                                 </span>
 
                             </td>
                             <td class="text-center">
-                                <a class="btn btn-outline-warning btn-sm me-1"
-                                   asp-controller="Loan"
-                                   asp-action="Edit"
-                                   asp-route-id="@item.Id">
-                                    <i class="bi bi-pencil-square"></i> Editar
-                                </a>
+                                @if(item.Status == LoanStatus.Active)
+                                {
+                                    <a class="btn btn-outline-warning btn-sm me-1"
+                                       asp-controller="Loan"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.Id">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                }
                                 <a class="btn btn-outline-info btn-sm"
                                    asp-controller="Loan"
                                    asp-action="Details"

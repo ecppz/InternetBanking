@@ -24,7 +24,6 @@ namespace Application.Mappings.EntitiesAndDtos
                 .ForMember(dest => dest.TermMonths, opt => opt.MapFrom(src => src.TermMonths))
                 .ForMember(dest => dest.AnnualInterestRate, opt => opt.MapFrom(src => src.AnnualInterestRate)) 
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))   
-                .ForMember(dest => dest.CustomerFullName, opt => opt.Ignore())
                 .ForMember(dest => dest.HolderName, opt => opt.Ignore())
                 .ForMember(dest => dest.HolderLastName, opt => opt.Ignore())
                 .ForMember(dest => dest.InstallmentsDetails, opt => opt.Ignore());

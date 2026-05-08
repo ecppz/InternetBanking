@@ -1,64 +1,91 @@
-﻿@model Application.ViewModels.Cashier.CashierHomeViewModel
+﻿@model CashierHomeViewModel
 @{
     Layout = "_LayoutCashier";
+    ViewData["Title"] = "Panel de Control";
 }
+<link rel="stylesheet" href="~/styles/views/cashier-home.css" asp-append-version="true" />
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<div class="dashboard-container">
+    <!-- Encabezado de Bienvenida -->
+    <header class="dashboard-header mb-4">
+        <div class="header-info">
+            <h1 class="fw-bold">Panel de Operaciones</h1>
+            <p class="text-muted">Resumen de actividad para la jornada de hoy</p>
+        </div>
+        <div class="header-date">
+            <i class="ph-bold ph-calendar-blank me-2"></i>
+            <span>@DateTime.Now.ToString("dd MMM, yyyy")</span>
+        </div>
+    </header>
 
-<div class="container mt-4">
-    <h2 class="text-primary mb-4">
-        <i class="bi bi-speedometer2"></i> Panel de Cajero
-    </h2>
-
-    <div class="row">
-        <!-- Total de transacciones -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <i class="bi bi-list-check text-info" style="font-size:2rem;"></i>
-                    <h5 class="card-title mt-2">Transacciones Hoy</h5>
-                    <p class="display-6 fw-bold">@Model.TodayTransactions</p>
-                </div>
+    <!-- Bento Grid de Estadísticas -->
+    <div class="cashier-grid">
+        
+        <!-- Total Transacciones -->
+        <div class="stat-card">
+            <div class="stat-icon icon-info">
+                <i class="ph-bold ph-arrows-left-right"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Transacciones Hoy</span>
+                <h2 class="stat-number">@Model.TodayTransactions</h2>
             </div>
         </div>
 
-        <!-- Pagos -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <i class="bi bi-credit-card text-success" style="font-size:2rem;"></i>
-                    <h5 class="card-title mt-2">Pagos Hoy</h5>
-                    <p class="display-6 fw-bold">@Model.TodayPayments</p>
-                </div>
+        <!-- Pagos Recibidos -->
+        <div class="stat-card">
+            <div class="stat-icon icon-success">
+                <i class="ph-bold ph-receipt"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Pagos Procesados</span>
+                <h2 class="stat-number">@Model.TodayPayments</h2>
             </div>
         </div>
 
         <!-- Depósitos -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <i class="bi bi-wallet2 text-primary" style="font-size:2rem;"></i>
-                    <h5 class="card-title mt-2">Depósitos Hoy</h5>
-                    <p class="display-6 fw-bold">@Model.TodayDeposits</p>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-primary">
+                <i class="ph-bold ph-hand-deposit"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Depósitos Realizados</span>
+                <h2 class="stat-number">@Model.TodayDeposits</h2>
             </div>
         </div>
 
         <!-- Retiros -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center">
-                    <i class="bi bi-cash-coin text-danger" style="font-size:2rem;"></i>
-                    <h5 class="card-title mt-2">Retiros Hoy</h5>
-                    <p class="display-6 fw-bold">@Model.TodayWithdrawals</p>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-danger">
+                <i class="ph-bold ph-hand-withdraw"></i>
+            </div>
+            <div class="stat-content">
+                <span class="label-caps">Retiros Efectuados</span>
+                <h2 class="stat-number">@Model.TodayWithdrawals</h2>
             </div>
         </div>
     </div>
 
-    <hr class="my-4" />
-
-    <div class="text-center">
-        <p class="text-muted">Bienvenido al sistema bancario ITLA. Seleccione una opción del menú superior para comenzar.</p>
-    </div>
+    <!-- Sección de Acceso Rápido -->
+    <section class="quick-actions mt-5">
+        <div class="section-title">
+            <i class="ph-bold ph-lightning"></i>
+            <h2>Acciones Rápidas</h2>
+        </div>
+        
+        <div class="action-buttons">
+            <a asp-controller="Transaction" asp-action="Deposit" class="action-card">
+                <i class="ph-bold ph-plus-circle"></i>
+                <span>Nuevo Depósito</span>
+            </a>
+            <a asp-controller="Transaction" asp-action="Withdrawal" class="action-card">
+                <i class="ph-bold ph-minus-circle"></i>
+                <span>Nuevo Retiro</span>
+            </a>
+            <a asp-controller="LoanPayment" asp-action="Index" class="action-card">
+                <i class="ph-bold ph-bank"></i>
+                <span>Pago Préstamo</span>
+            </a>
+        </div>
+    </section>
 </div>

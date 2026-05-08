@@ -1,0 +1,163 @@
+﻿/* login.css */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f7fafc;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Background & Overlay */
+.login-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+}
+
+    .login-bg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.12;
+    }
+
+.login-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(247,250,252,0.9) 0%, rgba(247,250,252,0.4) 50%, #eef2f5 100%);
+}
+
+/* Wrapper & Card */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 440px; /* Un poco más angosto se ve más pro */
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 20px 40px rgba(0, 30, 64, 0.1);
+    padding: 40px;
+}
+
+/* Brand Icon */
+.login-brand-icon {
+    width: 64px;
+    height: 64px;
+    background: #001e40;
+    color: #fff;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 16px rgba(0, 30, 64, 0.2);
+}
+
+.login-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #001e40;
+    text-align: center;
+}
+
+.login-header p {
+    color: #64748b;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* Inputs con Iconos */
+.custom-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    .input-with-icon i {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 20px;
+    }
+
+.custom-input {
+    width: 100%;
+    height: 54px;
+    padding: 0 16px 0 48px;
+    background: #f8fafc;
+    border: 2px solid #f1f5f9;
+    border-radius: 14px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+    .custom-input:focus {
+        background: #fff;
+        border-color: #001e40;
+        box-shadow: 0 0 0 4px rgba(0, 30, 64, 0.05);
+        outline: none;
+    }
+
+/* Botón y Links */
+.btn-login {
+    width: 100%;
+    height: 56px;
+    background: #001e40;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s ease;
+}
+
+    .btn-login:hover {
+        background: #003366;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 30, 64, 0.2);
+    }
+
+.forgot-link {
+    font-size: 14px;
+    color: #001e40;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .forgot-link:hover {
+        text-decoration: underline;
+    }
+
+.alert-error-mini {
+    background: #fff1f2;
+    border: 1px solid #fecaca;
+    color: #be123c;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}

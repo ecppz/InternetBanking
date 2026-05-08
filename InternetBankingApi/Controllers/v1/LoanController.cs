@@ -1,5 +1,8 @@
 using Application.Dtos.Loan;
+using Application.Features.Loan.Commands.AssignLoan;
+using Application.Features.Loan.Commands.UpdateRate;
 using Application.Features.Loan.Queries.GetAll;
+using Application.Features.Loan.Queries.GetById;
 using Application.Interfaces;
 using Asp.Versioning;
 using Domain.Common.Enums;
@@ -43,76 +46,77 @@ namespace InternetBankingApi.Controllers.v1
             return Ok(loans);
         }
 
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Assign loan to client",
+            Description = "Creates a loan for a client, validates active loans, risk status, and generates amortization table"
+        )]
+        public async Task<IActionResult> Assign([FromBody] AssignLoanForApiDto request)
+        {
+            var user = await userAccountServiceForWebApi.GetUserById(request.UserId.ToString());
+
+            var command = new AssignLoanCommand
+            {
+                UserId = request.UserId,
+                Amount = request.Amount,
+                TermMonths = request.TermMonths,
+                AnnualInterestRate = request.AnnualInterestRate,
+                User = user
+            };
+
+            var result = await Mediator.Send(command);
+            return StatusCode(StatusCodes.Status201Created, result);
+
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoanDetailsDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Get loan details",
+            Description = "Returns loan details and amortization schedule"
+        )]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var loanDto = await Mediator.Send(new GetByIdLoanQuery { Id = id });
+
+            if (loanDto == null)
+                return NotFound();
+
+            var user = await userAccountServiceForWebApi.GetUserById(loanDto.UserId.ToString());
+            if (user != null)
+            {
+                loanDto.HolderName = user.Name;
+                loanDto.HolderLastName = user.LastName;
+            }
+
+            return Ok(loanDto);
+        }
 
 
-        //// 2. Asignar préstamo a cliente
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status409Conflict)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //[SwaggerOperation(
-        //    Summary = "Assign loan to client",
-        //    Description = "Creates a loan for a client, validates active loans, risk status, and generates amortization table"
-        //)]
-        //public async Task<IActionResult> Create([FromBody] CreateLoanCommand command)
-        //{
-        //    var result = await Mediator.Send(command);
+        [HttpPatch("{id}/rate")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [SwaggerOperation(
+            Summary = "Update loan interest rate",
+            Description = "Updates the interest rate of a loan and recalculates installments"
+        )]
+        public async Task<IActionResult> UpdateRate([FromQuery] Guid id, [FromBody] UpdateRateCommand command)
+        {
+            command.Id = id;
+            await Mediator.Send(command);
+            return NoContent();
+        }
 
-        //    if (result.HasError)
-        //    {
-        //        if (result.ErrorType == "Conflict")
-        //            return Conflict(result.Message);
-
-        //        return BadRequest(result.Message);
-        //    }
-
-        //    return StatusCode(StatusCodes.Status201Created, result);
-        //}
-
-        //// 3. Obtener detalle de préstamo y tabla de amortización
-        //[HttpGet("{id}")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoanDetailDto))]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //[SwaggerOperation(
-        //    Summary = "Get loan details",
-        //    Description = "Returns loan details and amortization schedule"
-        //)]
-        //public async Task<IActionResult> GetById(Guid id)
-        //{
-        //    var loan = await Mediator.Send(new GetByIdLoanQuery { Id = id });
-
-        //    if (loan == null)
-        //        return NotFound();
-
-        //    return Ok(loan);
-        //}
-
-        //// 4. Editar tasa de interés de préstamo
-        //[HttpPatch("{id}/rate")]
-        //[ProducesResponseType(StatusCodes.Status204NoContent)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //[SwaggerOperation(
-        //    Summary = "Update loan interest rate",
-        //    Description = "Updates the interest rate of a loan and recalculates installments"
-        //)]
-        //public async Task<IActionResult> UpdateRate(Guid id, [FromBody] UpdateLoanRateCommand command)
-        //{
-        //    if (id != command.Id)
-        //        return BadRequest("The ID in the URL does not match the request body.");
-
-        //    var result = await Mediator.Send(command);
-
-        //    if (result.HasError)
-        //        return BadRequest(result.Message);
-
-        //    return NoContent();
-        //}
     }
 }

@@ -19,8 +19,13 @@ namespace Application.Services
         private readonly IEmailService emailService;
         private readonly IMapper mapper;
 
-        public LoanPaymentService(ILoanRepository loanRepository, ILoanInstallmentRepository loanInstallmentRepository,
-            ISavingsAccountRepository savingsAccountRepository, ITransactionRepository transactionRepository, IEmailService emailService, IMapper mapper)
+        public LoanPaymentService(
+            ILoanRepository loanRepository,
+            ILoanInstallmentRepository loanInstallmentRepository,
+            ISavingsAccountRepository savingsAccountRepository,
+            ITransactionRepository transactionRepository,
+            IEmailService emailService,
+            IMapper mapper)
         {
             this.loanRepository = loanRepository;
             this.loanInstallmentRepository = loanInstallmentRepository;
@@ -29,13 +34,12 @@ namespace Application.Services
             this.emailService = emailService;
             this.mapper = mapper;
         }
-        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid performedbyUserId, UserDto user)
+
+        public async Task<TransactionDto?> RegisterPaymentAsync(LoanPaymentDto dto, Guid performedByUserId, UserDto user)
         {
-            var loan = await loanRepository.GetByNumberAsync(dto.LoanNumber); 
+            var loan = await loanRepository.GetByNumberAsync(dto.LoanNumber);
             if (loan == null || loan.Status == LoanStatus.Completed)
-            {
                 return null;
-            }
 
             var account = await savingsAccountRepository.GetByAccountNumberAsync(dto.OriginAccountNumber);
             if (account == null || account.Status != SavingsAccountStatus.Activa)
@@ -66,7 +70,6 @@ namespace Application.Services
                 }
             }
 
-
             account.Balance -= dto.Amount;
             if (remaining > 0)
                 account.Balance += remaining;
@@ -83,16 +86,15 @@ namespace Application.Services
                 Status = TransactionStatus.Approved,
                 Origin = dto.OriginAccountNumber,
                 Beneficiary = loan.LoanNumber,
-                PerformedByUserId = performedbyUserId,
+                PerformedByUserId = performedByUserId,
             };
 
             await transactionRepository.AddAsync(transaction);
-
             var transactionDto = mapper.Map<TransactionDto>(transaction);
 
             var saldoPendiente = installments
-                  .Where(i => i.Status == InstallmentStatus.Pending)
-                  .Sum(i => i.Amount);
+                .Where(i => i.Status == InstallmentStatus.Pending)
+                .Sum(i => i.Amount);
 
             if (user != null)
             {
@@ -101,21 +103,26 @@ namespace Application.Services
                     To = user.Email,
                     Subject = $"Pago de préstamo registrado - ****{loan.LoanNumber[^4..]}",
                     HtmlBody = $@"
-                <p>Estimado {user.Name},</p>
-                <p>Hemos registrado correctamente su pago al préstamo con los siguientes detalles:</p>
-                <ul>
-                    <li><b>Número de préstamo:</b> ****{loan.LoanNumber[^4..]}</li>
-                    <li><b>Monto pagado:</b> {dto.Amount:C}</li>
-                    <li><b>Cuenta origen:</b> ****{dto.OriginAccountNumber[^4..]}</li>
-                    <li><b>Fecha de pago:</b> {DateTime.UtcNow:dd/MM/yyyy}</li>
-                    <li><b>Saldo pendiente del préstamo:</b> {saldoPendiente:C}</li>
-                </ul>
-                <p>Gracias por cumplir con sus obligaciones financieras y confiar en nosotros.</p>"
+                        <p>Estimado {user.Name},</p>
+                        <p>Hemos registrado correctamente su pago al préstamo con los siguientes detalles:</p>
+                        <ul>
+                            <li><b>Número de préstamo:</b> ****{loan.LoanNumber[^4..]}</li>
+                            <li><b>Monto pagado:</b> {dto.Amount:C}</li>
+                            <li><b>Cuenta origen:</b> ****{dto.OriginAccountNumber[^4..]}</li>
+                            <li><b>Fecha de pago:</b> {DateTime.UtcNow:dd/MM/yyyy}</li>
+                            <li><b>Saldo pendiente del préstamo:</b> {saldoPendiente:C}</li>
+                        </ul>
+                        <p>Gracias por cumplir con sus obligaciones financieras y confiar en nosotros.</p>"
                 });
+            }
+
+            if (installments.All(i => i.Status == InstallmentStatus.Paid))
+            {
+                loan.Status = LoanStatus.Completed;
+                await loanRepository.UpdateAsync(loan.Id, loan);
             }
 
             return transactionDto;
         }
     }
 }
-

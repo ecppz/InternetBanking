@@ -11,13 +11,13 @@ namespace InternetBankingApp.Controllers.Auth
 {
     public class LoginController : Controller
     {
-        private readonly IUserAccountServiceForWebApp _userAccountService;
+        private readonly IUserAccountServiceForWebApp userAccountServiceForWebApp;
         private readonly IMapper _mapper;
         private readonly UserManager<UserAccount> _userManager;
 
-        public LoginController(IUserAccountServiceForWebApp IUserAccountService, IMapper mapper, UserManager<UserAccount> userManager)
+        public LoginController(IUserAccountServiceForWebApp userAccountServiceForWebApp, IMapper mapper, UserManager<UserAccount> userManager)
         {
-            _userAccountService = IUserAccountService;
+            this.userAccountServiceForWebApp = userAccountServiceForWebApp;
             _mapper = mapper;
             _userManager = userManager;
         }
@@ -25,7 +25,7 @@ namespace InternetBankingApp.Controllers.Auth
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userSession = await _userAccountService.GetUserByUserName(User.Identity?.Name ?? "");
+            var userSession = await userAccountServiceForWebApp.GetUserByUserName(User.Identity?.Name ?? "");
 
             if (userSession != null && userSession.IsActive)
             {
@@ -50,8 +50,12 @@ namespace InternetBankingApp.Controllers.Auth
         [HttpPost]
         public async Task<IActionResult> Index(LoginViewModel vm)
         {
-            // Si ya hay sesión activa, redirigir según el rol
-            var userSession = await _userAccountService.GetUserByUserName(User.Identity?.Name ?? "");
+            if (vm == null)
+            {
+                return View(new LoginViewModel(){ UserName = "", Password = "" });
+            }
+            
+            var userSession = await userAccountServiceForWebApp.GetUserByUserName(User.Identity?.Name ?? "");
 
             if (userSession != null && userSession.IsActive)
             {
@@ -77,7 +81,7 @@ namespace InternetBankingApp.Controllers.Auth
                 Password = vm.Password
             };
 
-            var response = await _userAccountService.AuthenticateAsync(loginDto);
+            var response = await userAccountServiceForWebApp.AuthenticateAsync(loginDto);
 
             if (response != null && !response.HasError)
             {
@@ -108,8 +112,8 @@ namespace InternetBankingApp.Controllers.Auth
 
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            UserResponseDto response = await _userAccountService.ConfirmAccountAsync(userId, token);
-            return View("ConfirmEmail", model: response); // explícito
+            UserResponseDto response = await userAccountServiceForWebApp.ConfirmAccountAsync(userId, token);
+            return View("ConfirmEmail", response.Message);
         }
 
 
@@ -129,7 +133,7 @@ namespace InternetBankingApp.Controllers.Auth
 
             ForgotPasswordRequestDto dto = new() { UserName = vm.UserName, Origin = origin };
 
-            UserResponseDto? returnUser = await _userAccountService.ForgotPasswordAsync(dto);
+            UserResponseDto? returnUser = await userAccountServiceForWebApp.ForgotPasswordAsync(dto);
 
             if (returnUser.HasError)
             {
@@ -156,7 +160,7 @@ namespace InternetBankingApp.Controllers.Auth
 
             ResetPasswordRequestDto dto = new() { Id = vm.Id, Password = vm.Password, Token = vm.Token };
 
-            UserResponseDto? returnUser = await _userAccountService.ResetPasswordAsync(dto);
+            UserResponseDto? returnUser = await userAccountServiceForWebApp.ResetPasswordAsync(dto);
 
             if (returnUser.HasError)
             {
@@ -171,7 +175,7 @@ namespace InternetBankingApp.Controllers.Auth
 
         public async Task<IActionResult> Logout()
         {
-            await _userAccountService.SignOutAsync();
+            await userAccountServiceForWebApp.SignOutAsync();
             return RedirectToRoute(new { controller = "Login", action = "Index" });
         }
 
@@ -181,7 +185,7 @@ namespace InternetBankingApp.Controllers.Auth
 
             if (userSession != null)
             {
-                var user = await _userAccountService.GetUserByUserName(userSession.UserName ?? "");
+                var user = await userAccountServiceForWebApp.GetUserByUserName(userSession.UserName ?? "");
                 ViewBag.CurrentRol = user?.Role ?? "";
                 return View();
             }

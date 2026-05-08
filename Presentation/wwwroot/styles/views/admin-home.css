@@ -1,0 +1,96 @@
+﻿/* Tarjetas de Estadísticas */
+.admin-card {
+    background: white;
+    border: 1px solid #e0e4e9;
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+    }
+
+/* Contenedores de Iconos */
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    display: block;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #001e40;
+    margin: 0;
+}
+
+.stat-sub {
+    font-size: 13px;
+    color: #495057;
+}
+
+/* Paleta de colores Soft (Moderna) */
+.bg-soft-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.bg-soft-info {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.bg-soft-primary {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.bg-soft-warning {
+    background: #fff8e1;
+    color: #ff8f00;
+}
+
+.bg-soft-danger {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* Estilos adicionales para cards de deuda y sistema */
+.fw-800 {
+    font-weight: 800;
+}
+
+.bg-dark-card {
+    background: #001e40;
+    color: white;
+}
+
+.text-white-50 {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* Badges personalizados */
+.badge.bg-soft-danger {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.badge.bg-soft-primary {
+    background: #eef2ff;
+    color: #3730a3;
+}

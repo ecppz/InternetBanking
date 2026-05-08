@@ -3,82 +3,78 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Internet Banking</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - ITLA Banking</title>
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Presentation.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  <!-- SweetAlert2 CDN -->
+    <link rel="stylesheet" href="~/styles/components/layout-customer.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Customer" asp-action="Index">ITLA Internet Banking</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Customer" asp-action="Index">
-                    <i class="bi bi-bank2 me-2"></i> ITLA Internet Banking
+
+    <div class="app-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar shadow-sm">
+            <div class="sidebar-header">
+                <a class="brand-name" asp-controller="Customer" asp-action="Index"> PANEL CLIENTES
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <a class="navbar-brand" asp-area="" asp-controller="Customer" asp-action="Index">
-                    <i class="bi bi-bank2 text-primary me-2"></i> ITLA Internet Banking
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">
-                                <i class="bi bi-house-door-fill text-primary me-1"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TransactionCustomer" asp-action="Transaction">
-                                <i class="bi bi-cash-stack text-success me-1"></i> Transacciones
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Beneficiary" asp-action="Index">
-                                <i class="bi bi-person-lines-fill text-info me-1"></i> Beneficiarios
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="InternalTransfer" asp-action="Index">
-                                <i class="bi bi-shuffle text-primary me-1"></i>
-                                <i class="bi bi-arrow-left-right-circle text-warning me-1"></i> Transferencias internas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CashAdvance" asp-action="Index">
-                                <i class="bi bi-cash-coin text-danger me-1"></i> Avances de efectivo
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">
-                                <i class="bi bi-box-arrow-right text-secondary me-1"></i> Log out (@User.Identity?.Name)
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Customer" asp-action="Index">
+                            <i class="ph-bold ph-house-line"></i> Home
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="TransactionCustomer" asp-action="Transaction">
+                            <i class="ph-bold ph-arrows-left-right"></i> Transacciones
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="Beneficiary" asp-action="Index">
+                            <i class="ph-bold ph-users-three"></i> Beneficiarios
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="InternalTransfer" asp-action="Index">
+                            <i class="ph-bold ph-swap"></i> Transferencias
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-custom" asp-controller="CashAdvance" asp-action="Index">
+                            <i class="ph-bold ph-money"></i> Avances
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="mb-2 px-3" style="font-size: 11px; color: #888;">
+                    <i class="ph-bold ph-user me-1"></i> @User.Identity?.Name
+                </div>
+                <a class="logout-link" asp-controller="Login" asp-action="Logout">
+                    <i class="ph-bold ph-sign-out me-2"></i> Cerrar sesión
+                </a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+            
+            <footer class="mt-5 text-muted small py-3 border-top">
+                &copy; @DateTime.Now.Year - Eric Pineda | Yohansel Mieses
+            </footer>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - Eric Pineda | Yohansel Mieses - Internet Banking itla
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

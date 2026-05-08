@@ -158,7 +158,7 @@ namespace InternetBankingApp.Controllers.Customer
             }
 
             TempData["SuccessMessage"] = "El avance de efectivo se ha confirmado correctamente.";
-            return RedirectToAction("Index", "CustomerHome");
+            return RedirectToAction("Index", "Customer");
         }
 
     }
