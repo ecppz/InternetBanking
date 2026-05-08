@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "b51kMsspY58=",
+  "dgSpecHash": "qJyddGyeci0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+  "projectFilePath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\admin\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
@@ -83,5 +83,18 @@
     "C:\\Users\\admin\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "message": "Package 'MimeKit' 4.12.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-g7hc-96xr-gvvx",
+      "projectPath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Identity\\Infrastructure.Identity.csproj",
+      "libraryId": "MimeKit",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }

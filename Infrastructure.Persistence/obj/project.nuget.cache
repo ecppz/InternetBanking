@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "QZWkLdEXdjs=",
+  "dgSpecHash": "bMTTYEBx+3E=",
   "success": true,
-  "projectFilePath": "C:\\Users\\admin\\Desktop\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
+  "projectFilePath": "C:\\Users\\admin\\Desktop\\itla\\p3\\miniproyectos\\InternetBanking\\Infrastructure.Persistence\\Infrastructure.Persistence.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\admin\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
