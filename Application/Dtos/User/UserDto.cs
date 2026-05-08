@@ -12,5 +12,7 @@
         public required string Role { get; set; }
         public bool? isVerified { get; set; }
         public decimal? CurrentBalance { get; set; }
+
+        public int? CommerceId { get; set; }
     }
 }

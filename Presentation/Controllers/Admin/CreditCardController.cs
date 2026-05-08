@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.CreditCard;
-using Application.Dtos.Email;
 using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.CreditCard;

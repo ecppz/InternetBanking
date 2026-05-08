@@ -40,6 +40,7 @@ namespace Infrastructure.Persistence
                 services.AddScoped<ILoanInstallmentRepository, LoanInstallmentRepository>();
                 services.AddScoped<ISavingsAccountRepository, SavingsAccountRepository>();
                 services.AddScoped<ITransactionRepository, TransactionRepository>();
+                services.AddScoped<ICommerceRepository, CommerceRepository>();
 
                 // unit of work
                 services.AddScoped<IUnitOfWork, UnitOfWork>();

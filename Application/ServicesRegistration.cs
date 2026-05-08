@@ -32,7 +32,6 @@ namespace Application
             services.AddScoped<ISavingsAccountService, SavingsAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IInternalTransferService, InternalTransferService>();
-
         }
 
     }

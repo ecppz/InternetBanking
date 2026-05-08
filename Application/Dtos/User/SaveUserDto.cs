@@ -18,5 +18,7 @@
         // Importante: Puedes usar el Enum Roles aquí para mayor seguridad de tipo
         public required string Role { get; set; }
         public decimal? CurrentBalance { get; set; }
+
+        public int ? CommerceId { get; set; }
     }
 }

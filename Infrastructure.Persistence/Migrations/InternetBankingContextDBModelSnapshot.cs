@@ -57,6 +57,44 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("Beneficiaries", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Commerce", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Rnc")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Rnc")
+                        .IsUnique();
+
+                    b.ToTable("Commerces", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.CreditCard", b =>
                 {
                     b.Property<Guid>("Id")

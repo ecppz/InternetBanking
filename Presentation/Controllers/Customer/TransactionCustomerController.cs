@@ -2,6 +2,7 @@
 using Application.Dtos.Email;
 using Application.Dtos.Loan;
 using Application.Dtos.Transaction;
+using Application.Dtos.User;
 using Application.Interfaces;
 using Application.ViewModels.CreditCardTransaction;
 using Application.ViewModels.ExpressTransaction;
@@ -305,7 +306,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> ConfirmBeneficiaryTransfer()
         {
             if (!TempData.ContainsKey("BeneficiaryTransferData"))
-                return RedirectToAction("CustomerHome", "CustomerHome");
+                return RedirectToAction("Index", "Customer");
 
             var confirmation = JsonConvert.DeserializeObject<ConfirmBeneficiaryTransferViewModel>(
                 TempData["BeneficiaryTransferData"]!.ToString()!
@@ -526,8 +527,19 @@ namespace Presentation.Controllers
                 Type = CreditCardTransactionType.Payment
             };
 
-            var user = await userAccountService.GetUserById(vm.UserId.ToString());
-            var result = await creditCardTransactionService.RegisterPaymentAsync(dto, performedbyUserId, user);
+            var userDto = new UserDto
+            {
+                Id = userSession.Id,
+                Name = userSession.Name,
+                LastName = userSession.LastName,
+                UserName = userSession.UserName,
+                Email = userSession.Email,
+                DocumentNumber = userSession.DocumentNumber,
+                IsActive = userSession.EmailConfirmed,
+                Role = "Customer"
+            };
+
+            var result = await creditCardTransactionService.RegisterPaymentAsync(dto, performedbyUserId, userDto);
 
             if (result == null)
             {

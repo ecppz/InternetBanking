@@ -100,7 +100,6 @@ namespace InternetBankingApi.Controllers.v1
             return Ok(loanDto);
         }
 
-
         [HttpPatch("{id}/rate")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -117,6 +116,5 @@ namespace InternetBankingApi.Controllers.v1
             await Mediator.Send(command);
             return NoContent();
         }
-
     }
 }
