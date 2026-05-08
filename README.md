@@ -4,11 +4,11 @@ Internet Banking es una WebApp/WebApi construida en .NET 9 con arquitectura CQRS
 
 ## ⚙️ Funcionalidades principales
 
-- Gestión de usuarios con roles (Admin, Commerce, Client)
+- Gestión de usuarios con roles (Admin, Commerce, Customer, Cashier)
   
 - Gestión de comercios: creación, actualización, activación/desactivación con reglas de negocio
 
-  Préstamos: asignación de préstamos, validación de préstamos activos, generación de tabla de amortización
+- Préstamos: asignación de préstamos, validación de préstamos activos, generación de tabla de amortización
 
 - Cuentas de ahorro: cuentas primarias/secundarias, actualización de balances
 
