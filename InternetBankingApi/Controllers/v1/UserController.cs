@@ -17,6 +17,7 @@ namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Authorize(Roles = "Admin,Commerce")]
+    [Route("api/v1/user")]
     [SwaggerTag("Gestión de Usuarios del sistema")]
     public class UserController : BaseApiController
     {

@@ -14,6 +14,7 @@ namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Authorize(Roles = "Admin")]
+    [Route("api/v1/loan")]
     [SwaggerTag("Provides endpoints for viewing and updating loans")]
     public class LoanController(IUserAccountServiceForWebApi userAccountServiceForWebApi) : BaseApiController
     {

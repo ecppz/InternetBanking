@@ -1,6 +1,6 @@
 # InternetBankingApp
 
-Internet Banking es una WebApp/WebApi construida en .NET 9 con arquitectura CQRS + MediatR, seguridad JWT/Identity y notificaciones por correo.
+Internet Banking es una WebApp/WebApi construida en .NET 9 con arquitectura CQRS + MediatR, seguridad JWT/Identity y autenticación/notificaciones por correo.
 
 ## ⚙️ Funcionalidades principales
 

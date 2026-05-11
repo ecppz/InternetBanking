@@ -13,6 +13,7 @@ namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Authorize(Roles = "Admin")]
+    [Route("api/v1/commerce")]
     [SwaggerTag("Endpoints for commerce management (requires Admin role)")]
     public class CommerceController : BaseApiController
     {
