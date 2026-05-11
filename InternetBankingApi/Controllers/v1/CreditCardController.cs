@@ -15,6 +15,7 @@ namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Authorize(Roles = "Admin")]
+    [Route("api/v1/credit-card")]
     [SwaggerTag("Endpoints for credit card management (requires Admin role)")]
     public class CreditCardController(IUserAccountServiceForWebApi userAccountServiceForWebApi) : BaseApiController
     {

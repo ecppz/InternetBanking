@@ -9,7 +9,8 @@ namespace InternetBankingApi.Controllers.v1
 {
     [ApiVersion("1.0")]
     [SwaggerTag("Endpoints for user authentication, registration, and account recovery")]
-    public class AccountController(IUserAccountServiceForWebApi accountServiceForWebApi) : BaseApiController
+    [Route("api/v1/auth")]
+    public class AuthController(IUserAccountServiceForWebApi accountServiceForWebApi) : BaseApiController
     {
         private readonly IUserAccountServiceForWebApi accountServiceForWebApi = accountServiceForWebApi;
 

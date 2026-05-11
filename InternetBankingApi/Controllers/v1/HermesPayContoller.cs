@@ -8,7 +8,7 @@ namespace InternetBankingApi.Controllers.v1
 {
     [Authorize(Roles = "Admin,Commerce")]
     [ApiController]
-    [Route("pay")]
+    [Route("api/v1/hermes-pay")]
     public class HermesPayController : BaseApiController
     {
         /// <summary>

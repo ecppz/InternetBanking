@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace InternetBankingApi.Controllers.v1
 {
     [Authorize(Roles = "Admin")]
-    [Route("api/savings-account")]
+    [Route("api/v1/savings-account")]
     [ApiController]
     public class SavingsAccountController : BaseApiController
     {
